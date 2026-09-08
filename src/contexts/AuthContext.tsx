@@ -44,3 +44,73 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      if (session?.user) {
+        (async () => {
+          await fetchProfile(session.user.id);
+        })();
+      } else {
+        setProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchProfile]);
+
+  const signUp = useCallback(async (
+    email: string,
+    password: string,
+    role: UserRole,
+    fullName: string,
+    phone: string
+  ): Promise<{ error: string | null }> => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { role, full_name: fullName, phone },
+      },
+    });
+    if (error) return { error: error.message };
+    if (!data.session) {
+      return { error: 'لطفاً ایمیل خود را تأیید کنید.' };
+    }
+    return { error: null };
+  }, []);
+
+  const signIn = useCallback(async (
+    email: string,
+    password: string
+  ): Promise<{ error: string | null }> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+    if (data.session) {
+      await fetchProfile(data.user.id);
+    }
+    return { error: null };
+  }, [fetchProfile]);
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+    setProfile(null);
+    setSession(null);
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    if (session?.user) {
+      await fetchProfile(session.user.id);
+    }
+  }, [session, fetchProfile]);
+
+  return (
+    <AuthContext.Provider value={{ session, profile, loading, signUp, signIn, signOut, refreshProfile }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}
