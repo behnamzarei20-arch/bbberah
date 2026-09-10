@@ -2,6 +2,10 @@ export function cn(...inputs: Array<string | false | null | undefined>): string 
   return inputs.filter(Boolean).join(' ');
 }
 
+export function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
 export function formatToman(amount: number | null | undefined): string {
   if (amount === null || amount === undefined) return '۰';
   const formatted = Math.round(amount).toLocaleString('fa-IR');
