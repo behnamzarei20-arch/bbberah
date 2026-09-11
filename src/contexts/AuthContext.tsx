@@ -6,7 +6,7 @@ interface AuthContextValue {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, role: UserRole, fullName: string, phone: string) => Promise<{ error: string | null }>;
+  signUp: (phone: string, password: string, role: UserRole, fullName: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -56,16 +56,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { restore(); setLoading(false); }, [restore]);
 
-  const signUp = useCallback(async (email: string, password: string, role: UserRole, fullName: string, phone: string) => {
+  const signUp = useCallback(async (phone: string, password: string, role: UserRole, fullName: string) => {
     try {
-      const normalizedEmail = email.trim().toLowerCase();
-      const normalizedName = fullName.trim();
       const normalizedPhone = phone.trim();
+      const normalizedName = fullName.trim();
       const users = readUsers();
-      if (users.some((item) => item.email.toLowerCase() === normalizedEmail)) return { error: 'این ایمیل قبلاً ثبت شده است.' };
+      if (users.some((item) => item.phone === normalizedPhone)) return { error: 'این شماره موبایل قبلاً ثبت شده است.' };
       const now = new Date().toISOString();
-      const user: DemoUser = { id: makeId(), email: normalizedEmail, password, role, full_name: normalizedName,
-        phone: normalizedPhone || null, avatar_url: null, status: 'active', city: null, created_at: now, updated_at: now };
+      const user: DemoUser = { id: makeId(), email: '', password, role, full_name: normalizedName,
+        phone: normalizedPhone, avatar_url: null, status: 'active', city: null, created_at: now, updated_at: now };
       writeUsers([...users, user]);
       localStorage.setItem(CURRENT_KEY, user.id);
       setProfile(user); setSession(createSession(user));
