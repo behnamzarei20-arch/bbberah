@@ -18,7 +18,6 @@ const DEMO_OTP = '123456';
 
 export function AuthPage({ mode, onModeChange }: AuthPageProps) {
   const { signIn, signUp } = useAuth();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -56,6 +55,8 @@ export function AuthPage({ mode, onModeChange }: AuthPageProps) {
       if (!fullName.trim()) errs.fullName = 'نام و نام خانوادگی الزامی است';
       if (!otpSent) errs.phone = 'ابتدا کد تأیید را دریافت کنید';
       else if (otp !== DEMO_OTP) errs.otp = 'کد تأیید صحیح نیست';
+    } else if (!/^09\d{9}$/.test(normalizedPhone)) {
+      errs.phone = 'شماره موبایل معتبر نیست';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -67,7 +68,7 @@ export function AuthPage({ mode, onModeChange }: AuthPageProps) {
     setLoading(true);
     try {
       if (mode === 'login') {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(normalizedPhone, password);
         if (error) { showToast(error, 'error'); setLoading(false); }
         else showToast('با موفقیت وارد شدید', 'success');
       } else {
@@ -133,7 +134,7 @@ export function AuthPage({ mode, onModeChange }: AuthPageProps) {
           </form>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@email.com" type="email" dir="ltr" />
+            <Input label="شماره موبایل" value={phone} onChange={(e) => setPhone(toEnglishDigits(e.target.value))} placeholder="09123456789" type="tel" dir="ltr" error={errors.phone} />
             <Input label="رمز عبور" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="حداقل ۶ کاراکتر" type="password" dir="ltr" error={errors.password} />
             <Button type="submit" size="full" loading={loading} className="mt-2">ورود به حساب</Button>
           </form>
