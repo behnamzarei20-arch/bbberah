@@ -1,6 +1,5 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
 import type { Profile, UserRole } from '@/types';
 
 interface AuthContextValue {
@@ -13,6 +12,45 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
 }
 
+type DemoUser = Profile & { email: string; password: string };
+
+const USERS_KEY = 'bbberah-demo-users';
+const CURRENT_KEY = 'bbberah-demo-current';
+
+function readUsers(): DemoUser[] {
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY) || '[]') as DemoUser[];
+  } catch {
+    return [];
+  }
+}
+
+function writeUsers(users: DemoUser[]) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function createSession(user: DemoUser): Session {
+  return {
+    access_token: 'demo-access-token',
+    refresh_token: 'demo-refresh-token',
+    expires_in: 60 * 60 * 24 * 30,
+    expires_at: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
+    token_type: 'bearer',
+    user: {
+      id: user.id,
+      aud: 'authenticated',
+      role: 'authenticated',
+      email: user.email,
+      phone: user.phone || undefined,
+      app_metadata: { provider: 'demo' },
+      user_metadata: { role: user.role, full_name: user.full_name, phone: user.phone },
+      identities: [],
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    },
+  } as Session;
+}
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -20,42 +58,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle();
-    if (error) {
-      console.error('Profile fetch error:', error);
-      return;
+  const restore = useCallback(() => {
+    const currentId = localStorage.getItem(CURRENT_KEY);
+    if (!currentId) return;
+    const user = readUsers().find((item) => item.id === currentId);
+    if (user) {
+      setProfile(user);
+      setSession(createSession(user));
     }
-    setProfile(data as Profile | null);
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      if (session?.user) {
-        (async () => {
-          await fetchProfile(session.user.id);
-        })();
-      } else {
-        setProfile(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+    restore();
+    setLoading(false);
+  }, [restore]);
 
   const signUp = useCallback(async (
     email: string,
@@ -63,44 +79,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     role: UserRole,
     fullName: string,
     phone: string
-  ): Promise<{ error: string | null }> => {
-    const { data, error } = await supabase.auth.signUp({
+  ) => {
+    const users = readUsers();
+    if (users.some((item) => item.email.toLowerCase() === email.toLowerCase())) {
+      return { error: 'این ایمیل قبلاً ثبت شده است.' };
+    }
+    const now = new Date().toISOString();
+    const user: DemoUser = {
+      id: crypto.randomUUID(),
       email,
       password,
-      options: {
-        data: { role, full_name: fullName, phone },
-      },
-    });
-    if (error) return { error: error.message };
-    if (!data.session) {
-      return { error: 'لطفاً ایمیل خود را تأیید کنید.' };
-    }
+      role,
+      full_name: fullName,
+      phone: phone || null,
+      avatar_url: null,
+      status: 'active',
+      city: null,
+      created_at: now,
+      updated_at: now,
+    };
+    writeUsers([...users, user]);
+    localStorage.setItem(CURRENT_KEY, user.id);
+    setProfile(user);
+    setSession(createSession(user));
     return { error: null };
   }, []);
 
-  const signIn = useCallback(async (
-    email: string,
-    password: string
-  ): Promise<{ error: string | null }> => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message };
-    if (data.session) {
-      await fetchProfile(data.user.id);
-    }
+  const signIn = useCallback(async (email: string, password: string) => {
+    const user = readUsers().find((item) => item.email.toLowerCase() === email.toLowerCase());
+    if (!user) return { error: 'حسابی با این ایمیل پیدا نشد. ابتدا ثبت‌نام کنید.' };
+    if (user.password !== password) return { error: 'رمز عبور نادرست است.' };
+    localStorage.setItem(CURRENT_KEY, user.id);
+    setProfile(user);
+    setSession(createSession(user));
     return { error: null };
-  }, [fetchProfile]);
+  }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
+    localStorage.removeItem(CURRENT_KEY);
     setSession(null);
+    setProfile(null);
   }, []);
 
   const refreshProfile = useCallback(async () => {
-    if (session?.user) {
-      await fetchProfile(session.user.id);
+    const id = session?.user.id;
+    if (!id) return;
+    const user = readUsers().find((item) => item.id === id);
+    if (user) {
+      setProfile(user);
+      setSession(createSession(user));
     }
-  }, [session, fetchProfile]);
+  }, [session]);
 
   return (
     <AuthContext.Provider value={{ session, profile, loading, signUp, signIn, signOut, refreshProfile }}>
