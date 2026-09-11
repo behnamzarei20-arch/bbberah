@@ -7,7 +7,7 @@ interface AuthContextValue {
   profile: Profile | null;
   loading: boolean;
   signUp: (phone: string, password: string, role: UserRole, fullName: string) => Promise<{ error: string | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (phone: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -32,7 +32,7 @@ function createSession(user: DemoUser): Session {
   return {
     access_token: 'demo-access-token', refresh_token: 'demo-refresh-token', expires_in: 60 * 60 * 24 * 30,
     expires_at: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, token_type: 'bearer',
-    user: { id: user.id, aud: 'authenticated', role: 'authenticated', email: user.email,
+    user: { id: user.id, aud: 'authenticated', role: 'authenticated', email: user.email || undefined,
       phone: user.phone || undefined, app_metadata: { provider: 'demo' },
       user_metadata: { role: user.role, full_name: user.full_name, phone: user.phone }, identities: [],
       created_at: user.created_at, updated_at: user.updated_at },
@@ -74,10 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const normalizedEmail = email.trim().toLowerCase();
-    const user = readUsers().find((item) => item.email.toLowerCase() === normalizedEmail);
-    if (!user) return { error: 'حسابی با این ایمیل پیدا نشد. ابتدا ثبت‌نام کنید.' };
+  const signIn = useCallback(async (phone: string, password: string) => {
+    const normalized = phone.trim();
+    const users = readUsers();
+    const user = users.find((item) => item.phone === normalized || (!!item.email && item.email.toLowerCase() === normalized.toLowerCase()));
+    if (!user) return { error: 'حسابی با این شماره موبایل پیدا نشد. ابتدا ثبت‌نام کنید.' };
     if (user.password !== password) return { error: 'رمز عبور نادرست است.' };
     localStorage.setItem(CURRENT_KEY, user.id); setProfile(user); setSession(createSession(user)); return { error: null };
   }, []);
