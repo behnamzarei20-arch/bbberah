@@ -1,4 +1,4 @@
-export type UserRole = 'driver' | 'shipper' | 'admin';
+export type UserRole = 'driver' | 'shipper' | 'carrier' | 'admin';
 
 export type UserStatus = 'active' | 'suspended' | 'pending';
 
