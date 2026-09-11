@@ -4,73 +4,30 @@
 
 @layer base {
   :root {
-    --brah-primary: 15 118 110;
-    --brah-primary-dark: 13 94 88;
-    --brah-primary-light: 45 212 191;
+    --brah-primary: 8 92 84;
+    --brah-primary-dark: 6 70 64;
+    --brah-primary-light: 20 184 166;
+    --brah-accent: 245 158 11;
   }
-
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  body {
-    font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
-    background-color: #f8fafc;
-    color: #0f172a;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  input, textarea, select, button {
-    font-family: inherit;
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
+  * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  html { background: #f6f8f7; }
+  body { margin: 0; font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif; background: #f6f8f7; color: #17211f; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  input, textarea, select, button { font-family: inherit; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5d2; border-radius: 999px; }
 }
 
 @layer components {
-  .fade-in {
-    animation: fadeIn 0.3s ease-out;
-  }
-  .slide-up {
-    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .scale-in {
-    animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .shimmer {
-    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
+  .app-page { width: 100%; max-width: 720px; margin-inline: auto; padding: 18px 14px 92px; }
+  .page-card { background: #fff; border: 1px solid #e7ecea; border-radius: 18px; box-shadow: 0 5px 18px rgba(20,45,40,.045); }
+  .section-gap { margin-top: 18px; }
+  .fade-in { animation: fadeIn .24s ease-out; }
+  .slide-up { animation: slideUp .28s cubic-bezier(.16,1,.3,1); }
+  .scale-in { animation: scaleIn .18s cubic-bezier(.16,1,.3,1); }
+  .shimmer { background: linear-gradient(90deg,#f1f5f3 25%,#e5ebe8 50%,#f1f5f3 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
