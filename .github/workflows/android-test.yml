@@ -25,6 +25,9 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      - name: Verify build environment
+        run: node --version && npm --version && java -version
+
       - name: Install dependencies
         run: npm install
 
