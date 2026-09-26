@@ -12,7 +12,7 @@ export function AppShell({ children, header, bottomNav, className }: AppShellPro
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {header}
-      <main className={cn('flex-1 w-full max-w-lg mx-auto px-4 py-4', bottomNav && 'pb-24', className)}>
+      <main className={cn('flex-1 w-full max-w-lg mx-auto px-4 py-4', bottomNav ? 'pb-24' : undefined, className)}>
         {children}
       </main>
       {bottomNav}
