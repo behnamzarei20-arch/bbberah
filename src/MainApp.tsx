@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
+import { iranLocations } from '@/data/iranLocations';
 
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
@@ -87,8 +88,12 @@ export function MainApp() {
   const [selected, setSelected] = useState<Load|null>(null);
   const [origin, setOrigin] = useState('');
   const [originText, setOriginText] = useState('');
+  const [originProvince, setOriginProvince] = useState('');
+  const [originCounty, setOriginCounty] = useState('');
   const [destination, setDestination] = useState('');
   const [destinationText, setDestinationText] = useState('');
+  const [destinationProvince, setDestinationProvince] = useState('');
+  const [destinationCounty, setDestinationCounty] = useState('');
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
   const [showMenu, setShowMenu] = useState(false);
@@ -104,7 +109,6 @@ export function MainApp() {
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   const go = (p:Page) => { setPage(p); setShowMenu(false); window.scrollTo({top:0,behavior:'smooth'}); };
-  const cities = useMemo(() => Array.from(new Set(loads.flatMap(l => [l.from, l.to]))), [loads]);
   const filtered = useMemo(() => loads.filter(l => {
     if (l.status === 'delivered') return false;
     const originMatch = !origin || (origin === '__nearby__' ? l.distance <= 50 : l.from === origin);
@@ -170,38 +174,91 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
   </div>;
 
   const SearchPage = () => {
-    const originOptions = cities.filter(c => !originText || c.includes(originText));
-    const destinationOptions = cities.filter(c => !destinationText || c.includes(destinationText));
+    const originProvinceData = iranLocations.find(p => String(p.id) === originProvince);
+    const originCountyData = originProvinceData?.counties.find(c => String(c.id) === originCounty);
+    const destinationProvinceData = iranLocations.find(p => String(p.id) === destinationProvince);
+    const destinationCountyData = destinationProvinceData?.counties.find(c => String(c.id) === destinationCounty);
+
+    const clearOrigin = () => {
+      setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
+    };
+    const clearDestination = () => {
+      setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');
+    };
+    const selectOriginProvince = (value:string) => {
+      setOriginProvince(value); setOriginCounty(''); setOrigin(''); setOriginText('');
+    };
+    const selectOriginCounty = (value:string) => {
+      setOriginCounty(value); setOrigin(''); setOriginText('');
+    };
+    const selectOriginCity = (value:string) => {
+      setOrigin(value); setOriginText(value);
+    };
+    const selectDestinationProvince = (value:string) => {
+      setDestinationProvince(value); setDestinationCounty(''); setDestination(''); setDestinationText('');
+    };
+    const selectDestinationCounty = (value:string) => {
+      setDestinationCounty(value); setDestination(''); setDestinationText('');
+    };
+    const selectDestinationCity = (value:string) => {
+      setDestination(value); setDestinationText(value);
+    };
+
     return <div className="space-y-4">
-      <Card><CardBody className="p-4 space-y-3">
+      <Card><CardBody className="p-4 space-y-5">
         <div>
-          <label className="block text-sm font-black mb-2">مبدأ</label>
-          <div className="relative">
-            <Search className="absolute right-4 top-3.5 w-5 h-5 text-gray-400"/>
-            <input value={originText} onChange={e=>{setOriginText(e.target.value);setOrigin('')}} className="w-full rounded-2xl border border-gray-200 bg-white pr-12 pl-4 py-3.5 outline-none focus:border-primary-400" placeholder="انتخاب شهر یا اطراف من" />
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-black">مبدأ</label>
+            <button onClick={()=>{clearOrigin();setOrigin('__nearby__');setOriginText('اطراف من')}} className={`rounded-full px-3 py-1.5 text-xs font-bold ${origin==='__nearby__'?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>📍 اطراف من</button>
           </div>
-          <div className="flex gap-2 overflow-auto mt-2 pb-1">
-            <button onClick={()=>{setOrigin('__nearby__');setOriginText('اطراف من')}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${origin==='__nearby__'?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>📍 اطراف من</button>
-            {originOptions.map(c=><button key={c} onClick={()=>{setOrigin(c);setOriginText(c)}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${origin===c?'bg-primary-600 text-white':'bg-gray-50 text-gray-600'}`}>{c}</button>)}
+          <div className="grid grid-cols-1 gap-2">
+            <select value={originProvince} onChange={e=>selectOriginProvince(e.target.value)} className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 outline-none focus:border-primary-400">
+              <option value="">همه استان‌ها</option>
+              {iranLocations.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <select value={originCounty} onChange={e=>selectOriginCounty(e.target.value)} disabled={!originProvince} className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 outline-none focus:border-primary-400 disabled:bg-gray-50 disabled:text-gray-400">
+              <option value="">{originProvince ? 'همه شهرستان‌های استان' : 'ابتدا استان را انتخاب کنید'}</option>
+              {originProvinceData?.counties.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <select value={origin === '__nearby__' ? '' : origin} onChange={e=>selectOriginCity(e.target.value)} disabled={!originCounty} className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 outline-none focus:border-primary-400 disabled:bg-gray-50 disabled:text-gray-400">
+              <option value="">{originCounty ? 'همه شهرهای شهرستان' : 'ابتدا شهرستان را انتخاب کنید'}</option>
+              {originCountyData?.cities.map(c=><option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
+          {originText && <p className="text-xs text-primary-700 font-bold mt-2">مبدأ انتخاب‌شده: {originText}</p>}
         </div>
-        <div className="border-t border-gray-100 pt-3">
-          <label className="block text-sm font-black mb-2">مقصد</label>
-          <div className="relative">
-            <Search className="absolute right-4 top-3.5 w-5 h-5 text-gray-400"/>
-            <input value={destinationText} onChange={e=>{setDestinationText(e.target.value);setDestination('')}} className="w-full rounded-2xl border border-gray-200 bg-white pr-12 pl-4 py-3.5 outline-none focus:border-primary-400" placeholder="انتخاب شهر یا همه شهرها" />
+
+        <div className="border-t border-gray-100 pt-4">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-black">مقصد</label>
+            <button onClick={clearDestination} className={`rounded-full px-3 py-1.5 text-xs font-bold ${!destination?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>همه شهرها</button>
           </div>
-          <div className="flex gap-2 overflow-auto mt-2 pb-1">
-            <button onClick={()=>{setDestination('');setDestinationText('')}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${!destination?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>همه شهرها</button>
-            {destinationOptions.map(c=><button key={c} onClick={()=>{setDestination(c);setDestinationText(c)}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${destination===c?'bg-primary-600 text-white':'bg-gray-50 text-gray-600'}`}>{c}</button>)}
+          <div className="grid grid-cols-1 gap-2">
+            <select value={destinationProvince} onChange={e=>selectDestinationProvince(e.target.value)} className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 outline-none focus:border-primary-400">
+              <option value="">همه استان‌ها</option>
+              {iranLocations.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <select value={destinationCounty} onChange={e=>selectDestinationCounty(e.target.value)} disabled={!destinationProvince} className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 outline-none focus:border-primary-400 disabled:bg-gray-50 disabled:text-gray-400">
+              <option value="">{destinationProvince ? 'همه شهرستان‌های استان' : 'ابتدا استان را انتخاب کنید'}</option>
+              {destinationProvinceData?.counties.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <select value={destination} onChange={e=>selectDestinationCity(e.target.value)} disabled={!destinationCounty} className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 outline-none focus:border-primary-400 disabled:bg-gray-50 disabled:text-gray-400">
+              <option value="">{destinationCounty ? 'همه شهرهای شهرستان' : 'ابتدا شهرستان را انتخاب کنید'}</option>
+              {destinationCountyData?.cities.map(c=><option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
+          {destinationText && <p className="text-xs text-primary-700 font-bold mt-2">مقصد انتخاب‌شده: {destinationText}</p>}
+        </div>
+
+        <div className="rounded-2xl bg-primary-50 p-3 text-xs text-primary-800 leading-6">
+          فهرست شامل ۳۱ استان، ۴۸۴ شهرستان و ۱٬۴۸۱ شهر است. انتخاب‌ها به‌صورت سلسله‌مراتبی انجام می‌شوند: استان ← شهرستان ← شهر.
         </div>
       </CardBody></Card>
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-500">{filtered.length ? `بارهای مطابق مسیر: ${fa(filtered.length)} مورد` : 'بار مطابق مسیر پیدا نشد'}</span>
-        {(origin || destination || originText || destinationText) && <button onClick={()=>{setOrigin('');setOriginText('');setDestination('');setDestinationText('')}} className="text-xs font-bold text-primary-700">پاک کردن فیلترها</button>}
+        {(origin || destination || originText || destinationText || originProvince || destinationProvince) && <button onClick={()=>{clearOrigin();clearDestination()}} className="text-xs font-bold text-primary-700">پاک کردن فیلترها</button>}
       </div>
-      {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار موردنظر پیدا نشد" text="مبدأ و مقصد را تغییر دهید یا «همه شهرها» را انتخاب کنید." action={()=>{setOrigin('');setOriginText('');setDestination('');setDestinationText('')}}/></CardBody></Card>}
+      {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار موردنظر پیدا نشد" text="استان، شهرستان یا شهر مبدأ و مقصد را تغییر دهید." action={()=>{clearOrigin();clearDestination()}}/></CardBody></Card>}
     </div>;
   };
 
