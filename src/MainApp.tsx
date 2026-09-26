@@ -92,6 +92,8 @@ export function MainApp() {
   const [city, setCity] = useState('');
   const [cargoForm, setCargoForm] = useState({from:'',to:'',type:'بار خشک',vehicle:'تریلی',weight:'',price:'',pickup:''});
   const [offerPrice, setOfferPrice] = useState('');
+  const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
+  const [rating, setRating] = useState(0);
   const [offerOpen, setOfferOpen] = useState(false);
   const [vehicleForm, setVehicleForm] = useState({type:'تریلی',plate:'',model:'',year:''});
   const [accountName, setAccountName] = useState(profile?.full_name || '');
@@ -221,6 +223,7 @@ export function MainApp() {
     <BottomNav />
     <Drawer />
     <Toast message={toast} onClose={()=>setToast('')} />
+    {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-2xl bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><div className="flex gap-2 mt-3">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setRating(n)} className={`text-2xl ${n<=rating?'':'opacity-30'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(rating?'امتیاز شما در حالت آزمایشی ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز</Button></div></div>}
     {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center"><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7"><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><label className="block text-sm font-bold mt-5">مبلغ پیشنهادی (تومان)</label><input autoFocus inputMode="numeric" value={offerPrice} onChange={e=>setOfferPrice(e.target.value.replace(/[^0-9]/g,''))} className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-left outline-none focus:border-orange-400" dir="ltr"/><Button size="full" className="mt-4" onClick={submitOffer}>ارسال پیشنهاد</Button></div></div>}
   </div>;
 }
