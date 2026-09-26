@@ -138,7 +138,7 @@ export function MainApp() {
       <div className="space-y-1">
         {[
           ['profile','حساب کاربری',User],['vehicle','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['shipment','سفر جاری',Truck],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText]
-        ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-orange-50"><I className="w-5 h-5 text-primary-600"/><span className="flex-1 font-bold text-sm">{l}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
+        ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-orange-50"><Icon className="w-5 h-5 text-primary-600"/><span className="flex-1 font-bold text-sm">{l}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
         <button onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right text-red-600 mt-3"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب</span></button>
       </div>
     </aside>
