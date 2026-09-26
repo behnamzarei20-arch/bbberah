@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'create-cargo' | 'offers' | 'shipment';
+  | 'cargo-detail' | 'offers' | 'shipment';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -95,7 +95,6 @@ export function MainApp() {
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
   const [actionBusy, setActionBusy] = useState(false);
-  const role = profile?.role === 'driver' ? 'driver' : 'shipper';
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer' | 'cancel-cargo'>(null);
   const [offerOpen, setOfferOpen] = useState(false);
   const [vehicleForm, setVehicleForm] = useState({type:'تریلی',plate:'',model:'',year:''});
