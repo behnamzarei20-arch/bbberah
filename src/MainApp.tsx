@@ -1,6 +1,6 @@
 import { createElement, useMemo, useState } from 'react';
 import {
-  ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon,
+  ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
   Truck, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign
