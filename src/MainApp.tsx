@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
-  | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications'
+  | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
   | 'cargo-detail' | 'create-cargo' | 'offers' | 'shipment';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
@@ -100,7 +100,7 @@ export function MainApp() {
   const title:Record<Page,string> = {
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
     account:'اطلاعات حساب', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
-    support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', 'cargo-detail':'جزئیات بار',
+    support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
     'create-cargo':'ثبت بار جدید', offers:'پیشنهادهای من', shipment:'سفر جاری'
   };
 
@@ -137,7 +137,7 @@ export function MainApp() {
       <div className="flex items-center justify-between mb-6"><div><b className="text-xl">{profile?.full_name || 'کاربر براه'}</b><span className="block text-xs text-gray-400 mt-1">{profile?.phone}</span></div><button onClick={()=>setShowMenu(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div>
       <div className="space-y-1">
         {[
-          ['profile','حساب کاربری',User],['vehicle','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['shipment','سفر جاری',Truck],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText]
+          ['profile','حساب کاربری',User],['vehicle','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['shipment','سفر جاری',Truck],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText],['display','تنظیمات ظاهری',Settings]
         ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-orange-50"><Icon className="w-5 h-5 text-primary-600"/><span className="flex-1 font-bold text-sm">{l}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
         <button onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right text-red-600 mt-3"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب</span></button>
       </div>
@@ -199,6 +199,7 @@ export function MainApp() {
     if (page==='vehicle') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><b>خودروی من</b><p className="text-xs text-gray-400 mt-1">این بخش برای ثبت مشخصات خودرو آماده شده است.</p></div></div><div className="rounded-2xl border-2 border-gray-300 h-24 flex items-center justify-center text-2xl font-black tracking-widest" dir="ltr">IRAN •••</div><Button className="w-full" onClick={()=>notify('فرم ویرایش خودرو در مرحله بعد تکمیل می‌شود.')}>ویرایش خودرو</Button></CardBody></Card>;
     if (page==='account') return <Card><CardBody className="p-5 space-y-4"><label className="text-sm font-bold">نام و نام خانوادگی</label><input defaultValue={profile?.full_name||''} className="w-full rounded-xl border border-gray-200 px-4 py-3"/><label className="text-sm font-bold">شماره موبایل</label><input value={profile?.phone||''} disabled dir="ltr" className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50"/><Button className="w-full" onClick={()=>notify('تغییرات به‌صورت آزمایشی ذخیره شد.')}>ذخیره تغییرات</Button></CardBody></Card>;
     if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headphones className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
+    if (page==='display') return <Card><CardBody className="p-5 space-y-4"><div><h3 className="font-black text-lg">تنظیمات ظاهری</h3><p className="text-sm text-gray-500 mt-1">تنظیمات نمایشی فعلاً روی دستگاه شبیه‌سازی می‌شوند.</p></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">حالت کم‌نور</b><p className="text-xs text-gray-400 mt-1">در نسخه نهایی به تنظیمات دستگاه متصل می‌شود.</p></div><button onClick={()=>notify('حالت کم‌نور فعلاً در حالت آزمایشی است.')} className="rounded-full bg-gray-200 px-4 py-2 text-xs font-bold">خاموش</button></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">اعلان‌ها</b><p className="text-xs text-gray-400 mt-1">کنترل اعلان‌های برنامه</p></div><button onClick={()=>{setNotifications(0);notify('اعلان‌ها در حالت آزمایشی خاموش شدند.')}} className="rounded-full bg-emerald-100 text-emerald-700 px-4 py-2 text-xs font-bold">فعال</button></div></CardBody></Card>;
     if (page==='rules') return <Card><CardBody className="p-5 text-sm text-gray-600 leading-8"><h3 className="font-black text-lg text-gray-900">قوانین و مقررات</h3><p className="mt-3">اطلاعات بار، خودرو و حساب باید صحیح و قابل استناد باشد.</p><p className="mt-2">شرایط حمل، قیمت و زمان‌بندی باید پیش از شروع سفر برای طرفین روشن باشد.</p><p className="mt-2">نسخه حقوقی نهایی این بخش پیش از انتشار عمومی تکمیل خواهد شد.</p></CardBody></Card>;
     return <ProfilePage/>;
   };
