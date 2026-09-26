@@ -142,7 +142,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
       <div className="space-y-1">
         {[
           ['profile','حساب کاربری',User],['vehicle','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['shipment','سفر جاری',Truck],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText],['display','تنظیمات ظاهری',Settings]
-        ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-primary-50">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{l}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
+        ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-primary-50">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{String(l)}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
         <button onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right text-red-600 mt-3"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب</span></button>
       </div>
     </aside>
@@ -171,7 +171,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
     <Card><CardBody className="p-5 flex items-center gap-4"><div className="w-14 h-14 rounded-2xl bg-primary-100 flex items-center justify-center"><User className="w-7 h-7 text-primary-700"/></div><div><b className="text-lg">{profile?.full_name || 'کاربر براه'}</b><p className="text-xs text-gray-400 mt-1" dir="ltr">{profile?.phone}</p></div></CardBody></Card>
     {[
       ['account','اطلاعات حساب','نام، شهر و شماره تماس',User],['vehicle','خودروی من','مشخصات خودرو و پلاک',CarFront],['wallet','کیف پول','موجودی و عملیات مالی',WalletCards],['transactions','تراکنش‌ها','سوابق مالی',ReceiptText],['offers','پیشنهادهای من','پیشنهادهای ارسال‌شده',ReceiptText],['shipment','سفر جاری','وضعیت بار فعال',Truck],['support','پشتیبانی','راهنما و ارتباط',Headphones]
-    ].map(([p,l,s,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full rounded-2xl bg-white border border-gray-100 p-4 flex items-center gap-3 text-right">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1"><b className="block text-sm">{l}</b><small className="text-gray-400">{s}</small></span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
+    ].map(([p,l,s,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full rounded-2xl bg-white border border-gray-100 p-4 flex items-center gap-3 text-right">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1"><b className="block text-sm">{String(l)}</b><small className="text-gray-400">{s}</small></span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
   </div>;
 
   const DetailPage = () => selected ? <div className="space-y-4">
