@@ -132,7 +132,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
   const submitOffer = () => {
     if (actionBusy) return;
     const n = Number(offerPrice.replace(/,/g,''));
-    if (!termsAccepted) { go('rules'); return notify('برای ادامه، قوانین و مقررات براه را مطالعه و تأیید کنید.'); }
+    if (!termsAccepted) return notify('ابتدا قوانین و مقررات براه را مطالعه و تأیید کنید.');
     if (!n || n < 1000000) return notify('مبلغ پیشنهاد را به‌صورت معتبر وارد کنید.');
     setActionBusy(true);
     setTimeout(()=>setActionBusy(false),500);
@@ -218,7 +218,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
 
     return <div className="space-y-4">
       <Card><CardBody className="p-4 space-y-5">
-        <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4"><div className="flex items-center gap-2"><Search className="w-5 h-5 text-primary-700"/><h2 className="font-black text-primary-900">جستجوی بار</h2></div><p className="text-xs text-primary-800 mt-2 leading-6">مرحله ۱: مبدأ و مقصد را مشخص کنید. ترتیب انتخاب: <b>استان ← شهرستان ← شهر</b></p></div>
+        <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4"><div className="flex items-center gap-2"><Search className="w-5 h-5 text-primary-700"/><h2 className="font-black text-primary-900">جستجوی بار</h2></div></div>
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-black">مبدأ <span className="text-primary-600 text-xs mr-1">۱</span></label>
@@ -263,12 +263,8 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
           {destinationText && <p className="text-xs text-primary-700 font-bold mt-2">مقصد انتخاب‌شده: {destinationText}</p>}
         </div>
 
-        <div className="rounded-2xl bg-primary-50 p-3 text-xs text-primary-800 leading-6">
-          فهرست شامل ۳۱ استان، ۴۸۴ شهرستان و ۱٬۴۸۱ شهر است. انتخاب‌ها به‌صورت سلسله‌مراتبی انجام می‌شوند: استان ← شهرستان ← شهر.
-        </div>
       </CardBody></Card>
       <Button size="full" className="h-14 text-base font-black shadow-lg shadow-primary-100" onClick={runSearch}><Search className="w-5 h-5 ml-2"/> جستجوی بار</Button>
-       {!searchSubmitted && <Card><CardBody className="p-5 text-center"><Search className="w-9 h-9 mx-auto text-primary-500"/><h3 className="font-black mt-3">مبدأ و مقصد را انتخاب کنید</h3><p className="text-xs text-gray-500 mt-2 leading-6">بعد از انتخاب، روی «جستجوی بار» بزنید تا بارهای مطابق مسیر نمایش داده شوند.</p></CardBody></Card>}
        {searchSubmitted && <><div className="flex items-center justify-between"><span className="text-xs text-gray-500">{filtered.length ? `بارهای مطابق مسیر: ${fa(filtered.length)} مورد` : 'بار مطابق مسیر پیدا نشد'}</span>{(origin || destination || originText || destinationText || originProvince || destinationProvince) && <button onClick={clearAll} className="text-xs font-bold text-primary-700">پاک کردن فیلترها</button>}</div>{filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار موردنظر پیدا نشد" text="استان، شهرستان یا شهر مبدأ و مقصد را تغییر دهید و دوباره جستجو کنید." action={clearAll}/></CardBody></Card>}</>}
     </div>;
   };
