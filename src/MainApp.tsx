@@ -85,11 +85,13 @@ export function MainApp() {
   const [page, setPage] = useState<Page>('home');
   const [loads, setLoads] = useState(seedLoads);
   const [selected, setSelected] = useState<Load|null>(null);
-  const [query, setQuery] = useState('');
+  const [origin, setOrigin] = useState('');
+  const [originText, setOriginText] = useState('');
+  const [destination, setDestination] = useState('');
+  const [destinationText, setDestinationText] = useState('');
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
   const [showMenu, setShowMenu] = useState(false);
-  const [city, setCity] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
@@ -102,7 +104,13 @@ export function MainApp() {
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   const go = (p:Page) => { setPage(p); setShowMenu(false); window.scrollTo({top:0,behavior:'smooth'}); };
-  const filtered = useMemo(() => loads.filter(l => l.status !== 'delivered' && (!query || `${l.title} ${l.from} ${l.to} ${l.type} ${l.vehicle}`.includes(query)) && (!city || l.to === city || l.from === city)), [loads,query,city]);
+  const cities = useMemo(() => Array.from(new Set(loads.flatMap(l => [l.from, l.to]))), [loads]);
+  const filtered = useMemo(() => loads.filter(l => {
+    if (l.status === 'delivered') return false;
+    const originMatch = !origin || (origin === '__nearby__' ? l.distance <= 50 : l.from === origin);
+    const destinationMatch = !destination || l.to === destination;
+    return originMatch && destinationMatch;
+  }), [loads, origin, destination]);
   const title:Record<Page,string> = {
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
     account:'اطلاعات حساب', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
@@ -161,11 +169,41 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
     <div className="space-y-3">{loads.filter(l=>l.status==='open').slice(0,3).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>
   </div>;
 
-  const SearchPage = () => <div className="space-y-4">
-    <div className="relative"><Search className="absolute right-4 top-3.5 w-5 h-5 text-gray-400"/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} className="w-full rounded-2xl border border-gray-200 bg-white pr-12 pl-4 py-3.5 outline-none focus:border-primary-400" placeholder="مثلاً تهران، مشهد، تریلی..." /></div>
-    <div className="flex gap-2 overflow-auto pb-1">{['همه','تهران','مشهد','اصفهان','کرج'].map(c=><button key={c} onClick={()=>setCity(c==='همه'?'':c)} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${city===(c==='همه'?'':c)?'bg-primary-600 text-white':'bg-white border border-gray-200 text-gray-600'}`}>{c}</button>)}</div>
-    {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار موردنظر پیدا نشد" text="فیلترها را تغییر دهید یا دوباره جستجو کنید." action={()=>{setQuery('');setCity('')}}/></CardBody></Card>}
-  </div>;
+  const SearchPage = () => {
+    const originOptions = cities.filter(c => !originText || c.includes(originText));
+    const destinationOptions = cities.filter(c => !destinationText || c.includes(destinationText));
+    return <div className="space-y-4">
+      <Card><CardBody className="p-4 space-y-3">
+        <div>
+          <label className="block text-sm font-black mb-2">مبدأ</label>
+          <div className="relative">
+            <Search className="absolute right-4 top-3.5 w-5 h-5 text-gray-400"/>
+            <input value={originText} onChange={e=>{setOriginText(e.target.value);setOrigin('')}} className="w-full rounded-2xl border border-gray-200 bg-white pr-12 pl-4 py-3.5 outline-none focus:border-primary-400" placeholder="انتخاب شهر یا اطراف من" />
+          </div>
+          <div className="flex gap-2 overflow-auto mt-2 pb-1">
+            <button onClick={()=>{setOrigin('__nearby__');setOriginText('اطراف من')}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${origin==='__nearby__'?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>📍 اطراف من</button>
+            {originOptions.map(c=><button key={c} onClick={()=>{setOrigin(c);setOriginText(c)}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${origin===c?'bg-primary-600 text-white':'bg-gray-50 text-gray-600'}`}>{c}</button>)}
+          </div>
+        </div>
+        <div className="border-t border-gray-100 pt-3">
+          <label className="block text-sm font-black mb-2">مقصد</label>
+          <div className="relative">
+            <Search className="absolute right-4 top-3.5 w-5 h-5 text-gray-400"/>
+            <input value={destinationText} onChange={e=>{setDestinationText(e.target.value);setDestination('')}} className="w-full rounded-2xl border border-gray-200 bg-white pr-12 pl-4 py-3.5 outline-none focus:border-primary-400" placeholder="انتخاب شهر یا همه شهرها" />
+          </div>
+          <div className="flex gap-2 overflow-auto mt-2 pb-1">
+            <button onClick={()=>{setDestination('');setDestinationText('')}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${!destination?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>همه شهرها</button>
+            {destinationOptions.map(c=><button key={c} onClick={()=>{setDestination(c);setDestinationText(c)}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${destination===c?'bg-primary-600 text-white':'bg-gray-50 text-gray-600'}`}>{c}</button>)}
+          </div>
+        </div>
+      </CardBody></Card>
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-500">{filtered.length ? `بارهای مطابق مسیر: ${fa(filtered.length)} مورد` : 'بار مطابق مسیر پیدا نشد'}</span>
+        {(origin || destination || originText || destinationText) && <button onClick={()=>{setOrigin('');setOriginText('');setDestination('');setDestinationText('')}} className="text-xs font-bold text-primary-700">پاک کردن فیلترها</button>}
+      </div>
+      {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار موردنظر پیدا نشد" text="مبدأ و مقصد را تغییر دهید یا «همه شهرها» را انتخاب کنید." action={()=>{setOrigin('');setOriginText('');setDestination('');setDestinationText('')}}/></CardBody></Card>}
+    </div>;
+  };
 
   const ProfilePage = () => <div className="space-y-3">
     <Card><CardBody className="p-5 flex items-center gap-4"><div className="w-14 h-14 rounded-2xl bg-primary-100 flex items-center justify-center"><User className="w-7 h-7 text-primary-700"/></div><div><b className="text-lg">{profile?.full_name || 'کاربر براه'}</b><p className="text-xs text-gray-400 mt-1" dir="ltr">{profile?.phone}</p></div></CardBody></Card>
