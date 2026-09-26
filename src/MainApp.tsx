@@ -94,6 +94,7 @@ export function MainApp() {
   const [destinationText, setDestinationText] = useState('');
   const [destinationProvince, setDestinationProvince] = useState('');
   const [destinationCounty, setDestinationCounty] = useState('');
+  const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
   const [showMenu, setShowMenu] = useState(false);
@@ -109,12 +110,17 @@ export function MainApp() {
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   const go = (p:Page) => { setPage(p); setShowMenu(false); window.scrollTo({top:0,behavior:'smooth'}); };
+  const findCityLocation = (city:string) => {
+    for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return { provinceId:String(province.id), countyId:String(county.id) };
+    return null;
+  };
   const filtered = useMemo(() => loads.filter(l => {
     if (l.status === 'delivered') return false;
-    const originMatch = !origin || (origin === '__nearby__' ? l.distance <= 50 : l.from === origin);
-    const destinationMatch = !destination || l.to === destination;
+    const ol = findCityLocation(l.from), dl = findCityLocation(l.to);
+    const originMatch = !origin && !originProvince ? true : origin === '__nearby__' ? l.distance <= 50 : !!ol && (!originProvince || ol.provinceId === originProvince) && (!originCounty || ol.countyId === originCounty) && (!origin || l.from === origin);
+    const destinationMatch = !destination && !destinationProvince ? true : !!dl && (!destinationProvince || dl.provinceId === destinationProvince) && (!destinationCounty || dl.countyId === destinationCounty) && (!destination || l.to === destination);
     return originMatch && destinationMatch;
-  }), [loads, origin, destination]);
+  }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty]);
   const title:Record<Page,string> = {
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
     account:'اطلاعات حساب', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
@@ -203,12 +209,19 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
     const selectDestinationCity = (value:string) => {
       setDestination(value); setDestinationText(value);
     };
+    const runSearch = () => {
+      if (!originProvince && !destinationProvince && origin !== '__nearby__') return notify('حداقل مبدأ یا مقصد را انتخاب کنید.');
+      if ((originProvince && !originCounty) || (destinationProvince && !destinationCounty)) return notify('ابتدا استان و سپس شهرستان را انتخاب کنید.');
+      setSearchSubmitted(true); notify('بارهای مطابق انتخاب شما نمایش داده شد.');
+    };
+    const clearAll = () => { clearOrigin(); clearDestination(); setSearchSubmitted(false); };
 
     return <div className="space-y-4">
       <Card><CardBody className="p-4 space-y-5">
+        <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4"><div className="flex items-center gap-2"><Search className="w-5 h-5 text-primary-700"/><h2 className="font-black text-primary-900">جستجوی بار</h2></div><p className="text-xs text-primary-800 mt-2 leading-6">مرحله ۱: مبدأ و مقصد را مشخص کنید. ترتیب انتخاب: <b>استان ← شهرستان ← شهر</b></p></div>
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-black">مبدأ</label>
+            <label className="text-sm font-black">مبدأ <span className="text-primary-600 text-xs mr-1">۱</span></label>
             <button onClick={()=>{clearOrigin();setOrigin('__nearby__');setOriginText('اطراف من')}} className={`rounded-full px-3 py-1.5 text-xs font-bold ${origin==='__nearby__'?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>📍 اطراف من</button>
           </div>
           <div className="grid grid-cols-1 gap-2">
@@ -230,7 +243,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
 
         <div className="border-t border-gray-100 pt-4">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-black">مقصد</label>
+            <label className="text-sm font-black">مقصد <span className="text-primary-600 text-xs mr-1">۲</span></label>
             <button onClick={clearDestination} className={`rounded-full px-3 py-1.5 text-xs font-bold ${!destination?'bg-primary-600 text-white':'bg-primary-50 text-primary-700'}`}>همه شهرها</button>
           </div>
           <div className="grid grid-cols-1 gap-2">
@@ -254,11 +267,8 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
           فهرست شامل ۳۱ استان، ۴۸۴ شهرستان و ۱٬۴۸۱ شهر است. انتخاب‌ها به‌صورت سلسله‌مراتبی انجام می‌شوند: استان ← شهرستان ← شهر.
         </div>
       </CardBody></Card>
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-500">{filtered.length ? `بارهای مطابق مسیر: ${fa(filtered.length)} مورد` : 'بار مطابق مسیر پیدا نشد'}</span>
-        {(origin || destination || originText || destinationText || originProvince || destinationProvince) && <button onClick={()=>{clearOrigin();clearDestination()}} className="text-xs font-bold text-primary-700">پاک کردن فیلترها</button>}
-      </div>
-      {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار موردنظر پیدا نشد" text="استان، شهرستان یا شهر مبدأ و مقصد را تغییر دهید." action={()=>{clearOrigin();clearDestination()}}/></CardBody></Card>}
+      <Button size="full" className="h-14 text-base font-black shadow-lg shadow-primary-100" onClick={runSearch}><Search className="w-5 h-5 ml-2"/> جستجوی بار</Button>
+      {!searchSubmitted ? <Card><CardBody className="p-5 text-center"><Search className="w-9 h-9 mx-auto text-primary-500"/><h3 className="font-black mt-3">مبدأ و مقصد را انتخاب کنید</h3><p className="text-xs text-gray-500 mt-2 leading-6">بعد از انتخاب، روی «جستجوی بار» بزنید تا بارهای مطابق مسیر نمایش داده شوند.</p></CardBody></Card> : <><div className="flex items-center justify-between"><span className="text-xs text-gray-500">{filtered.length ? `بارهای مطابق مسیر: ${fa(filtered.length)} مورد` : 'بار مطابق مسیر پیدا نشد'}</span>{(origin || destination || originText || destinationText || originProvince || destinationProvince) && <button onClick={clearAll} className="text-xs font-bold text-primary-700">پاک کردن فیلترها</button>}</div>{filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار موردنظر پیدا نشد" text="استان، شهرستان یا شهر مبدأ و مقصد را تغییر دهید و دوباره جستجو کنید." action={clearAll}/></CardBody></Card>}</>
     </div>;
   };
 
