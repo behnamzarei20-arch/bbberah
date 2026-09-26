@@ -132,7 +132,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری'
     <div className="max-w-lg mx-auto grid grid-cols-4 h-[72px]">
       {[
         ['home','خانه',Home],['search','جستجو',Search],['calls','تماس‌ها',PhoneCall],['profile','حساب',User]
-      ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${page===p?'text-primary-700 font-black':'text-gray-400'}`}>{createElement(I as any,{className:"w-5 h-5"})}{l}</button>)}
+      ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${page===p?'text-primary-700 font-black':'text-gray-400'}`}>{createElement(I as any,{className:"w-5 h-5"})}{String(l)}</button>)}
     </div>
   </nav>;
 
