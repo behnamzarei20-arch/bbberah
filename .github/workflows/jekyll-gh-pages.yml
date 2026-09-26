@@ -2,7 +2,9 @@ name: Build and Deploy Vite App to GitHub Pages
 
 on:
   push:
-    branches: [main, frontend-phase1]
+    branches:
+      - main
+      - frontend-phase1
   workflow_dispatch:
 
 permissions:
@@ -15,7 +17,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
+    name: Build Vite app
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,6 +28,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install dependencies
         run: npm install
@@ -43,5 +47,17 @@ jobs:
         with:
           path: ./dist
 
-      - name: Deploy to GitHub Pages
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
         uses: actions/deploy-pages@v4
