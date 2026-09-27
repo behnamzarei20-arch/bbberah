@@ -213,7 +213,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
       {searchSubmitted && <>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500">{filtered.length ? \`بارهای مرتبط: \${fa(filtered.length)} مورد\` : 'بار مرتبط پیدا نشد'}</span>
+          <span className="text-xs text-gray-500">{filtered.length ? `بارهای مرتبط: ${fa(filtered.length)} مورد` : 'بار مرتبط پیدا نشد'}</span>
           {(origin || destination) && <button onClick={clearAll} className="text-xs font-bold text-primary-700">پاک کردن</button>}
         </div>
         {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است." action={clearAll}/></CardBody></Card>}
@@ -269,7 +269,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
         {provinceData && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{provinceData.name}</b><span className="block text-[11px] text-gray-400 mt-1">شهرهای استان</span></div><button onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery('')}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
-          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button key={\`\${x.countyId}-\${x.city}\`} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{x.city}</span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button key={`${x.countyId}-${x.city}`} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{x.city}</span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
         </div>}
       </CardBody></Card>
     </div>;
