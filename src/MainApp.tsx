@@ -114,6 +114,7 @@ export function MainApp() {
   const [offerOpen, setOfferOpen] = useState(false);
   const [vehicleForm, setVehicleForm] = useState({type:'تریلی',plate:'',model:'',year:''});
   const [accountName, setAccountName] = useState(profile?.full_name || '');
+  const [showAllDestinationCities, setShowAllDestinationCities] = useState(false);
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   const go = (p:Page) => { setPage(p); setShowMenu(false); window.scrollTo({top:0,behavior:'smooth'}); };
@@ -173,15 +174,19 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     </aside>
   </div> : null;
 
-  const HomePage = () => <div className="space-y-5">
-    <section className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm">
-      <div className="flex items-start justify-between"><div><p className="text-sm text-gray-400">سلام {profile?.full_name || 'دوست براهی'} 👋</p><h2 className="text-2xl font-black mt-1 text-gray-900">بار مناسب مسیرت را پیدا کن</h2></div><Truck className="w-10 h-10 text-primary-600"/></div>
-      <button onClick={()=>go('search')} className="mt-5 w-full bg-primary-50 text-gray-800 rounded-2xl px-4 py-3.5 text-right flex items-center gap-3"><Search className="w-5 h-5 text-gray-400"/><span className="text-sm text-gray-400">مبدأ، مقصد یا نوع بار را جستجو کن</span></button>
-    </section>
-    <div className="grid grid-cols-2 gap-3">
-      <button onClick={()=>go('nearby')} className="rounded-2xl bg-white border border-gray-100 p-4 text-right"><Navigation className="w-6 h-6 text-primary-600"/><b className="block mt-5">اطراف من</b><span className="text-[11px] text-gray-400">بارهای نزدیک</span></button>
-      <button onClick={()=>go('offers')} className="rounded-2xl bg-white border border-gray-100 p-4 text-right"><ReceiptText className="w-6 h-6 text-primary-600"/><b className="block mt-5">پیشنهادهای من</b><span className="text-[11px] text-gray-400">پیگیری پیشنهادها</span></button>
-    </div>
+  const HomePage = () => <div className="space-y-4">
+    <button onClick={()=>go('search')} className="w-full min-h-[112px] rounded-2xl bg-primary-50 border border-primary-100 p-5 text-right flex items-center gap-4 shadow-sm">
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-700"/></div>
+      <div className="min-w-0"><b className="block text-lg text-gray-900">جستجوی بار</b><span className="block mt-1 text-sm text-gray-600">مبدأ، مقصد یا نوع بار را جستجو کن</span></div>
+    </button>
+    <button onClick={()=>go('nearby')} className="w-full min-h-[112px] rounded-2xl bg-emerald-50 border border-emerald-100 p-5 text-right flex items-center gap-4 shadow-sm">
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-6 h-6 text-emerald-700"/></div>
+      <div className="min-w-0"><b className="block text-lg text-gray-900">اطراف من</b><span className="block mt-1 text-sm text-gray-600">بارهای نزدیک را ببین</span></div>
+    </button>
+    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-amber-50 border border-amber-100 p-5 text-right flex items-center gap-4 shadow-sm">
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
+      <div className="min-w-0"><b className="block text-lg text-gray-900">پیشنهادهای من</b><span className="block mt-1 text-sm text-gray-600">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
+    </button>
   </div>;
 
   const SearchPage = () => {
@@ -240,7 +245,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const setCity = isOrigin ? setOrigin : setDestination;
     const setText = isOrigin ? setOriginText : setDestinationText;
     const provinceData = iranLocations.find(p => String(p.id) === provinceId);
-    const allCities = !isOrigin && provinceId === '__all__';
+    const allCities = !isOrigin && showAllDestinationCities;
     const [query, setQuery] = useState('');
 
     const normalized = query.trim().toLocaleLowerCase('fa-IR');
@@ -253,9 +258,10 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
     const chooseProvince = (id:string) => {
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery('');
+      if (!isOrigin) setShowAllDestinationCities(false);
     };
     const chooseCity = (city:string, countyId:string) => {
-      if (allCities) setProvince('');
+      if (allCities) { setProvince(''); setShowAllDestinationCities(false); }
       setCounty(countyId);
       setCity(city);
       setText(city);
@@ -283,13 +289,13 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         {isOrigin && <button onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center gap-3 text-right"><Navigation className="w-5 h-5 text-primary-600"/><span className="font-bold text-primary-800">اطراف من</span></button>}
 
         {!provinceData && !allCities && <div className="mt-5">
-          {!isOrigin && <button onClick={()=>{setProvince('__all__');setCounty('');setCity('');setText('');setQuery('');}} className="w-full mb-4 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right"><span><b className="block text-primary-800">همه شهرها</b><span className="text-[11px] text-primary-600">مشاهده و انتخاب از همه شهرهای ایران</span></span><ChevronLeft className="w-4 h-4 text-primary-400"/></button>}
+          {!isOrigin && <button onClick={()=>{setShowAllDestinationCities(true);setProvince('');setCounty('');setCity('');setText('');setQuery('');}} className="w-full mb-4 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right"><span><b className="block text-primary-800">همه شهرها</b><span className="text-[11px] text-primary-600">مشاهده و انتخاب از همه شهرهای ایران</span></span><ChevronLeft className="w-4 h-4 text-primary-400"/></button>}
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
 
         {(provinceData || allCities) && <div className="mt-5">
-          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCities ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCities ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery('')}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
+          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCities ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCities ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button onClick={()=>{setShowAllDestinationCities(false);setProvince('');setCounty('');setCity('');setText('');setQuery('')}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button key={`${x.countyId}-${x.city}`} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{x.city}</span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
         </div>}
       </CardBody></Card>
