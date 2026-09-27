@@ -182,7 +182,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
   const SearchPage = () => {
     const runSearch = () => {
-      if (!origin || origin === '__nearby__' || !destination) return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
+      if (!originText || originText === 'اطراف من' || !destinationText) return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
+      if (!origin) setOrigin(originText);
+      if (!destination) setDestination(destinationText);
       setSearchSubmitted(true);
       notify('بارهای مطابق مسیر نمایش داده شد.');
     };
@@ -241,7 +243,12 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery('');
     };
     const chooseCity = (city:string, countyId:string) => {
-      setCounty(countyId); setCity(city); setText(city); go('search');
+      setCounty(countyId);
+      setCity(city);
+      setText(city);
+      setQuery('');
+      setSearchSubmitted(false);
+      go('search');
     };
     const chooseNearby = () => {
       if (!isOrigin) return;
@@ -263,7 +270,8 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         {isOrigin && <button onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center gap-3 text-right"><Navigation className="w-5 h-5 text-primary-600"/><span className="font-bold text-primary-800">اطراف من</span></button>}
 
         {!provinceData && <div className="mt-5">
-          <div className="flex items-center justify-between mb-2"><b className="text-sm">لیست استان‌ها</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
+          {!isOrigin && <button onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery('');}} className="w-full mb-4 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right"><span><b className="block text-primary-800">همه شهرها</b><span className="text-[11px] text-primary-600">مشاهده و انتخاب از همه شهرهای ایران</span></span><ChevronLeft className="w-4 h-4 text-primary-400"/></button>}
+          <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
 
