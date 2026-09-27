@@ -175,7 +175,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
   const HomePage = () => <div className="space-y-4">
     <button onClick={()=>go('search')} className="w-full min-h-[112px] rounded-2xl bg-blue-500 border border-blue-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
-      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-white"/></div>
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-blue-600"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ، مقصد یا نوع بار را جستجو کن</span></div>
     </button>
     <button onClick={()=>go('nearby')} className="w-full min-h-[112px] rounded-2xl bg-blue-500 border border-blue-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
@@ -252,18 +252,19 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id) }))) : [];
     const sourceCities = allCitiesMode ? allDestinationCities : provinceCities;
     const filteredCities = sourceCities.filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized));
-    const visibleCities = allCitiesMode && !normalized ? filteredCities.slice(0, 120) : filteredCities;
+    const [cityLimit, setCityLimit] = useState(120);
+    const visibleCities = allCitiesMode && !normalized ? filteredCities.slice(0, cityLimit) : filteredCities;
 
     const openAllDestinationCities = () => {
       setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
-      setQuery(''); go('destination-all');
+      setQuery(''); setCityLimit(120); go('destination-all');
     };
     const chooseProvince = (id:string) => {
-      setProvince(id); setCounty(''); setCity(''); setText(''); setQuery('');
+      setProvince(id); setCounty(''); setCity(''); setText(''); setQuery(''); setCityLimit(120);
       if (!isOrigin && provinceId === '__all_cities__') setDestinationProvince('');
     };
     const chooseCity = (city:string, countyId:string) => {
-      setCounty(countyId); setCity(city); setText(city); setQuery(''); setSearchSubmitted(false);
+      setCounty(countyId); setCity(city); setText(city); setQuery(''); setCityLimit(120); setSearchSubmitted(false);
       if (!isOrigin) setDestinationProvince('');
       go('search');
     };
@@ -294,7 +295,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         {(provinceData || allCitiesMode) && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCitiesMode ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCitiesMode ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery(''); if (!isOrigin && allCitiesMode) go('destination-select');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{x.city}</span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
-          {allCitiesMode && !normalized && allDestinationCities.length > visibleCities.length && <p className="text-center text-[11px] text-gray-400 mt-3">برای پیدا کردن شهرهای دیگر، نام شهر را جستجو کنید.</p>}
+          {allCitiesMode && !normalized && allDestinationCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, allDestinationCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, allDestinationCities.length-visibleCities.length))})</button>}
         </div>}
       </CardBody></Card>
     </div>;
@@ -385,4 +386,3 @@ const ProfilePage = () => <div className="space-y-3">
     {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-2xl bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><div className="flex gap-2 mt-3">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setRating(n)} className={`text-2xl ${n<=rating?'':'opacity-30'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(rating?'امتیاز شما در حالت آزمایشی ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز</Button></div></div>}
     {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center"><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7"><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex items-center justify-between text-sm"><span className="text-gray-500">کرایه اعلامی</span><b>{money(selected.price)} تومان</b></div><div className="mt-3 rounded-xl bg-primary-50 p-3 text-xs text-primary-800"><div className="flex items-center gap-2 font-bold"><CircleDollarSign className="w-4 h-4"/> شاخص میانگین قیمت مسیر</div><div className="mt-4" dir="ltr"><div className="relative h-7 overflow-visible rounded-full bg-gradient-to-r from-lime-200 via-lime-300 to-lime-500"><div className="absolute top-1/2 left-[68%] -translate-x-1/2 -translate-y-1/2"><span className="block w-4 h-4 rounded-full bg-white border-[3px] border-lime-700 shadow"></span><span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[7px] border-l-transparent border-r-transparent border-t-lime-700"></span></div></div><div className="mt-3 flex items-center justify-between text-[10px] text-gray-500" dir="rtl"><span className="flex items-center gap-1"><Coins className="w-4 h-4 text-lime-500"/>کم</span><span className="flex items-center gap-1"><Coins className="w-5 h-5 text-lime-700"/>زیاد</span></div></div></div></div><label className="block text-sm font-bold mt-5">مبلغ پیشنهادی (تومان)</label><input autoFocus inputMode="numeric" value={offerPrice} onChange={e=>setOfferPrice(e.target.value.replace(/[^0-9]/g,''))} className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-left outline-none focus:border-primary-400" dir="ltr"/><Button size="full" className="mt-4" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
-}
