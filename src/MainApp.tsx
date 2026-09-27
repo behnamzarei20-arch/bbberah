@@ -255,6 +255,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery('');
     };
     const chooseCity = (city:string, countyId:string) => {
+      if (allCities) setProvince('');
       setCounty(countyId);
       setCity(city);
       setText(city);
