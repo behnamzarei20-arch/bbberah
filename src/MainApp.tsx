@@ -253,10 +253,10 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const visibleProvinces = iranLocations.filter(p => !normalized || p.name.toLocaleLowerCase('fa-IR').includes(normalized));
     const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id) }))));
     const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id) }))) : [];
-    const sourceCities = allCitiesMode ? allDestinationCities : provinceCities;
+    const sourceCities = allCities ? allDestinationCities : provinceCities;
     const filteredCities = sourceCities.filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized));
     const [cityLimit, setCityLimit] = useState(120);
-    const visibleCities = allCitiesMode && !normalized ? filteredCities.slice(0, cityLimit) : filteredCities;
+    const visibleCities = allCities && !normalized ? filteredCities.slice(0, cityLimit) : filteredCities;
 
     const openAllDestinationCities = () => {
       setOriginProvince(''); setOriginCounty(''); setOrigin('__nearby__'); setOriginText('اطراف من');
@@ -290,18 +290,18 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
           <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={isOrigin ? 'مثال تهران' : 'استان مقصد را انتخاب کنید'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
         </div>
         {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center gap-3 text-right"><Navigation className="w-5 h-5 text-primary-600"/><span className="font-bold text-primary-800">اطراف من</span></button>}
-        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className={`w-full mt-3 rounded-2xl ${allCitiesMode ? 'bg-primary-600 text-white' : 'bg-primary-100 text-primary-900'} border border-primary-200 p-4 flex items-center justify-between text-right active:scale-[0.99]`}>
-          <span><b className="block">همه شهرها</b><span className={`text-[11px] ${allCitiesMode ? 'text-white/80' : 'text-primary-700'}`}>نمایش و انتخاب از تمام شهرهای ایران</span></span>
+        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className={`w-full mt-3 rounded-2xl ${allCities ? 'bg-primary-600 text-white' : 'bg-primary-100 text-primary-900'} border border-primary-200 p-4 flex items-center justify-between text-right active:scale-[0.99]`}>
+          <span><b className="block">همه شهرها</b><span className={`text-[11px] ${allCities ? 'text-white/80' : 'text-primary-700'}`}>نمایش و انتخاب از تمام شهرهای ایران</span></span>
           <ChevronLeft className="w-5 h-5"/>
         </button>}
-        {!provinceData && !allCitiesMode && <div className="mt-5">
+        {!provinceData && !allCities && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
-        {(provinceData || allCitiesMode) && <div className="mt-5">
-          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCitiesMode ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCitiesMode ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery(''); if (!isOrigin && allCitiesMode) go('destination-select');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
+        {(provinceData || allCities) && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCities ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCities ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery(''); if (!isOrigin && allCities) go('destination-select');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{x.city}</span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
-          {allCitiesMode && !normalized && allDestinationCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, allDestinationCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, allDestinationCities.length-visibleCities.length))})</button>}
+          {allCities && !normalized && allDestinationCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, allDestinationCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, allDestinationCities.length-visibleCities.length))})</button>}
         </div>}
       </CardBody></Card>
     </div>;
