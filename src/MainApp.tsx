@@ -29,6 +29,12 @@ const seedLoads: Load[] = [
   { id:'l4', title:'مصالح ساختمانی قم به تهران', from:'قم', to:'تهران', type:'ساختمانی', vehicle:'تریلی', weight:22000, price:16400000, pickup:'شنبه، ۰۷:۰۰', delivery:'شنبه، ۱۳:۰۰', status:'reserved', distance:96, description:'مصالح ساختمانی بسته‌بندی‌شده؛ هماهنگی بارگیری و تحویل طبق برنامه حمل.', phone:'09120000004' },
   { id:'l5', title:'بار کشاورزی رشت به قزوین', from:'رشت', to:'قزوین', type:'کشاورزی', vehicle:'کامیون', weight:7500, price:9700000, pickup:'شنبه، ۰۹:۰۰', delivery:'شنبه، ۱۶:۰۰', status:'open', distance:118, description:'بار کشاورزی بسته‌بندی‌شده؛ شرایط حمل و زمان تحویل هنگام هماهنگی اعلام می‌شود.', phone:'09120000005' },
 ];
+const frequentRoutes = [
+  { from:'تهران', to:'مشهد' },
+  { from:'کرج', to:'اصفهان' },
+  { from:'تبریز', to:'تهران' },
+];
+
 
 const money = (v:number) => new Intl.NumberFormat('fa-IR').format(v);
 const fa = (v:string|number) => String(v).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
@@ -176,8 +182,6 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <button onClick={()=>go('nearby')} className="rounded-2xl bg-white border border-gray-100 p-4 text-right"><Navigation className="w-6 h-6 text-primary-600"/><b className="block mt-5">اطراف من</b><span className="text-[11px] text-gray-400">بارهای نزدیک</span></button>
       <button onClick={()=>go('offers')} className="rounded-2xl bg-white border border-gray-100 p-4 text-right"><ReceiptText className="w-6 h-6 text-primary-600"/><b className="block mt-5">پیشنهادهای من</b><span className="text-[11px] text-gray-400">پیگیری پیشنهادها</span></button>
     </div>
-    <div className="flex items-center justify-between"><h3 className="font-black">بارهای پیشنهادی</h3><button onClick={()=>go('search')} className="text-xs text-primary-700 font-bold">مشاهده همه</button></div>
-    <div className="space-y-3">{loads.filter(l=>l.status==='open').slice(0,3).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>
   </div>;
 
   const SearchPage = () => {
@@ -213,6 +217,11 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
       <Button size="full" className="h-14 text-base font-black shadow-lg shadow-primary-100" onClick={runSearch}><Search className="w-5 h-5 ml-2"/> جستجوی بار</Button>
 
+      <Card><CardBody className="p-4">
+        <div className="flex items-center justify-between mb-3"><h3 className="font-black">سه مسیر پرتکرار</h3><span className="text-[11px] text-gray-400">انتخاب سریع</span></div>
+        <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{setOrigin(route.from);setOriginText(route.from);setDestination(route.to);setDestinationText(route.to);setSearchSubmitted(false);}} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
+      </CardBody></Card>
+
       {searchSubmitted && <>
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500">{filtered.length ? `بارهای مرتبط: ${fa(filtered.length)} مورد` : 'بار مرتبط پیدا نشد'}</span>
@@ -231,13 +240,16 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const setCity = isOrigin ? setOrigin : setDestination;
     const setText = isOrigin ? setOriginText : setDestinationText;
     const provinceData = iranLocations.find(p => String(p.id) === provinceId);
+    const allCities = !isOrigin && provinceId === '__all__';
     const [query, setQuery] = useState('');
 
     const normalized = query.trim().toLocaleLowerCase('fa-IR');
     const visibleProvinces = iranLocations.filter(p => !normalized || p.name.toLocaleLowerCase('fa-IR').includes(normalized));
-    const visibleCities = provinceData
-      ? provinceData.counties.flatMap(c => c.cities.map(city => ({city, countyId:String(c.id)}))).filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized))
-      : [];
+    const visibleCities = allCities
+      ? iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({city, countyId:String(c.id)})))).filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized))
+      : provinceData
+        ? provinceData.counties.flatMap(c => c.cities.map(city => ({city, countyId:String(c.id)}))).filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized))
+        : [];
 
     const chooseProvince = (id:string) => {
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery('');
@@ -270,7 +282,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         {isOrigin && <button onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center gap-3 text-right"><Navigation className="w-5 h-5 text-primary-600"/><span className="font-bold text-primary-800">اطراف من</span></button>}
 
         {!provinceData && <div className="mt-5">
-          {!isOrigin && <button onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery('');}} className="w-full mb-4 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right"><span><b className="block text-primary-800">همه شهرها</b><span className="text-[11px] text-primary-600">مشاهده و انتخاب از همه شهرهای ایران</span></span><ChevronLeft className="w-4 h-4 text-primary-400"/></button>}
+          {!isOrigin && <button onClick={()=>{setProvince('__all__');setCounty('');setCity('');setText('');setQuery('');}} className="w-full mb-4 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right"><span><b className="block text-primary-800">همه شهرها</b><span className="text-[11px] text-primary-600">مشاهده و انتخاب از همه شهرهای ایران</span></span><ChevronLeft className="w-4 h-4 text-primary-400"/></button>}
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
