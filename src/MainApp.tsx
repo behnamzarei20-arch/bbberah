@@ -175,15 +175,15 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   </div> : null;
 
   const HomePage = () => <div className="space-y-4">
-    <button onClick={()=>go('search')} className="w-full min-h-[112px] rounded-2xl bg-primary-50 border border-primary-100 p-5 text-right flex items-center gap-4 shadow-sm">
+    <button onClick={()=>go('search')} className="w-full min-h-[112px] rounded-2xl bg-primary-100 border border-primary-200 p-5 text-right flex items-center gap-4 shadow-sm">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-gray-900">جستجوی بار</b><span className="block mt-1 text-sm text-gray-600">مبدأ، مقصد یا نوع بار را جستجو کن</span></div>
     </button>
-    <button onClick={()=>go('nearby')} className="w-full min-h-[112px] rounded-2xl bg-emerald-50 border border-emerald-100 p-5 text-right flex items-center gap-4 shadow-sm">
+    <button onClick={()=>go('nearby')} className="w-full min-h-[112px] rounded-2xl bg-primary-100 border border-primary-200 p-5 text-right flex items-center gap-4 shadow-sm">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-6 h-6 text-emerald-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-gray-900">اطراف من</b><span className="block mt-1 text-sm text-gray-600">بارهای نزدیک را ببین</span></div>
     </button>
-    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-amber-50 border border-amber-100 p-5 text-right flex items-center gap-4 shadow-sm">
+    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-primary-100 border border-primary-200 p-5 text-right flex items-center gap-4 shadow-sm">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-gray-900">پیشنهادهای من</b><span className="block mt-1 text-sm text-gray-600">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
@@ -250,11 +250,13 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
     const normalized = query.trim().toLocaleLowerCase('fa-IR');
     const visibleProvinces = iranLocations.filter(p => !normalized || p.name.toLocaleLowerCase('fa-IR').includes(normalized));
-    const visibleCities = allCities
+    const allDestinationCities = allCities
       ? iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({city, countyId:String(c.id)})))).filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized))
-      : provinceData
-        ? provinceData.counties.flatMap(c => c.cities.map(city => ({city, countyId:String(c.id)}))).filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized))
-        : [];
+      : [];
+    const provinceCities = provinceData
+      ? provinceData.counties.flatMap(c => c.cities.map(city => ({city, countyId:String(c.id)}))).filter(x => !normalized || x.city.toLocaleLowerCase('fa-IR').includes(normalized))
+      : [];
+    const visibleCities = allCities && !normalized ? allDestinationCities.slice(0, 120) : (allCities ? allDestinationCities : provinceCities);
 
     const chooseProvince = (id:string) => {
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery('');
