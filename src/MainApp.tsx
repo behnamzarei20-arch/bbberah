@@ -63,7 +63,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
     <CardBody className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0"><div className="flex items-center gap-2"><Status status={load.status}/><span className="text-[11px] text-gray-400">{fa(load.distance)} کیلومتر</span></div><h3 className="font-black mt-2 leading-6">{load.title}</h3></div>
-        <div className="text-left shrink-0"><b className="text-blue-100">{money(load.price)}</b><span className="block text-[10px] text-gray-400">تومان</span></div>
+        <div className="text-left shrink-0"><b className="text-primary-700">{money(load.price)}</b><span className="block text-[10px] text-gray-400">تومان</span></div>
       </div>
       <div className="flex items-center gap-3 mt-4">
         <div className="flex-1"><b>{load.from}</b><span className="block text-[11px] text-gray-400 mt-1">مبدأ</span></div>
@@ -148,7 +148,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
     <div className="max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
       <button className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" onClick={()=>setShowMenu(true)} aria-label="منو"><Menu className="w-5 h-5"/></button>
-      <button onClick={()=>go('home')} className="font-black text-2xl tracking-tight text-blue-100">براه</button>
+      <button onClick={()=>go('home')} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
       <button onClick={()=>{setNotifications(0);go('notifications')}} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها"><Bell className="w-5 h-5"/>{notifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(notifications)}</span>}</button>
     </div>
   </header>;
@@ -175,14 +175,14 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
   const HomePage = () => <div className="space-y-4">
     <button onClick={()=>go('search')} className="w-full min-h-[112px] rounded-2xl bg-blue-600 border border-blue-700 p-5 text-right flex items-center gap-4 shadow-sm">
-      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-700"/></div>
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-white"/></div>
       <div className="min-w-0"><b className="block text-lg text-gray-900">جستجوی بار</b><span className="block mt-1 text-sm text-gray-600">مبدأ، مقصد یا نوع بار را جستجو کن</span></div>
     </button>
     <button onClick={()=>go('nearby')} className="w-full min-h-[112px] rounded-2xl bg-blue-600 border border-blue-700 p-5 text-right flex items-center gap-4 shadow-sm">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-6 h-6 text-emerald-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-gray-900">اطراف من</b><span className="block mt-1 text-sm text-gray-600">بارهای نزدیک را ببین</span></div>
     </button>
-    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-primary-100 border border-primary-200 p-5 text-right flex items-center gap-4 shadow-sm">
+    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-blue-600 border border-blue-700 p-5 text-right flex items-center gap-4 shadow-sm">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-gray-900">پیشنهادهای من</b><span className="block mt-1 text-sm text-gray-600">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
@@ -204,7 +204,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
-        <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4"><div className="flex items-center gap-2"><Search className="w-5 h-5 text-primary-700"/><h2 className="font-black text-white">جستجوی بار</h2></div></div>
+        <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4"><div className="flex items-center gap-2"><Search className="w-5 h-5 text-primary-700"/><h2 className="font-black text-primary-900">جستجوی بار</h2></div></div>
 
         <button onClick={()=>go('origin-select')} className="w-full mt-5 rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مبدأ</span>
