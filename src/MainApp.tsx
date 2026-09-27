@@ -190,11 +190,15 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
   const SearchPage = () => {
     const runSearch = () => {
-      if (!originText || originText === 'اطراف من' || !destinationText) return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
-      if (!origin) setOrigin(originText);
-      if (!destination) setDestination(destinationText);
+      const nearbyMode = origin === '__nearby__' || originText === 'اطراف من';
+      const allDestinationsMode = destinationText === 'همه شهرها';
+      if ((!originText && !nearbyMode) || (!destinationText && !nearbyMode && !allDestinationsMode)) {
+        return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
+      }
+      if (!origin && originText && originText !== 'اطراف من') setOrigin(originText);
+      if (!destination && destinationText && destinationText !== 'همه شهرها') setDestination(destinationText);
       setSearchSubmitted(true);
-      notify('بارهای مطابق مسیر نمایش داده شد.');
+      notify(nearbyMode ? 'بارهای اطراف من نمایش داده شد.' : 'بارهای مطابق مسیر نمایش داده شد.');
     };
     const clearAll = () => {
       setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
@@ -255,7 +259,8 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const visibleCities = allCitiesMode && !normalized ? filteredCities.slice(0, cityLimit) : filteredCities;
 
     const openAllDestinationCities = () => {
-      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
+      setOriginProvince(''); setOriginCounty(''); setOrigin('__nearby__'); setOriginText('اطراف من');
+      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('همه شهرها');
       setQuery(''); setCityLimit(120); setSearchSubmitted(true); go('search');
     };
     const chooseProvince = (id:string) => {
@@ -269,7 +274,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     };
     const chooseNearby = () => {
       if (!isOrigin) return;
-      setProvince(''); setCounty(''); setCity('__nearby__'); setText('اطراف من'); go('search');
+      setProvince(''); setCounty(''); setCity('__nearby__'); setText('اطراف من');
+      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
+      setSearchSubmitted(true); go('search');
     };
 
     return <div className="space-y-4">
