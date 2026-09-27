@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'offers' | 'shipment' | 'origin-select' | 'destination-select';
+  | 'cargo-detail' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -223,7 +223,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
       <Card><CardBody className="p-4">
         <div className="flex items-center justify-between mb-3"><h3 className="font-black">سه مسیر پرتکرار</h3><span className="text-[11px] text-gray-400">انتخاب سریع</span></div>
-        <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{setOrigin(route.from);setOriginText(route.from);setDestination(route.to);setDestinationText(route.to);setSearchSubmitted(false);}} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
+        <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{setOrigin(route.from);setOriginText(route.from);setDestination(route.to);setDestinationText(route.to);setSearchSubmitted(true);go('search');}} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
       </CardBody></Card>
 
       {searchSubmitted && <>
