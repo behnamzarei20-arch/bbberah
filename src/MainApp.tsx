@@ -90,8 +90,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           </div>
         </div>
         <div className="mt-1 flex items-center justify-between px-1 text-[9px] font-bold text-gray-400" dir="ltr">
-          <span>زیاد</span>
           <span>کم</span>
+          <span>زیاد</span>
         </div>
       </div>
 
