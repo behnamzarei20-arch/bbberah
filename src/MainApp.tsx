@@ -62,8 +62,22 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
   const commission = Math.round(load.price * 0.05);
   return <Card hoverable>
     <CardBody className="p-4">
-      <div className="text-center pb-4">
+      <div className="text-center pb-2">
         <b className="block text-2xl font-black text-gray-950 leading-9">{money(load.price)} تومان</b>
+      </div>
+
+      <div className="px-1 pb-4" dir="rtl">
+        <div className="flex items-center gap-2">
+          <CircleDollarSign className="w-4 h-4 text-primary-300 shrink-0" aria-hidden="true"/>
+          <div className="relative flex-1 h-2 rounded-full bg-gradient-to-l from-primary-200 via-primary-400 to-primary-600">
+            <span className="absolute top-1/2 right-[62%] -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-primary-600 shadow-sm" aria-hidden="true"/>
+          </div>
+          <Coins className="w-6 h-6 text-primary-700 shrink-0" aria-hidden="true"/>
+        </div>
+        <div className="mt-1.5 flex items-center justify-between text-[9px] font-bold text-gray-400">
+          <span>کمتر</span>
+          <span>بیشتر</span>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 py-4 border-y border-gray-100" dir="rtl">
