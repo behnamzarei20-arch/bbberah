@@ -82,10 +82,6 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           </div>
         </div>
 
-        <div className="relative mx-auto w-[12.5rem] h-4 text-[9px] font-bold text-gray-400" dir="ltr">
-          <span className="absolute left-0 w-6 text-center">کم</span>
-          <span className="absolute right-0 w-6 text-center">زیاد</span>
-        </div>
       </div>
 
       <div className="flex items-center gap-2 py-7 my-4 border-y border-gray-100" dir="rtl">
@@ -293,7 +289,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         </button>
       </CardBody></Card>
 
-      <Button size="full" className="mt-4 h-14 text-base font-black shadow-lg shadow-primary-100" onClick={runSearch}><Search className="w-5 h-5 ml-2"/> جستجوی بار</Button>
+      <Button size="full" className="mt-6 h-14 text-base font-black shadow-lg shadow-primary-100" onClick={runSearch}><Search className="w-5 h-5 ml-2"/> جستجوی بار</Button>
 
       <Card><CardBody className="p-4">
         <div className="flex items-center justify-between mb-3"><h3 className="font-black">سه مسیر پرتکرار</h3><span className="text-[11px] text-gray-400">انتخاب سریع</span></div>
