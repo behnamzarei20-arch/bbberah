@@ -89,9 +89,11 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       </div>
 
-      <div className="flex items-start gap-2 py-7 mt-4 mb-10 border-y border-gray-100" dir="rtl">
-        <div className="flex-1 text-right">
-          <Target className="w-6 h-6 text-primary-600 mb-2 mx-auto" aria-hidden="true"/>
+      <div className="flex items-start gap-2 py-7 mt-4 mb-16 border-y border-gray-100" dir="rtl">
+        <div className="flex-1 text-center">
+          <div className="flex justify-center mb-2">
+            <Target className="w-6 h-6 text-primary-600" aria-hidden="true"/>
+          </div>
           <b className="block text-xl font-black leading-8">{load.from}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
         </div>
@@ -102,8 +104,10 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
             <span className="text-xs font-black text-primary-800 mt-0.5">{fa(load.routeDistance)}km</span>
           </div>
         </div>
-        <div className="flex-1 text-left">
-          <MapPin className="w-6 h-6 text-primary-600 mb-2 mx-auto" aria-hidden="true"/>
+        <div className="flex-1 text-center">
+          <div className="flex justify-center mb-2">
+            <MapPin className="w-6 h-6 text-primary-600" aria-hidden="true"/>
+          </div>
           <b className="block text-xl font-black leading-8">{load.to}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
         </div>
