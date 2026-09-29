@@ -68,22 +68,21 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="px-1 pb-4 pt-1" dir="rtl">
         <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center shrink-0" aria-label="قیمت بیشتر">
+            <Coins className="w-4 h-4 text-primary-500" aria-hidden="true"/>
+            <Coins className="w-5 h-5 -mr-1 text-primary-700" aria-hidden="true"/>
+          </div>
+          <div className="relative w-[9rem] h-1.5 rounded-full bg-gradient-to-l from-primary-700 via-primary-400 to-primary-200">
+            <span className="absolute top-1/2 left-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
+          </div>
           <div className="flex items-center justify-center shrink-0" aria-label="قیمت کمتر">
             <Coins className="w-3.5 h-3.5 text-primary-300" aria-hidden="true"/>
             <Coins className="w-4 h-4 -mr-1 text-primary-400" aria-hidden="true"/>
           </div>
-          <div className="relative w-[9rem] h-1.5 rounded-full bg-gradient-to-l from-primary-200 via-primary-400 to-primary-700">
-            <span className="absolute top-1/2 right-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
-          </div>
-          <div className="flex items-center justify-center shrink-0" aria-label="قیمت بیشتر">
-            <Coins className="w-4 h-4 text-primary-500" aria-hidden="true"/>
-            <Coins className="w-5 h-5 -mr-1 text-primary-700" aria-hidden="true"/>
-            <Coins className="w-6 h-6 -mr-1 text-primary-800" aria-hidden="true"/>
-          </div>
         </div>
         <div className="mt-1 flex items-center justify-center gap-[5.5rem] text-[9px] font-bold text-gray-400">
-          <span>کمتر</span>
           <span>بیشتر</span>
+          <span>کمتر</span>
         </div>
       </div>
 
