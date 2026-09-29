@@ -59,37 +59,53 @@ function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
 }
 
 function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOffer:()=>void }) {
+  const commission = Math.round(load.price * 0.05);
   return <Card hoverable>
     <CardBody className="p-4">
-      <div className="text-center pb-4 border-b border-gray-100">
-        <span className="block text-[11px] font-bold text-gray-400 mb-1">کرایه</span>
-        <b className="block text-2xl font-black text-primary-700 leading-9">{money(load.price)}</b>
-        <span className="block text-xs font-bold text-gray-400 mt-1">تومان</span>
-        <div className="mt-3 flex items-center justify-center gap-3 text-primary-700">
-          <div className="flex items-center gap-1.5"><MapPin className="w-5 h-5 fill-current" aria-hidden="true"/><span className="text-sm font-black">{load.from}</span></div>
-          <div className="flex-1 max-w-24 border-t-2 border-dashed border-primary-300 relative">
-            <span className="absolute left-1/2 -top-3 -translate-x-1/2 bg-white px-1 text-sm font-black text-primary-800 whitespace-nowrap">{fa(load.routeDistance)}km</span>
+      <div className="text-center pb-4">
+        <b className="block text-2xl font-black text-gray-950 leading-9">{money(load.price)} تومان</b>
+      </div>
+
+      <div className="flex items-center gap-2 py-4 border-y border-gray-100" dir="rtl">
+        <div className="flex-1 text-right"><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 ml-1" aria-hidden="true"/><b>{load.from}</b></div>
+        <div className="w-28 relative flex items-center justify-center">
+          <div className="w-full border-t-2 border-dashed border-primary-300"/>
+          <div className="absolute flex flex-col items-center bg-white px-1 -top-2">
+            <Route className="w-5 h-5 text-primary-600" aria-hidden="true"/>
+            <span className="text-xs font-black text-primary-800 mt-0.5">{fa(load.routeDistance)}km</span>
           </div>
-          <div className="flex items-center gap-1.5"><MapPin className="w-5 h-5 fill-current" aria-hidden="true"/><span className="text-sm font-black">{load.to}</span></div>
+        </div>
+        <div className="flex-1 text-left"><b>{load.to}</b><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 mr-1" aria-hidden="true"/></div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 mt-4">
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
+          <Package className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
+          <b className="block text-xs mt-1">{load.type}</b>
+        </div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
+          <WeightIcon className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
+          <b className="block text-xs mt-1">{fa(load.weight)} kg</b>
+        </div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
+          <CircleDollarSign className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
+          <b className="block text-[11px] mt-1">کمیسیون براه</b>
+          <span className="block text-[11px] font-bold text-gray-500 mt-0.5">{money(commission)} تومان</span>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 pt-3">
-        <Status status={load.status}/>
-        <h3 className="font-black leading-6 text-right flex-1">{load.title}</h3>
-      </div>
-      <div className="flex items-center gap-3 mt-4">
-        <div className="flex-1"><b>{load.from}</b><span className="block text-[11px] text-gray-400 mt-1">مبدأ</span></div>
-        <Route className="w-5 h-5 text-primary-500 rotate-180" />
-        <div className="flex-1 text-left"><b>{load.to}</b><span className="block text-[11px] text-gray-400 mt-1">مقصد</span></div>
-      </div>
-      <div className="grid grid-cols-3 gap-2 mt-4 text-xs">
-        <div className="rounded-xl bg-gray-50 p-2"><span className="text-gray-400">وسیله</span><b className="block mt-1">{load.vehicle}</b></div>
-        <div className="rounded-xl bg-gray-50 p-2"><span className="text-gray-400">وزن</span><b className="block mt-1">{fa(load.weight)} kg</b></div>
-        <div className="rounded-xl bg-gray-50 p-2"><span className="text-gray-400">بارگیری</span><b className="block mt-1">{load.pickup.split('،')[0]}</b></div>
-      </div>
+
       <div className="grid grid-cols-2 gap-2 mt-3">
-        <Button size="sm" variant="outline" onClick={onOpen}>جزئیات بار</Button>
-        <Button size="sm" disabled={load.status !== 'open'} onClick={onOffer}>{load.status === 'open' ? 'ثبت پیشنهاد' : 'رزرو شده'}</Button>
+        <Button size="sm" variant="outline" disabled={load.status !== 'open'} onClick={onOffer}>
+          <Coins className="w-4 h-4 ml-1" aria-hidden="true"/> پیشنهاد قیمت
+        </Button>
+        <Button size="sm" disabled={load.status !== 'open'} onClick={onOpen}>
+          <Truck className="w-4 h-4 ml-1" aria-hidden="true"/> درخواست برای حمل بار
+        </Button>
+      </div>
+      <div className="mt-2">
+        <Button size="full" variant="outline" onClick={onOpen} className="h-14 text-base font-black">
+          <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> درخواست برای حمل بار
+        </Button>
       </div>
     </CardBody>
   </Card>;
