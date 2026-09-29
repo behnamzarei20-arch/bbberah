@@ -365,7 +365,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       ? (selectedCounty ? selectedCountyCities : (provinceData ? provinceCities : allDestinationCities))
       : (selectedCounty ? selectedCountyCities : provinceCities);
     const filteredCities = sourceCities
-      .filter(x => normalized && normalizeSearch(x.city).startsWith(normalized))
+      .filter(x => !normalized || normalizeSearch(x.city).startsWith(normalized))
       .sort((a,b) => {
         const aExact = normalizeSearch(a.city) === normalized ? 0 : 1;
         const bExact = normalizeSearch(b.city) === normalized ? 0 : 1;
