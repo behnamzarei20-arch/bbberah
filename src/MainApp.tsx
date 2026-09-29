@@ -378,9 +378,8 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const visibleCities = allCities && !normalized ? filteredCities.slice(0, cityLimit) : filteredCities;
 
     const openAllDestinationCities = () => {
-      setOriginProvince(''); setOriginCounty(''); setOrigin('__nearby__'); setOriginText('اطراف من');
-      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('همه شهرها');
-      setQuery(''); setCityLimit(120); setSearchSubmitted(true); go('search');
+      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
+      setQuery(''); setCityLimit(120); go('destination-all');
     };
     const chooseProvince = (id:string) => {
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery(''); setCityLimit(120);
