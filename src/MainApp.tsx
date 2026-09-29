@@ -371,7 +371,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       normalizeSearch(x.provinceName).includes(normalized)
     );
     const filteredCounties = iranLocations.flatMap(p => p.counties
-      .filter(c => !normalized || normalizeSearch(c.name).includes(normalized))
+      .filter(c => (!provinceId || String(p.id) === provinceId) && normalizeSearch(c.name).includes(normalized))
       .map(c => ({ countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name, cities:c.cities }))
     );
     const [cityLimit, setCityLimit] = useState(120);
@@ -421,7 +421,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
-        {!provinceData && !allCities && normalized && <div className="mt-5">
+        {normalized && !allCities && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">نتایج جستجو</b><span className="text-[11px] text-gray-400">{fa(filteredCities.length)} شهر</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">
             {filteredCounties.map(x=><button type="button" key={'county-' + x.provinceId + '-' + x.countyId} onClick={()=>chooseCounty(x.provinceId,x.countyId)} className="w-full rounded-xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right">
@@ -431,7 +431,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
             {!filteredCounties.length && !filteredCities.length && <Empty title="نتیجه‌ای پیدا نشد" text="نام شهر یا شهرستان را تغییر دهید."/>}
           </div>
         </div>
-        {(provinceData || allCities) && <div className="mt-5">
+        {!normalized && (provinceData || allCities) && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCities ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCities ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery(''); if (!isOrigin && allCities) go('destination-select');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">شهرستان {x.countyName}</span><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {allCities ? cityProvinceName(x.city) : provinceData?.name}</span></span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
           {allCities && !normalized && allDestinationCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, allDestinationCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, allDestinationCities.length-visibleCities.length))})</button>}
