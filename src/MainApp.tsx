@@ -117,6 +117,7 @@ export function MainApp() {
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   const go = (p:Page) => { setPage(p); setShowMenu(false); window.scrollTo({top:0,behavior:'smooth'}); };
+  const openSearchPage = () => { setSearchSubmitted(false); go('search'); };
   const findCityLocation = (city:string) => {
     for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return { provinceId:String(province.id), countyId:String(county.id) };
     return null;
@@ -157,7 +158,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     <div className="max-w-lg mx-auto grid grid-cols-4 h-[72px]">
       {[
         ['home','خانه',Home],['search','جستجو',Search],['calls','تماس‌ها',PhoneCall],['profile','حساب',User]
-      ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${page===p?'text-primary-700 font-black':'text-gray-400'}`}>{createElement(I as any,{className:"w-5 h-5"})}{String(l)}</button>)}
+      ].map(([p,l,I])=><button key={p as string} onClick={()=>p==='search' ? openSearchPage() : go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${page===p?'text-primary-700 font-black':'text-gray-400'}`}>{createElement(I as any,{className:"w-5 h-5"})}{String(l)}</button>)}
     </div>
   </nav>;
 
@@ -174,7 +175,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   </div> : null;
 
   const HomePage = () => <div className="space-y-4">
-    <button onClick={()=>go('search')} className="w-full min-h-[112px] rounded-2xl bg-blue-500 border border-blue-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
+    <button onClick={openSearchPage} className="w-full min-h-[112px] rounded-2xl bg-blue-500 border border-blue-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-blue-600"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ، مقصد یا نوع بار را جستجو کن</span></div>
     </button>
