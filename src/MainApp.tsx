@@ -354,7 +354,12 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const visibleProvinces = iranLocations.filter(p => !normalized || normalizeSearch(p.name).includes(normalized));
     const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceName:p.name }))));
     const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceName:provinceData.name }))) : [];
-    const sourceCities = allCities || normalized ? (provinceData ? provinceCities : allDestinationCities) : provinceCities;
+    const selectedCountyId = isOrigin ? originCounty : destinationCounty;
+    const selectedCounty = provinceData?.counties.find(c => String(c.id) === selectedCountyId);
+    const selectedCountyCities = selectedCounty ? selectedCounty.cities.map(city => ({ city, countyId:String(selectedCounty.id), countyName:selectedCounty.name, provinceName:provinceData!.name })) : [];
+    const sourceCities = allCities || normalized
+      ? (selectedCounty ? selectedCountyCities : (provinceData ? provinceCities : allDestinationCities))
+      : (selectedCounty ? selectedCountyCities : provinceCities);
     const filteredCities = sourceCities.filter(x =>
       !normalized ||
       normalizeSearch(x.city).includes(normalized) ||
