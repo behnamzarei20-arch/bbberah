@@ -89,16 +89,24 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       </div>
 
-      <div className="flex items-center gap-2 py-7 my-4 border-y border-gray-100" dir="rtl">
-        <div className="flex-1 text-right"><Target className="w-5 h-5 inline-block text-primary-600 ml-1" aria-hidden="true"/><div><b className="text-xl font-black leading-8">{load.from}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span></div></div>
-        <div className="w-28 relative flex items-center justify-center">
+      <div className="flex items-start gap-2 py-7 my-4 border-y border-gray-100" dir="rtl">
+        <div className="flex-1 text-right">
+          <Target className="w-6 h-6 text-primary-600 mb-2 mr-auto" aria-hidden="true"/>
+          <b className="block text-xl font-black leading-8">{load.from}</b>
+          <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
+        </div>
+        <div className="w-28 relative flex items-center justify-center self-center">
           <div className="w-full border-t-2 border-dashed border-primary-300"/>
-          <div className="absolute flex flex-col items-center bg-white px-1 -top-2">
+          <div className="absolute flex flex-col items-center bg-white px-1 -top-4">
             <Route className="w-5 h-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black text-primary-800 mt-0.5">{fa(load.routeDistance)}km</span>
           </div>
         </div>
-        <div className="flex-1 text-left"><div><b className="text-xl font-black leading-8">{load.to}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span></div><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 mr-1" aria-hidden="true"/></div>
+        <div className="flex-1 text-left">
+          <MapPin className="w-6 h-6 text-primary-600 mb-2 ml-auto" aria-hidden="true"/>
+          <b className="block text-xl font-black leading-8">{load.to}</b>
+          <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mt-4">
