@@ -113,6 +113,13 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           <b className="block text-[10px] mt-1 text-primary-800">پیشنهاد قیمت</b>
         </button>
       </div>
+      <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
+        <div className="flex items-center gap-2 mb-1.5">
+          <FileText className="w-4 h-4 text-primary-600" aria-hidden="true"/>
+          <span className="text-xs font-black text-gray-700">توضیحات بار</span>
+        </div>
+        <p className="text-xs leading-5 text-gray-600 text-right">{load.description}</p>
+      </div>
       <div className="mt-3">
         <Button size="full" variant="outline" onClick={onOpen} className="h-14 text-base font-black">
           <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> درخواست برای حمل بار
