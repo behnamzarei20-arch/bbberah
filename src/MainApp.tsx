@@ -423,7 +423,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       }
       setQuery('');
       setCityLimit(120);
-      setSearchSubmitted(true);
+      setSearchSubmitted(false);
       go('search');
     };
     const chooseNearby = () => {
