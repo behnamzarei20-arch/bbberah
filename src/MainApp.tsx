@@ -292,7 +292,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
-        <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4"><div className="flex items-center gap-2"><Search className="w-5 h-5 text-primary-700"/><h2 className="font-black text-primary-900">جستجوی بار</h2></div></div>
+        <h2 className="font-black text-lg text-gray-900 px-1">جستجوی بار</h2>
 
         <button onClick={()=>go('origin-select')} className="w-full mt-5 mb-3 rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مبدأ</span>
