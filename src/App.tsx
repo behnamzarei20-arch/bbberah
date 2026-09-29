@@ -11,7 +11,7 @@ export default function App() {
     return (
       <div dir="rtl" className="min-h-screen flex items-center justify-center bg-[#f8f8f7]">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-2xl bg-orange-100 text-primary-700 flex items-center justify-center mx-auto animate-pulse font-black text-xl">ب</div>
+          <div className="w-12 h-12 rounded-2xl bg-primary-100 text-primary-700 flex items-center justify-center mx-auto animate-pulse font-black text-xl">ب</div>
           <p className="mt-4 font-bold text-gray-600">در حال بارگذاری براه...</p>
         </div>
       </div>
