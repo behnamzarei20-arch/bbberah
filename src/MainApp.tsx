@@ -68,24 +68,26 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="px-1 pt-2 pb-6" dir="rtl">
         <div className="flex items-center justify-center gap-3">
-          <div className="relative w-8 h-8 shrink-0" aria-label="قیمت کم">
-            <span className="absolute left-1/2 top-0 -translate-x-1/2 w-4 h-2.5 rounded-full border-2 border-primary-300 bg-primary-50"/>
-            <span className="absolute left-1/2 top-2 -translate-x-1/2 w-4.5 h-2.5 rounded-full border-2 border-primary-400 bg-primary-50"/>
-            <span className="absolute left-1/2 top-4 -translate-x-1/2 w-5 h-2.5 rounded-full border-2 border-primary-500 bg-primary-50"/>
+          <div className="relative w-7 h-9 shrink-0" aria-label="قیمت کم">
+            <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 rounded-full bg-primary-300"/>
+            <span className="absolute left-1/2 top-2 h-4 w-5 -translate-x-1/2 rounded-sm border-2 border-primary-400 bg-primary-50"/>
+            <span className="absolute left-1/2 top-6 h-3 w-px -translate-x-1/2 rounded-full bg-primary-300"/>
           </div>
-          <div className="relative w-[9rem] h-1.5 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700">
+          <div className="relative w-[9rem] h-1.5 rounded-full bg-gradient-to-r from-primary-700 via-primary-400 to-primary-200">
             <span className="absolute top-1/2 left-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
           </div>
-          <div className="relative w-12 h-9 shrink-0" aria-label="قیمت زیاد">
-            <div className="absolute left-0 top-0">
-              <span className="block w-5 h-3 rounded-full border-2 border-primary-500 bg-primary-50"/>
-              <span className="block -mt-1 w-5 h-3 rounded-full border-2 border-primary-600 bg-primary-50"/>
-              <span className="block -mt-1 w-5 h-3 rounded-full border-2 border-primary-700 bg-primary-50"/>
+          <div className="relative w-12 h-9 shrink-0 flex items-end justify-center gap-1" aria-label="قیمت زیاد">
+            <div className="relative h-7 w-2.5">
+              <span className="absolute left-1/2 top-0 h-7 w-px -translate-x-1/2 bg-primary-700"/>
+              <span className="absolute left-0 top-2 h-3 w-2.5 rounded-sm border-2 border-primary-700 bg-primary-100"/>
             </div>
-            <div className="absolute right-0 top-2">
-              <span className="block w-5 h-3 rounded-full border-2 border-primary-500 bg-primary-50"/>
-              <span className="block -mt-1 w-5 h-3 rounded-full border-2 border-primary-600 bg-primary-50"/>
-              <span className="block -mt-1 w-5 h-3 rounded-full border-2 border-primary-700 bg-primary-50"/>
+            <div className="relative h-8 w-2.5">
+              <span className="absolute left-1/2 top-0 h-8 w-px -translate-x-1/2 bg-primary-600"/>
+              <span className="absolute left-0 top-2 h-4 w-2.5 rounded-sm border-2 border-primary-600 bg-primary-50"/>
+            </div>
+            <div className="relative h-9 w-2.5">
+              <span className="absolute left-1/2 top-0 h-9 w-px -translate-x-1/2 bg-primary-500"/>
+              <span className="absolute left-0 top-2 h-4 w-2.5 rounded-sm border-2 border-primary-500 bg-primary-50"/>
             </div>
           </div>
         </div>
