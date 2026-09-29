@@ -67,22 +67,24 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       <div className="px-1 pt-2 pb-6">
-        <div className="flex items-center justify-center" dir="ltr">
-          <div className="w-6 shrink-0 flex justify-center" aria-label="قیمت کم">
+        <div className="relative mx-auto w-[12.5rem] h-8" dir="ltr">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center" aria-label="قیمت کم">
             <CircleDollarSign className="w-5 h-5 text-primary-200" strokeWidth={2.2} aria-hidden="true"/>
           </div>
-          <div className="relative w-[9rem] h-1.5 mx-3 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700">
+
+          <div className="absolute left-7 right-7 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700">
             <span className="absolute top-1/2 left-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
           </div>
-          <div className="relative w-6 h-6 shrink-0" aria-label="قیمت زیاد">
+
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6" aria-label="قیمت زیاد">
             <CircleDollarSign className="absolute inset-0 w-6 h-6 text-primary-700" strokeWidth={2.4} aria-hidden="true"/>
             <Coins className="absolute left-0.5 top-2.5 w-3.5 h-3.5 text-primary-500" strokeWidth={2.2} aria-hidden="true"/>
           </div>
         </div>
-        <div className="flex items-center justify-center mt-1 text-[9px] font-bold text-gray-400" dir="ltr">
-          <span className="w-6 shrink-0 text-center">کم</span>
-          <span className="w-[9rem] mx-3" />
-          <span className="w-6 shrink-0 text-center">زیاد</span>
+
+        <div className="relative mx-auto w-[12.5rem] h-4 text-[9px] font-bold text-gray-400" dir="ltr">
+          <span className="absolute left-0 w-6 text-center">کم</span>
+          <span className="absolute right-0 w-6 text-center">زیاد</span>
         </div>
       </div>
 
