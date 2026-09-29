@@ -102,8 +102,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         <p className="text-xs leading-5 text-gray-600 text-right">{load.description}</p>
       </div>
       <div className="mt-3">
-        <Button size="full" variant="outline" onClick={onOpen} className="h-14 text-base font-black">
-          <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> درخواست برای حمل بار
+        <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-blue-500 hover:bg-blue-600 text-white border-blue-500">
+          <Truck className="w-5 h-5 ml-2 text-white" aria-hidden="true"/> درخواست برای حمل بار
         </Button>
       </div>
     </CardBody>
