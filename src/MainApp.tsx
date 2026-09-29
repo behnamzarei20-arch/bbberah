@@ -94,7 +94,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           <div className="flex justify-center mb-2 w-full">
             <Target className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/>
           </div>
-          <b className="block text-xl font-black leading-8">{load.from}</b>
+          <b className="block text-xl font-black leading-8 truncate">{load.from}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
         </div>
         <div className="w-28 relative flex items-center justify-center self-center">
@@ -108,7 +108,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           <div className="flex justify-center mb-2 w-full">
             <MapPin className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/>
           </div>
-          <b className="block text-xl font-black leading-8">{load.to}</b>
+          <b className="block text-xl font-black leading-8 truncate">{load.to}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
         </div>
       </div>
@@ -270,6 +270,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <div className="min-w-0"><b className="block text-lg text-white">پیشنهادهای من</b><span className="block mt-1 text-sm text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
 
+  </div>;
+
+  const SearchPage = () => {
     <div className="pt-3">
       <div className="mb-2 text-sm font-black text-gray-700">نمونه بار</div>
       <LoadCard
@@ -278,9 +281,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         onOffer={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];requestOffer(sample)}}
       />
     </div>
-  </div>;
 
-  const SearchPage = () => {
     const runSearch = () => {
       const nearbyMode = origin === '__nearby__' || originText === 'اطراف من';
       const allDestinationsMode = destinationText === 'همه شهرها';
