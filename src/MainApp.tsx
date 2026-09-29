@@ -65,9 +65,12 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         <span className="block text-[11px] font-bold text-gray-400 mb-1">کرایه</span>
         <b className="block text-2xl font-black text-primary-700 leading-9">{money(load.price)}</b>
         <span className="block text-xs font-bold text-gray-400 mt-1">تومان</span>
-        <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1.5">
-          <Route className="w-4 h-4 text-primary-600 rotate-180" />
-          <span className="text-sm font-black text-primary-800 flex items-center gap-1.5"><Route className="w-5 h-5" aria-hidden="true"/><span>{fa(load.routeDistance)} KM</span></span>
+        <div className="mt-3 flex items-center justify-center gap-3 text-primary-700">
+          <div className="flex items-center gap-1.5"><MapPin className="w-5 h-5 fill-current" aria-hidden="true"/><span className="text-sm font-black">{load.from}</span></div>
+          <div className="flex-1 max-w-24 border-t-2 border-dashed border-primary-300 relative">
+            <span className="absolute left-1/2 -top-3 -translate-x-1/2 bg-white px-1 text-sm font-black text-primary-800 whitespace-nowrap">{fa(load.routeDistance)}km</span>
+          </div>
+          <div className="flex items-center gap-1.5"><MapPin className="w-5 h-5 fill-current" aria-hidden="true"/><span className="text-sm font-black">{load.to}</span></div>
         </div>
       </div>
       <div className="flex items-center justify-between gap-3 pt-3">
