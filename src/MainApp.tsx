@@ -67,57 +67,53 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       <div className="px-1 pt-2 pb-6" dir="rtl">
-        <div className="flex items-center justify-center gap-3">
-          <div className="relative w-8 h-6 shrink-0" aria-label="قیمت کم">
-            <svg viewBox="0 0 32 24" className="w-full h-full" aria-hidden="true">
-              <g transform="translate(2 12)">
-                <ellipse cx="7" cy="3" rx="6.5" ry="2.8" className="fill-primary-100 stroke-primary-300" strokeWidth="1"/>
-                <ellipse cx="7" cy="1" rx="6.5" ry="2.8" className="fill-primary-200 stroke-primary-400" strokeWidth="1"/>
-                <ellipse cx="7" cy="-1" rx="6.5" ry="2.8" className="fill-primary-300 stroke-primary-500" strokeWidth="1"/>
-                <path d="M0.7 -1v2.2c0 1.4 2.8 2.5 6.3 2.5s6.3-1.1 6.3-2.5V-1" className="fill-primary-200 stroke-primary-400" strokeWidth="1"/>
-                <ellipse cx="7" cy="-1" rx="6.5" ry="2.8" className="fill-primary-300 stroke-primary-500" strokeWidth="1"/>
-                <circle cx="7" cy="-1" r="2.1" className="fill-primary-100 stroke-primary-500" strokeWidth="0.8"/>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 shrink-0 flex items-end justify-center" aria-label="قیمت کم">
+            <svg viewBox="0 0 36 36" className="w-full h-full" aria-hidden="true">
+              <g transform="translate(18 9)">
+                <ellipse cx="0" cy="0" rx="8" ry="3.2" className="fill-primary-200 stroke-primary-400" strokeWidth="1"/>
+                <path d="M-8 0v10c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V0" className="fill-primary-100 stroke-primary-400" strokeWidth="1"/>
+                <ellipse cx="0" cy="0" rx="8" ry="3.2" className="fill-primary-300 stroke-primary-500" strokeWidth="1"/>
+                <ellipse cx="0" cy="0" rx="4" ry="1.4" className="fill-primary-100 opacity-70"/>
+              </g>
+              <g transform="translate(18 20)">
+                <ellipse cx="0" cy="0" rx="8" ry="3.2" className="fill-primary-100 stroke-primary-300" strokeWidth="1"/>
+                <path d="M-8 0v7c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V0" className="fill-primary-50 stroke-primary-300" strokeWidth="1"/>
               </g>
             </svg>
           </div>
 
-          <div className="relative w-[7.5rem] h-1.5 rounded-full bg-gray-100">
-            <div className="absolute inset-y-0 right-0 w-1/3 rounded-full bg-gradient-to-l from-primary-200 to-primary-300"/>
-            <span className="absolute top-1/2 right-[38%] -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white border-2 border-primary-600 shadow-sm" aria-hidden="true"/>
+          <div className="relative flex-1 h-5">
+            <div className="absolute top-1/2 left-0 right-0 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700"/>
+            <span className="absolute left-[42%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-[3px] border-primary-600 shadow-sm" aria-hidden="true"/>
           </div>
 
-          <div className="relative w-10 h-7 shrink-0" aria-label="قیمت زیاد">
-            <svg viewBox="0 0 40 28" className="w-full h-full" aria-hidden="true">
-              <g transform="translate(1 19)">
-                <g transform="translate(0 0)">
-                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-200 stroke-primary-400" strokeWidth="0.9"/>
-                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-300 stroke-primary-500" strokeWidth="0.9"/>
-                </g>
-                <g transform="translate(7 -2)">
-                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-300 stroke-primary-500" strokeWidth="0.9"/>
-                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-400 stroke-primary-600" strokeWidth="0.9"/>
-                </g>
-                <g transform="translate(14 -4)">
-                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-400 stroke-primary-600" strokeWidth="0.9"/>
-                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-500 stroke-primary-700" strokeWidth="0.9"/>
-                </g>
-                <g transform="translate(7 -8)">
-                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-500 stroke-primary-700" strokeWidth="0.9"/>
-                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-600 stroke-primary-800" strokeWidth="0.9"/>
-                </g>
-                <g transform="translate(21 -10)">
-                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-600 stroke-primary-800" strokeWidth="0.9"/>
-                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-700 stroke-primary-900" strokeWidth="0.9"/>
-                </g>
-                <g transform="translate(14 -14)">
-                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-700 stroke-primary-900" strokeWidth="0.9"/>
-                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-800 stroke-primary-950" strokeWidth="0.9"/>
-                </g>
+          <div className="w-11 h-10 shrink-0 flex items-end justify-center" aria-label="قیمت زیاد">
+            <svg viewBox="0 0 44 40" className="w-full h-full" aria-hidden="true">
+              <g transform="translate(7 24)">
+                <ellipse cx="0" cy="0" rx="7" ry="2.8" className="fill-primary-300 stroke-primary-500" strokeWidth="1"/>
+                <path d="M-7 0v7c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8V0" className="fill-primary-200 stroke-primary-500" strokeWidth="1"/>
+              </g>
+              <g transform="translate(22 28)">
+                <ellipse cx="0" cy="0" rx="7" ry="2.8" className="fill-primary-400 stroke-primary-600" strokeWidth="1"/>
+                <path d="M-7 0v6c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8V0" className="fill-primary-300 stroke-primary-600" strokeWidth="1"/>
+              </g>
+              <g transform="translate(35 23)">
+                <ellipse cx="0" cy="0" rx="7" ry="2.8" className="fill-primary-500 stroke-primary-700" strokeWidth="1"/>
+                <path d="M-7 0v8c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8V0" className="fill-primary-400 stroke-primary-700" strokeWidth="1"/>
+              </g>
+              <g transform="translate(22 16)">
+                <ellipse cx="0" cy="0" rx="7" ry="2.8" className="fill-primary-600 stroke-primary-800" strokeWidth="1"/>
+                <path d="M-7 0v6c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8V0" className="fill-primary-500 stroke-primary-800" strokeWidth="1"/>
+              </g>
+              <g transform="translate(35 11)">
+                <ellipse cx="0" cy="0" rx="7" ry="2.8" className="fill-primary-700 stroke-primary-900" strokeWidth="1"/>
+                <path d="M-7 0v6c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8V0" className="fill-primary-600 stroke-primary-900" strokeWidth="1"/>
               </g>
             </svg>
           </div>
         </div>
-        <div className="mt-1 flex items-center justify-center gap-[5.5rem] text-[9px] font-bold text-gray-400">
+        <div className="mt-0.5 flex items-center justify-between px-1 text-[9px] font-bold text-gray-400">
           <span>کم</span>
           <span>زیاد</span>
         </div>
