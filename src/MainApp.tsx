@@ -91,8 +91,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="flex items-start gap-2 py-7 mt-4 mb-16 border-y border-gray-100" dir="rtl">
         <div className="flex-1 text-center">
-          <div className="flex justify-center mb-2">
-            <Target className="w-6 h-6 text-primary-600" aria-hidden="true"/>
+          <div className="flex justify-center mb-2 w-full">
+            <Target className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/>
           </div>
           <b className="block text-xl font-black leading-8">{load.from}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
@@ -105,8 +105,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           </div>
         </div>
         <div className="flex-1 text-center">
-          <div className="flex justify-center mb-2">
-            <MapPin className="w-6 h-6 text-primary-600" aria-hidden="true"/>
+          <div className="flex justify-center mb-2 w-full">
+            <MapPin className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/>
           </div>
           <b className="block text-xl font-black leading-8">{load.to}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
