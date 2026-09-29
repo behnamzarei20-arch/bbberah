@@ -66,13 +66,18 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         <b className="block text-2xl font-black text-gray-950 leading-9">{money(load.price)} تومان</b>
       </div>
 
-      <div className="px-1 pb-4 pt-1" dir="rtl">
+      <div className="px-1 pt-2 pb-6" dir="rtl">
         <div className="flex items-center justify-center gap-3">
-          <span className="text-[22px] leading-none" aria-label="قیمت کم">🪙</span>
-          <div className="relative w-[9rem] h-1.5 rounded-full bg-gradient-to-r from-primary-700 via-primary-400 to-primary-200">
+          <div className="flex items-center justify-center shrink-0" aria-label="قیمت کم">
+            <CircleDollarSign className="w-5 h-5 text-primary-300" strokeWidth={2.2} aria-hidden="true"/>
+          </div>
+          <div className="relative w-[9rem] h-1.5 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700">
             <span className="absolute top-1/2 left-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
           </div>
-          <span className="text-[22px] leading-none" aria-label="قیمت زیاد">💰</span>
+          <div className="flex items-center justify-center shrink-0" aria-label="قیمت زیاد">
+            <CircleDollarSign className="w-6 h-6 text-primary-700" strokeWidth={2.4} aria-hidden="true"/>
+            <Coins className="w-3.5 h-3.5 -mr-2 mt-2 text-primary-500" strokeWidth={2.2} aria-hidden="true"/>
+          </div>
         </div>
         <div className="mt-1 flex items-center justify-center gap-[5.5rem] text-[9px] font-bold text-gray-400">
           <span>کم</span>
@@ -80,8 +85,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>
       </div>
 
-      <div className="flex items-center gap-2 py-5 mb-2 border-y border-gray-100" dir="rtl">
-        <div className="flex-1 text-right"><Target className="w-5 h-5 inline-block text-primary-600 ml-1" aria-hidden="true"/><b className="text-base">{load.from}</b></div>
+      <div className="flex items-center gap-2 py-7 my-4 border-y border-gray-100" dir="rtl">
+        <div className="flex-1 text-right"><Target className="w-5 h-5 inline-block text-primary-600 ml-1" aria-hidden="true"/><b className="text-lg font-black">{load.from}</b></div>
         <div className="w-28 relative flex items-center justify-center">
           <div className="w-full border-t-2 border-dashed border-primary-300"/>
           <div className="absolute flex flex-col items-center bg-white px-1 -top-2">
@@ -89,7 +94,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
             <span className="text-xs font-black text-primary-800 mt-0.5">{fa(load.routeDistance)}km</span>
           </div>
         </div>
-        <div className="flex-1 text-left"><b className="text-base">{load.to}</b><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 mr-1" aria-hidden="true"/></div>
+        <div className="flex-1 text-left"><b className="text-lg font-black">{load.to}</b><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 mr-1" aria-hidden="true"/></div>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mt-4">
