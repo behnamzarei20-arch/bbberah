@@ -311,7 +311,15 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
       <Card><CardBody className="p-4">
         <div className="flex items-center justify-between mb-3"><h3 className="font-black">سه مسیر پرتکرار</h3><span className="text-[11px] text-gray-400">انتخاب سریع</span></div>
-        <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{setOrigin(route.from);setOriginText(route.from);setDestination(route.to);setDestinationText(route.to);setSearchSubmitted(true);go('search');}} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
+        <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{
+          const fromLocation=findCityLocation(route.from);
+          const toLocation=findCityLocation(route.to);
+          setOrigin(route.from); setOriginText(route.from);
+          setOriginProvince(fromLocation?.provinceId || ''); setOriginCounty(fromLocation?.countyId || '');
+          setDestination(route.to); setDestinationText(route.to);
+          setDestinationProvince(toLocation?.provinceId || ''); setDestinationCounty(toLocation?.countyId || '');
+          setSearchSubmitted(true); go('search');
+        }} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
       </CardBody></Card>
 
       <div className="pt-3">
@@ -357,11 +365,11 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       .replace(/\s+/g,'');
     const normalized = normalizeSearch(query).replace(/^شهرستان/, '');
     const visibleProvinces = iranLocations.filter(p => !normalized || normalizeSearch(p.name).includes(normalized));
-    const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceName:p.name }))));
-    const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceName:provinceData.name }))) : [];
+    const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name }))));
+    const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(provinceData.id), provinceName:provinceData.name }))) : [];
     const selectedCountyId = isOrigin ? originCounty : destinationCounty;
     const selectedCounty = provinceData?.counties.find(c => String(c.id) === selectedCountyId);
-    const selectedCountyCities = selectedCounty ? selectedCounty.cities.map(city => ({ city, countyId:String(selectedCounty.id), countyName:selectedCounty.name, provinceName:provinceData!.name })) : [];
+    const selectedCountyCities = selectedCounty ? selectedCounty.cities.map(city => ({ city, countyId:String(selectedCounty.id), countyName:selectedCounty.name, provinceId:String(provinceData!.id), provinceName:provinceData!.name })) : [];
     const sourceCities = allDestinationCities;
     const filteredCities = sourceCities
       .filter(x => !normalized || normalizeSearch(x.city).slice(0, normalized.length) === normalized)
@@ -390,13 +398,15 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       setQuery(''); setCityLimit(120); setSearchSubmitted(false);
     };
     const chooseCity = (city:string, countyId:string) => {
+      const location = allDestinationCities.find(x => x.city === city && x.countyId === countyId);
+      const provinceIdForCity = location?.provinceId || provinceId;
       if (isOrigin) {
-        setOriginProvince(originProvince);
+        setOriginProvince(provinceIdForCity || '');
         setOriginCounty(countyId);
         setOrigin(city);
         setOriginText(city);
       } else {
-        setDestinationProvince('');
+        setDestinationProvince(provinceIdForCity || '');
         setDestinationCounty(countyId);
         setDestination(city);
         setDestinationText(city);
