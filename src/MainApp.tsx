@@ -19,15 +19,15 @@ type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
   id: string; title: string; from: string; to: string; type: string; vehicle: string;
   weight: number; price: number; pickup: string; delivery: string; status: LoadStatus;
-  distance: number; description: string; phone: string;
+  distance: number; routeDistance: number; description: string; phone: string;
 };
 
 const seedLoads: Load[] = [
-  { id:'l1', title:'بار خشک تهران به مشهد', from:'تهران', to:'مشهد', type:'بار خشک', vehicle:'تریلی', weight:18000, price:24500000, pickup:'امروز، ۱۴:۳۰', delivery:'فردا، ۱۰:۰۰', status:'open', distance:18, description:'بار خشک بسته‌بندی‌شده؛ بارگیری در محل اعلام‌شده و تحویل طبق زمان‌بندی.', phone:'09120000001' },
-  { id:'l2', title:'مواد غذایی کرج به اصفهان', from:'کرج', to:'اصفهان', type:'مواد غذایی', vehicle:'کامیون', weight:9000, price:12800000, pickup:'فردا، ۰۸:۰۰', delivery:'فردا، ۲۰:۰۰', status:'open', distance:42, description:'مواد غذایی بسته‌بندی‌شده؛ نیازمند حمل مناسب و تحویل در بازه تعیین‌شده.', phone:'09120000002' },
-  { id:'l3', title:'کالای تجاری تبریز به تهران', from:'تبریز', to:'تهران', type:'کالای تجاری', vehicle:'خاور', weight:4500, price:8600000, pickup:'فردا، ۱۱:۳۰', delivery:'پس‌فردا، ۰۹:۰۰', status:'open', distance:76, description:'کالای تجاری بسته‌بندی‌شده؛ جزئیات محموله هنگام هماهنگی حمل اعلام می‌شود.', phone:'09120000003' },
-  { id:'l4', title:'مصالح ساختمانی قم به تهران', from:'قم', to:'تهران', type:'ساختمانی', vehicle:'تریلی', weight:22000, price:16400000, pickup:'شنبه، ۰۷:۰۰', delivery:'شنبه، ۱۳:۰۰', status:'reserved', distance:96, description:'مصالح ساختمانی بسته‌بندی‌شده؛ هماهنگی بارگیری و تحویل طبق برنامه حمل.', phone:'09120000004' },
-  { id:'l5', title:'بار کشاورزی رشت به قزوین', from:'رشت', to:'قزوین', type:'کشاورزی', vehicle:'کامیون', weight:7500, price:9700000, pickup:'شنبه، ۰۹:۰۰', delivery:'شنبه، ۱۶:۰۰', status:'open', distance:118, description:'بار کشاورزی بسته‌بندی‌شده؛ شرایط حمل و زمان تحویل هنگام هماهنگی اعلام می‌شود.', phone:'09120000005' },
+  { id:'l1', title:'بار خشک تهران به مشهد', from:'تهران', to:'مشهد', type:'بار خشک', vehicle:'تریلی', weight:18000, price:24500000, pickup:'امروز، ۱۴:۳۰', delivery:'فردا، ۱۰:۰۰', status:'open', distance:18, routeDistance:897, description:'بار خشک بسته‌بندی‌شده؛ بارگیری در محل اعلام‌شده و تحویل طبق زمان‌بندی.', phone:'09120000001' },
+  { id:'l2', title:'مواد غذایی کرج به اصفهان', from:'کرج', to:'اصفهان', type:'مواد غذایی', vehicle:'کامیون', weight:9000, price:12800000, pickup:'فردا، ۰۸:۰۰', delivery:'فردا، ۲۰:۰۰', status:'open', distance:42, routeDistance:435, description:'مواد غذایی بسته‌بندی‌شده؛ نیازمند حمل مناسب و تحویل در بازه تعیین‌شده.', phone:'09120000002' },
+  { id:'l3', title:'کالای تجاری تبریز به تهران', from:'تبریز', to:'تهران', type:'کالای تجاری', vehicle:'خاور', weight:4500, price:8600000, pickup:'فردا، ۱۱:۳۰', delivery:'پس‌فردا، ۰۹:۰۰', status:'open', distance:76, routeDistance:630, description:'کالای تجاری بسته‌بندی‌شده؛ جزئیات محموله هنگام هماهنگی حمل اعلام می‌شود.', phone:'09120000003' },
+  { id:'l4', title:'مصالح ساختمانی قم به تهران', from:'قم', to:'تهران', type:'ساختمانی', vehicle:'تریلی', weight:22000, price:16400000, pickup:'شنبه، ۰۷:۰۰', delivery:'شنبه، ۱۳:۰۰', status:'reserved', distance:96, routeDistance:140, description:'مصالح ساختمانی بسته‌بندی‌شده؛ هماهنگی بارگیری و تحویل طبق برنامه حمل.', phone:'09120000004' },
+  { id:'l5', title:'بار کشاورزی رشت به قزوین', from:'رشت', to:'قزوین', type:'کشاورزی', vehicle:'کامیون', weight:7500, price:9700000, pickup:'شنبه، ۰۹:۰۰', delivery:'شنبه، ۱۶:۰۰', status:'open', distance:118, routeDistance:178, description:'بار کشاورزی بسته‌بندی‌شده؛ شرایط حمل و زمان تحویل هنگام هماهنگی اعلام می‌شود.', phone:'09120000005' },
 ];
 const frequentRoutes = [
   { from:'تهران', to:'مشهد' },
@@ -61,9 +61,18 @@ function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
 function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOffer:()=>void }) {
   return <Card hoverable>
     <CardBody className="p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0"><div className="flex items-center gap-2"><Status status={load.status}/><span className="text-[11px] text-gray-400">{fa(load.distance)} کیلومتر</span></div><h3 className="font-black mt-2 leading-6">{load.title}</h3></div>
-        <div className="text-left shrink-0"><b className="text-primary-700">{money(load.price)}</b><span className="block text-[10px] text-gray-400">تومان</span></div>
+      <div className="text-center pb-4 border-b border-gray-100">
+        <span className="block text-[11px] font-bold text-gray-400 mb-1">کرایه</span>
+        <b className="block text-2xl font-black text-primary-700 leading-9">{money(load.price)}</b>
+        <span className="block text-xs font-bold text-gray-400 mt-1">تومان</span>
+        <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1.5">
+          <Route className="w-4 h-4 text-primary-600 rotate-180" />
+          <span className="text-sm font-black text-primary-800">فاصله مسیر: {fa(load.routeDistance)} کیلومتر</span>
+        </div>
+      </div>
+      <div className="flex items-center justify-between gap-3 pt-3">
+        <Status status={load.status}/>
+        <h3 className="font-black leading-6 text-right flex-1">{load.title}</h3>
       </div>
       <div className="flex items-center gap-3 mt-4">
         <div className="flex-1"><b>{load.from}</b><span className="block text-[11px] text-gray-400 mt-1">مبدأ</span></div>
