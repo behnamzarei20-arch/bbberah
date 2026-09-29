@@ -1,4 +1,4 @@
-import { createElement, useMemo, useState } from 'react';
+import { createElement, useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
@@ -102,7 +102,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         <p className="text-xs leading-5 text-gray-600 text-right">{load.description}</p>
       </div>
       <div className="mt-3">
-        <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-blue-500 hover:bg-blue-600 text-white border-blue-500">
+        <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
           <Truck className="w-5 h-5 ml-2 text-white" aria-hidden="true"/> درخواست برای حمل بار
         </Button>
       </div>
@@ -143,7 +143,27 @@ export function MainApp() {
   const [accountName, setAccountName] = useState(profile?.full_name || '');
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
-  const go = (p:Page) => { setPage(p); setShowMenu(false); window.scrollTo({top:0,behavior:'smooth'}); };
+  useEffect(() => {
+    const state = window.history.state;
+    if (!state?.bbberahPage) window.history.replaceState({ bbberahPage: page }, '', window.location.href.split('#')[0]);
+    const onPopState = () => {
+      const next = window.history.state?.bbberahPage as Page | undefined;
+      if (next) {
+        setPage(next);
+        setShowMenu(false);
+        window.scrollTo({top:0,behavior:'smooth'});
+      }
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+  const go = (p:Page) => {
+    if (p === page) { setShowMenu(false); return; }
+    window.history.pushState({ bbberahPage: p }, '', '#' + p);
+    setPage(p);
+    setShowMenu(false);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
   const openSearchPage = () => { setSearchSubmitted(false); go('search'); };
   const findCityLocation = (city:string) => {
     for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return { provinceId:String(province.id), countyId:String(county.id) };
@@ -202,15 +222,15 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   </div> : null;
 
   const HomePage = () => <div className="space-y-4">
-    <button onClick={openSearchPage} className="w-full min-h-[112px] rounded-2xl bg-blue-500 border border-blue-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
-      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-blue-600"/></div>
+    <button onClick={openSearchPage} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-600"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ، مقصد یا نوع بار را جستجو کن</span></div>
     </button>
-    <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(true);go('search')}} className="w-full min-h-[112px] rounded-2xl bg-blue-500 border border-blue-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
+    <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(true);go('search')}} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-6 h-6 text-emerald-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">اطراف من</b><span className="block mt-1 text-sm text-white/90">بارهای نزدیک را ببین</span></div>
     </button>
-    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-blue-500 border border-blue-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
+    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">پیشنهادهای من</b><span className="block mt-1 text-sm text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
@@ -355,7 +375,7 @@ const ProfilePage = () => <div className="space-y-3">
 
   const SimplePage = () => {
     if (page==='nearby') return <div className="space-y-4"><Card><CardBody className="p-5"><div className="flex gap-3"><MapPin className="w-6 h-6 text-primary-600"/><div><b>بارهای اطراف</b><p className="text-xs text-gray-400 mt-1">برای فاز اول، فاصله‌ها شبیه‌سازی شده‌اند.</p></div></div><Button className="w-full mt-4" onClick={()=>notify('موقعیت مکانی آزمایشی به‌روزرسانی شد.')}>به‌روزرسانی موقعیت</Button></CardBody></Card>{loads.filter(l=>l.status==='open').sort((a,b)=>a.distance-b.distance).slice(0,4).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>;
-    if (page==='calls') return <div className="space-y-3">{loads.slice(0,2).map(l=><Card key={l.id}><CardBody className="p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center"><PhoneCall className="w-5 h-5 text-primary-600"/></div><div className="flex-1"><b>هماهنگی بار</b><p className="text-xs text-gray-400 mt-1">{l.title}</p></div><a href={`tel:${l.phone}`} className="w-11 h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center"><Phone className="w-5 h-5"/></a></CardBody></Card>)}<Empty title="سوابق تماس" text="تماس‌های واقعی بعد از اتصال به سرویس ثبت خواهند شد."/></div>;
+    if (page==='calls') return <div className="space-y-3">{loads.slice(0,2).map(l=><Card key={l.id}><CardBody className="p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center"><PhoneCall className="w-5 h-5 text-primary-600"/></div><div className="flex-1"><b>هماهنگی بار</b><p className="text-xs text-gray-400 mt-1">{l.title}</p></div><a href={`tel:${l.phone}`} className="w-11 h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center"><Phone className="w-5 h-5"/></a></CardBody></Card>)}<Empty title="سوابق تماس" text="تماس‌های واقعی بعد از اتصال به سرویس ثبت خواهند شد."/></div>;
     if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
     if (page==='offers') return <div className="space-y-3">{offerSuccess && <Card><CardBody className="p-4 bg-emerald-50"><div className="flex items-center gap-3 text-emerald-700"><CheckCircle2 className="w-6 h-6 shrink-0"/><div><b>پیشنهاد با موفقیت ارسال شد</b><p className="text-xs mt-1">پیشنهاد شما در فهرست پیشنهادهای من ثبت شد.</p></div></div></CardBody></Card>}<Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">پیشنهادهای فعال</span><b>۲</b><Button variant="outline" className="w-full mt-3" onClick={()=>setConfirmAction('cancel-offer')}>لغو پیشنهاد انتخاب‌شده</Button></div><div className="h-2 bg-gray-100 rounded-full mt-4 overflow-hidden"><div className="h-full w-2/3 bg-primary-500 rounded-full"/></div></CardBody></Card><Card><CardBody className="p-5"><b>تهران ← مشهد</b><p className="text-xs text-gray-400 mt-1">پیشنهاد شما: ۲۳,۵۰۰,۰۰۰ تومان</p><div className="mt-4 flex items-center gap-2 text-xs text-amber-700"><Clock3 className="w-4 h-4"/> در انتظار پاسخ صاحب بار</div></CardBody></Card></div>;
     if (page==='shipment') return <div className="space-y-4"><Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><b>سفر تهران به مشهد</b><p className="text-xs text-gray-400 mt-1">بار خشک • تریلی</p></div></div><div className="mt-5 space-y-4">{['پیشنهاد تأیید شد','بارگیری انجام شد','در مسیر مقصد'].map((s,i)=><div key={s} className="flex gap-3"><div className={`w-7 h-7 rounded-full flex items-center justify-center ${i<2?'bg-emerald-100 text-emerald-700':'bg-primary-100 text-primary-700'}`}>{i<2?<CheckCircle2 className="w-4 h-4"/>:<Navigation className="w-4 h-4"/>}</div><div><b className="text-sm">{s}</b><p className="text-xs text-gray-400 mt-1">{i<2?'تکمیل شده':'وضعیت فعلی'}</p></div></div>)}</div><div className="mt-5 rounded-2xl bg-gray-50 p-4 text-xs text-gray-600 leading-6">راننده باید اطلاعات بار، مدارک حمل و شرایط تحویل را پیش از حرکت بررسی کند و وضعیت‌های سفر را مطابق واقع ثبت نماید.</div></CardBody></Card></div>;
