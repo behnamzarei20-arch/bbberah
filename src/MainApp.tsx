@@ -344,6 +344,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const provinceData = iranLocations.find(p => String(p.id) === provinceId);
     const [query, setQuery] = useState('');
     const normalizeSearch = (value:string) => value
+      .normalize('NFKC')
       .trim()
       .toLocaleLowerCase('fa-IR')
       .replace(/[يى]/g,'ی')
@@ -361,11 +362,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const selectedCountyId = isOrigin ? originCounty : destinationCounty;
     const selectedCounty = provinceData?.counties.find(c => String(c.id) === selectedCountyId);
     const selectedCountyCities = selectedCounty ? selectedCounty.cities.map(city => ({ city, countyId:String(selectedCounty.id), countyName:selectedCounty.name, provinceName:provinceData!.name })) : [];
-    const sourceCities = normalized
-      ? allDestinationCities
-      : (selectedCounty ? selectedCountyCities : (provinceData ? provinceCities : allDestinationCities));
+    const sourceCities = allDestinationCities;
     const filteredCities = sourceCities
-      .filter(x => !normalized || normalizeSearch(x.city).startsWith(normalized))
+      .filter(x => !normalized || normalizeSearch(x.city).slice(0, normalized.length) === normalized)
       .sort((a,b) => {
         const aExact = normalizeSearch(a.city) === normalized ? 0 : 1;
         const bExact = normalizeSearch(b.city) === normalized ? 0 : 1;
