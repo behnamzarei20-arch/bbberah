@@ -94,15 +94,26 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mt-3">
-        <Button size="sm" variant="outline" disabled={load.status !== 'open'} onClick={onOffer}>
-          <Coins className="w-4 h-4 ml-1" aria-hidden="true"/> پیشنهاد قیمت
-        </Button>
-        <Button size="sm" disabled={load.status !== 'open'} onClick={onOpen}>
-          <Truck className="w-4 h-4 ml-1" aria-hidden="true"/> درخواست برای حمل بار
-        </Button>
+      <div className="grid grid-cols-4 gap-1.5 mt-3">
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-2 text-center">
+          <Package className="w-4 h-4 mx-auto text-primary-600" aria-hidden="true"/>
+          <b className="block text-[10px] mt-1">{load.type}</b>
+        </div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-2 text-center">
+          <WeightIcon className="w-4 h-4 mx-auto text-primary-600" aria-hidden="true"/>
+          <b className="block text-[10px] mt-1">{fa(load.weight)} kg</b>
+        </div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-2 text-center">
+          <CircleDollarSign className="w-4 h-4 mx-auto text-primary-600" aria-hidden="true"/>
+          <b className="block text-[10px] mt-1">کمیسیون براه</b>
+          <span className="block text-[9px] font-bold text-gray-500 mt-0.5">{money(commission)} تومان</span>
+        </div>
+        <button disabled={load.status !== 'open'} onClick={onOffer} className="rounded-xl border border-primary-100 bg-primary-50 p-2 text-center disabled:opacity-50">
+          <Coins className="w-4 h-4 mx-auto text-primary-600" aria-hidden="true"/>
+          <b className="block text-[10px] mt-1 text-primary-800">پیشنهاد قیمت</b>
+        </button>
       </div>
-      <div className="mt-2">
+      <div className="mt-3">
         <Button size="full" variant="outline" onClick={onOpen} className="h-14 text-base font-black">
           <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> درخواست برای حمل بار
         </Button>
