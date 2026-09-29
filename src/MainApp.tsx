@@ -390,7 +390,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       setQuery(''); setCityLimit(120); setSearchSubmitted(false);
     };
     const chooseCity = (city:string, countyId:string) => {
-      setCounty(countyId); setCity(city); setText(city); setQuery(''); setCityLimit(120); setSearchSubmitted(false);
+      setCounty(countyId); setCity(city); setText(city); setQuery(''); setCityLimit(120); setSearchSubmitted(true);
       if (!isOrigin) setDestinationProvince('');
       go('search');
     };
