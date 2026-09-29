@@ -361,9 +361,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const selectedCountyId = isOrigin ? originCounty : destinationCounty;
     const selectedCounty = provinceData?.counties.find(c => String(c.id) === selectedCountyId);
     const selectedCountyCities = selectedCounty ? selectedCounty.cities.map(city => ({ city, countyId:String(selectedCounty.id), countyName:selectedCounty.name, provinceName:provinceData!.name })) : [];
-    const sourceCities = allCities || normalized
-      ? (selectedCounty ? selectedCountyCities : (provinceData ? provinceCities : allDestinationCities))
-      : (selectedCounty ? selectedCountyCities : provinceCities);
+    const sourceCities = normalized
+      ? allDestinationCities
+      : (selectedCounty ? selectedCountyCities : (provinceData ? provinceCities : allDestinationCities));
     const filteredCities = sourceCities
       .filter(x => !normalized || normalizeSearch(x.city).startsWith(normalized))
       .sort((a,b) => {
@@ -372,7 +372,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         return aExact - bExact;
       });
     const filteredCounties = iranLocations.flatMap(p => p.counties
-      .filter(c => (!provinceId || String(p.id) === provinceId) && normalizeSearch(c.name).includes(normalized))
+      .filter(c => (!normalized || !provinceId || String(p.id) === provinceId) && (!normalized || normalizeSearch(c.name).startsWith(normalized)))
       .map(c => ({ countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name, cities:c.cities }))
     );
     const [cityLimit, setCityLimit] = useState(120);
