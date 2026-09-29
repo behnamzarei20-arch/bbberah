@@ -348,9 +348,13 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       .toLocaleLowerCase('fa-IR')
       .replace(/[يى]/g,'ی')
       .replace(/ك/g,'ک')
-      .replace(/ة/g,'ه')
-      .replace(/\s+/g,' ');
-    const normalized = normalizeSearch(query).replace(/^شهرستان\s+/, '');
+      .replace(/[ةۀ]/g,'ه')
+      .replace(/[إأآ]/g,'ا')
+      .replace(/ؤ/g,'و')
+      .replace(/[\u200c\u200f\u202a-\u202e]/g,'')
+      .replace(/[ًٌٍَُِّْـ]/g,'')
+      .replace(/\s+/g,'');
+    const normalized = normalizeSearch(query).replace(/^شهرستان/, '');
     const visibleProvinces = iranLocations.filter(p => !normalized || normalizeSearch(p.name).includes(normalized));
     const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceName:p.name }))));
     const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceName:provinceData.name }))) : [];
