@@ -67,27 +67,54 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       <div className="px-1 pt-2 pb-6" dir="rtl">
-        <div className="flex items-center justify-center gap-4">
-          <div className="relative w-12 h-10 shrink-0 flex items-end justify-center" aria-label="قیمت کم">
-            <div className="flex flex-col items-center -space-y-1">
-              <span className="block w-6 h-2.5 rounded-full border-2 border-primary-200 bg-primary-50"/>
-              <span className="block w-6.5 h-2.5 rounded-full border-2 border-primary-300 bg-primary-100"/>
-              <span className="block w-7 h-2.5 rounded-full border-2 border-primary-400 bg-primary-200"/>
-            </div>
+        <div className="flex items-center justify-center gap-3">
+          <div className="relative w-8 h-6 shrink-0" aria-label="قیمت کم">
+            <svg viewBox="0 0 32 24" className="w-full h-full" aria-hidden="true">
+              <g transform="translate(2 12)">
+                <ellipse cx="7" cy="3" rx="6.5" ry="2.8" className="fill-primary-100 stroke-primary-300" strokeWidth="1"/>
+                <ellipse cx="7" cy="1" rx="6.5" ry="2.8" className="fill-primary-200 stroke-primary-400" strokeWidth="1"/>
+                <ellipse cx="7" cy="-1" rx="6.5" ry="2.8" className="fill-primary-300 stroke-primary-500" strokeWidth="1"/>
+                <path d="M0.7 -1v2.2c0 1.4 2.8 2.5 6.3 2.5s6.3-1.1 6.3-2.5V-1" className="fill-primary-200 stroke-primary-400" strokeWidth="1"/>
+                <ellipse cx="7" cy="-1" rx="6.5" ry="2.8" className="fill-primary-300 stroke-primary-500" strokeWidth="1"/>
+                <circle cx="7" cy="-1" r="2.1" className="fill-primary-100 stroke-primary-500" strokeWidth="0.8"/>
+              </g>
+            </svg>
           </div>
-          <div className="relative w-[8rem] h-1.5 rounded-full bg-gray-100 overflow-hidden">
-            <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-primary-200 to-primary-400"/>
-            <span className="absolute top-1/2 right-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-600 shadow-sm" aria-hidden="true"/>
+
+          <div className="relative w-[7.5rem] h-1.5 rounded-full bg-gray-100">
+            <div className="absolute inset-y-0 right-0 w-1/3 rounded-full bg-gradient-to-l from-primary-200 to-primary-300"/>
+            <span className="absolute top-1/2 right-[38%] -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white border-2 border-primary-600 shadow-sm" aria-hidden="true"/>
           </div>
-          <div className="relative w-14 h-10 shrink-0 flex items-end justify-center" aria-label="قیمت زیاد">
-            <div className="grid grid-cols-3 gap-x-0.5 gap-y-[-2px] items-end">
-              <span className="block w-5 h-2.5 rounded-full border-2 border-primary-400 bg-primary-100"/>
-              <span className="block w-5 h-2.5 rounded-full border-2 border-primary-500 bg-primary-200"/>
-              <span className="block w-5 h-2.5 rounded-full border-2 border-primary-600 bg-primary-300"/>
-              <span className="block w-5 h-2.5 rounded-full border-2 border-primary-500 bg-primary-200"/>
-              <span className="block w-5 h-2.5 rounded-full border-2 border-primary-600 bg-primary-300"/>
-              <span className="block w-5 h-2.5 rounded-full border-2 border-primary-700 bg-primary-400"/>
-            </div>
+
+          <div className="relative w-10 h-7 shrink-0" aria-label="قیمت زیاد">
+            <svg viewBox="0 0 40 28" className="w-full h-full" aria-hidden="true">
+              <g transform="translate(1 19)">
+                <g transform="translate(0 0)">
+                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-200 stroke-primary-400" strokeWidth="0.9"/>
+                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-300 stroke-primary-500" strokeWidth="0.9"/>
+                </g>
+                <g transform="translate(7 -2)">
+                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-300 stroke-primary-500" strokeWidth="0.9"/>
+                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-400 stroke-primary-600" strokeWidth="0.9"/>
+                </g>
+                <g transform="translate(14 -4)">
+                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-400 stroke-primary-600" strokeWidth="0.9"/>
+                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-500 stroke-primary-700" strokeWidth="0.9"/>
+                </g>
+                <g transform="translate(7 -8)">
+                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-500 stroke-primary-700" strokeWidth="0.9"/>
+                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-600 stroke-primary-800" strokeWidth="0.9"/>
+                </g>
+                <g transform="translate(21 -10)">
+                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-600 stroke-primary-800" strokeWidth="0.9"/>
+                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-700 stroke-primary-900" strokeWidth="0.9"/>
+                </g>
+                <g transform="translate(14 -14)">
+                  <ellipse cx="5" cy="2.5" rx="4.5" ry="2.2" className="fill-primary-700 stroke-primary-900" strokeWidth="0.9"/>
+                  <ellipse cx="5" cy=".5" rx="4.5" ry="2.2" className="fill-primary-800 stroke-primary-950" strokeWidth="0.9"/>
+                </g>
+              </g>
+            </svg>
           </div>
         </div>
         <div className="mt-1 flex items-center justify-center gap-[5.5rem] text-[9px] font-bold text-gray-400">
