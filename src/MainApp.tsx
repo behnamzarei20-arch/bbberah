@@ -89,9 +89,9 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       </div>
 
-      <div className="flex items-start gap-2 py-7 my-4 border-y border-gray-100" dir="rtl">
+      <div className="flex items-start gap-2 py-7 mt-4 mb-10 border-y border-gray-100" dir="rtl">
         <div className="flex-1 text-right">
-          <Target className="w-6 h-6 text-primary-600 mb-2 mr-auto" aria-hidden="true"/>
+          <Target className="w-6 h-6 text-primary-600 mb-2 mx-auto" aria-hidden="true"/>
           <b className="block text-xl font-black leading-8">{load.from}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
         </div>
@@ -103,13 +103,13 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           </div>
         </div>
         <div className="flex-1 text-left">
-          <MapPin className="w-6 h-6 text-primary-600 mb-2 ml-auto" aria-hidden="true"/>
+          <MapPin className="w-6 h-6 text-primary-600 mb-2 mx-auto" aria-hidden="true"/>
           <b className="block text-xl font-black leading-8">{load.to}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mt-4">
+      <div className="grid grid-cols-3 gap-2 mt-0">
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
           <Package className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
           <b className="block text-xs mt-1">{load.type}</b>
