@@ -301,6 +301,16 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{setOrigin(route.from);setOriginText(route.from);setDestination(route.to);setDestinationText(route.to);setSearchSubmitted(true);go('search');}} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
       </CardBody></Card>
 
+      {!searchSubmitted && <>
+        <div className="mt-5 mb-2 text-sm font-black text-gray-700">نمونه بار</div>
+        <LoadCard
+          key="sample-l6"
+          load={loads.find(l=>l.id==='l6') || loads[0]}
+          onOpen={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];setSelected(sample);go('cargo-detail')}}
+          onOffer={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];requestOffer(sample)}}
+        />
+      </>}
+
       {searchSubmitted && <>
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500">{filtered.length ? `بارهای مرتبط: ${fa(filtered.length)} مورد` : 'بار مرتبط پیدا نشد'}</span>
@@ -371,7 +381,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         </div>}
         {(provinceData || allCities) && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCities ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCities ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery(''); if (!isOrigin && allCities) go('destination-select');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
-          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{x.city}</span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">استان {allCities ? cityProvinceName(x.city) : provinceData?.name}</span></span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
           {allCities && !normalized && allDestinationCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, allDestinationCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, allDestinationCities.length-visibleCities.length))})</button>}
         </div>}
       </CardBody></Card>
