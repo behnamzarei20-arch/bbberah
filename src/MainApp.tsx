@@ -66,17 +66,16 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         <b className="block text-2xl font-black text-gray-950 leading-9">{money(load.price)} تومان</b>
       </div>
 
-      <div className="px-1 pt-2 pb-6" dir="rtl">
-        <div className="flex items-center justify-center gap-3">
-          <div className="relative w-[9rem] h-2 rounded-full bg-gradient-to-r from-primary-700 via-primary-400 to-primary-200 shadow-inner" aria-label="محدوده قیمت">
+      <div className="px-1 pt-2 pb-6">
+        <div className="relative mx-auto w-[9rem]">
+          <div className="h-2 rounded-full bg-gradient-to-r from-primary-700 via-primary-400 to-primary-200 shadow-inner" aria-label="محدوده قیمت">
             <span className="absolute top-1/2 left-[62%] -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
           </div>
+          <div className="mt-1 flex items-center justify-between text-[9px] font-bold text-gray-400" dir="ltr">
+            <span>زیاد</span>
+            <span>کم</span>
+          </div>
         </div>
-        <div className="mt-1 flex items-center justify-between px-1 text-[9px] font-bold text-gray-400" dir="ltr">
-          <span>کم</span>
-          <span>زیاد</span>
-        </div>
-      </div>
       </div>
 
       <div className="flex items-center gap-2 py-7 my-4 border-y border-gray-100" dir="rtl">
