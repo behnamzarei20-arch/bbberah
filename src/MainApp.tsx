@@ -28,6 +28,7 @@ const seedLoads: Load[] = [
   { id:'l3', title:'کالای تجاری تبریز به تهران', from:'تبریز', to:'تهران', type:'کالای تجاری', vehicle:'خاور', weight:4500, price:8600000, pickup:'فردا، ۱۱:۳۰', delivery:'پس‌فردا، ۰۹:۰۰', status:'open', distance:76, routeDistance:630, description:'کالای تجاری بسته‌بندی‌شده؛ جزئیات محموله هنگام هماهنگی حمل اعلام می‌شود.', phone:'09120000003' },
   { id:'l4', title:'مصالح ساختمانی قم به تهران', from:'قم', to:'تهران', type:'ساختمانی', vehicle:'تریلی', weight:22000, price:16400000, pickup:'شنبه، ۰۷:۰۰', delivery:'شنبه، ۱۳:۰۰', status:'reserved', distance:96, routeDistance:140, description:'مصالح ساختمانی بسته‌بندی‌شده؛ هماهنگی بارگیری و تحویل طبق برنامه حمل.', phone:'09120000004' },
   { id:'l5', title:'بار کشاورزی رشت به قزوین', from:'رشت', to:'قزوین', type:'کشاورزی', vehicle:'کامیون', weight:7500, price:9700000, pickup:'شنبه، ۰۹:۰۰', delivery:'شنبه، ۱۶:۰۰', status:'open', distance:118, routeDistance:178, description:'بار کشاورزی بسته‌بندی‌شده؛ شرایط حمل و زمان تحویل هنگام هماهنگی اعلام می‌شود.', phone:'09120000005' },
+  { id:'l6', title:'تره بار شهر صنعتی البرز به قائمشهر', from:'شهر صنعتی البرز', to:'قائمشهر', type:'تره بار', vehicle:'کامیون', weight:2000, price:10000000, pickup:'امروز، ۱۰:۰۰', delivery:'امروز، ۱۸:۰۰', status:'open', distance:240, routeDistance:330, description:'نمونه بار برای نمایش ساختار کارت؛ مبدأ شهر صنعتی البرز از استان قزوین و مقصد قائمشهر از استان مازندران.', phone:'09120000006' },
 ];
 const frequentRoutes = [
   { from:'تهران', to:'مشهد' },
@@ -38,6 +39,10 @@ const frequentRoutes = [
 
 const money = (v:number) => new Intl.NumberFormat('fa-IR').format(v);
 const fa = (v:string|number) => String(v).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+const cityProvinceName = (city:string) => {
+  for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return province.name;
+  return '';
+};
 
 function Status({ status }: { status: LoadStatus }) {
   const map = {
@@ -85,7 +90,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       <div className="flex items-center gap-2 py-7 my-4 border-y border-gray-100" dir="rtl">
-        <div className="flex-1 text-right"><Target className="w-5 h-5 inline-block text-primary-600 ml-1" aria-hidden="true"/><b className="text-lg font-black">{load.from}</b></div>
+        <div className="flex-1 text-right"><Target className="w-5 h-5 inline-block text-primary-600 ml-1" aria-hidden="true"/><div><b className="text-xl font-black leading-8">{load.from}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span></div></div>
         <div className="w-28 relative flex items-center justify-center">
           <div className="w-full border-t-2 border-dashed border-primary-300"/>
           <div className="absolute flex flex-col items-center bg-white px-1 -top-2">
@@ -93,7 +98,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
             <span className="text-xs font-black text-primary-800 mt-0.5">{fa(load.routeDistance)}km</span>
           </div>
         </div>
-        <div className="flex-1 text-left"><b className="text-lg font-black">{load.to}</b><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 mr-1" aria-hidden="true"/></div>
+        <div className="flex-1 text-left"><div><b className="text-xl font-black leading-8">{load.to}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span></div><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 mr-1" aria-hidden="true"/></div>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mt-4">
