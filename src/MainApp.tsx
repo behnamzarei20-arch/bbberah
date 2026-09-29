@@ -287,7 +287,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <Card><CardBody className="p-4">
         <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4"><div className="flex items-center gap-2"><Search className="w-5 h-5 text-primary-700"/><h2 className="font-black text-primary-900">جستجوی بار</h2></div></div>
 
-        <button onClick={()=>go('origin-select')} className="w-full mt-5 rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
+        <button onClick={()=>go('origin-select')} className="w-full mt-5 mb-3 rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مبدأ</span>
           <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={originText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{originText || 'استان یا شهر مبدا را وارد کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
         </button>
