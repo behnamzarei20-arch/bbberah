@@ -3,7 +3,7 @@ import {
   ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
-  Truck, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins
+  Truck, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -67,7 +67,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       <div className="flex items-center gap-2 py-4 border-y border-gray-100" dir="rtl">
-        <div className="flex-1 text-right"><MapPin className="w-5 h-5 inline-block fill-current text-primary-600 ml-1" aria-hidden="true"/><b>{load.from}</b></div>
+        <div className="flex-1 text-right"><Target className="w-5 h-5 inline-block text-primary-600 ml-1" aria-hidden="true"/><b>{load.from}</b></div>
         <div className="w-28 relative flex items-center justify-center">
           <div className="w-full border-t-2 border-dashed border-primary-300"/>
           <div className="absolute flex flex-col items-center bg-white px-1 -top-2">
