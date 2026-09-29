@@ -207,8 +207,18 @@ export function MainApp() {
   const filtered = useMemo(() => loads.filter(l => {
     if (l.status === 'delivered') return false;
     const ol = findCityLocation(l.from), dl = findCityLocation(l.to);
-    const originMatch = !origin && !originProvince ? true : origin === '__nearby__' ? l.distance <= 50 : !!ol && (!originProvince || ol.provinceId === originProvince) && (!originCounty || ol.countyId === originCounty) && (!origin || l.from === origin);
-    const destinationMatch = !destination && !destinationProvince ? true : !!dl && (!destinationProvince || dl.provinceId === destinationProvince) && (!destinationCounty || dl.countyId === destinationCounty) && (!destination || l.to === destination);
+    const originMatch = origin === '__nearby__'
+      ? l.distance <= 50
+      : origin
+        ? l.from === origin
+        : !originProvince
+          ? true
+          : !!ol && ol.provinceId === originProvince && (!originCounty || ol.countyId === originCounty);
+    const destinationMatch = destination
+      ? l.to === destination
+      : !destinationProvince
+        ? true
+        : !!dl && dl.provinceId === destinationProvince && (!destinationCounty || dl.countyId === destinationCounty);
     return originMatch && destinationMatch;
   }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty]);
   const title:Record<Page,string> = {
