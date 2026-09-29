@@ -273,15 +273,6 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   </div>;
 
   const SearchPage = () => {
-    <div className="pt-3">
-      <div className="mb-2 text-sm font-black text-gray-700">نمونه بار</div>
-      <LoadCard
-        load={loads.find(l=>l.id==='l6') || loads[0]}
-        onOpen={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];setSelected(sample);go('cargo-detail')}}
-        onOffer={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];requestOffer(sample)}}
-      />
-    </div>
-
     const runSearch = () => {
       const nearbyMode = origin === '__nearby__' || originText === 'اطراف من';
       const allDestinationsMode = destinationText === 'همه شهرها';
@@ -323,15 +314,15 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{setOrigin(route.from);setOriginText(route.from);setDestination(route.to);setDestinationText(route.to);setSearchSubmitted(true);go('search');}} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
       </CardBody></Card>
 
-      {!searchSubmitted && <>
-        <div className="mt-5 mb-2 text-sm font-black text-gray-700">نمونه بار</div>
+      <div className="pt-3">
+        <div className="mb-2 text-sm font-black text-gray-700">نمونه بار</div>
         <LoadCard
           key="sample-l6"
           load={loads.find(l=>l.id==='l6') || loads[0]}
           onOpen={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];setSelected(sample);go('cargo-detail')}}
           onOffer={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];requestOffer(sample)}}
         />
-      </>}
+      </div>
 
       {searchSubmitted && <>
         <div className="flex items-center justify-between">
