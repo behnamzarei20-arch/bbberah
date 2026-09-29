@@ -269,6 +269,15 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">پیشنهادهای من</b><span className="block mt-1 text-sm text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
+
+    <div className="pt-3">
+      <div className="mb-2 text-sm font-black text-gray-700">نمونه بار</div>
+      <LoadCard
+        load={loads.find(l=>l.id==='l6') || loads[0]}
+        onOpen={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];setSelected(sample);go('cargo-detail')}}
+        onOffer={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];requestOffer(sample)}}
+      />
+    </div>
   </div>;
 
   const SearchPage = () => {
