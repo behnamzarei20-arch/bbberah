@@ -67,7 +67,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         <span className="block text-xs font-bold text-gray-400 mt-1">تومان</span>
         <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1.5">
           <Route className="w-4 h-4 text-primary-600 rotate-180" />
-          <span className="text-sm font-black text-primary-800">فاصله مسیر: {fa(load.routeDistance)} کیلومتر</span>
+          <span className="text-sm font-black text-primary-800 flex items-center gap-1.5"><Route className="w-5 h-5" aria-hidden="true"/><span>{fa(load.routeDistance)} KM</span></span>
         </div>
       </div>
       <div className="flex items-center justify-between gap-3 pt-3">
