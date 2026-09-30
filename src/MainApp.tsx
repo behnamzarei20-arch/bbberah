@@ -3,7 +3,7 @@ import {
   ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
-  Truck, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2
+  Truck, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -545,7 +545,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><WeightIcon className="w-5 h-5 text-amber-600"/></div><span className="block text-gray-400 mt-2">وزن بار</span><b className="block mt-1">{fa(selected.weight)} کیلو</b></div>
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-400 mt-2">کرایه اعلامی</span><b className="block mt-1">{money(selected.price)} تومان</b></div>
     </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
-    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p><div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-bold text-amber-900 leading-7">نکته مهم: مسئولیت توافق درباره مبلغ و نحوه پرداخت، شرایط حمل و تحویل بار و اجرای حمل بر عهده طرفین معامله است و براه مسئولیتی در قبال پرداخت یا اجرای حمل ندارد.</div><a href={`tel:${selected.phone}`} className="mt-4 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 py-3 flex items-center justify-center gap-2 font-bold text-sm text-white"><Phone className="w-4 h-4 text-white"/> تماس برای هماهنگی</a></CardBody></Card>
+    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p><div className="mt-4 flex items-center gap-2 text-sm font-bold text-red-600"><AlertTriangle className="w-5 h-5 shrink-0"/> <span>مسئولیت پرداخت و حمل بر عهده طرفین است؛ براه مسئولیتی ندارد.</span></div><a href={`tel:${selected.phone}`} className="mt-4 w-full rounded-xl bg-emerald-400 hover:bg-emerald-500 py-3 flex items-center justify-center gap-2 font-bold text-sm text-white"><Phone className="w-4 h-4 text-white"/> تماس برای هماهنگی</a></CardBody></Card>
     <Button size="full" disabled={selected.status!=='open'} onClick={()=>requestOffer(selected)}>{selected.status==='open'?'ثبت پیشنهاد برای این بار':'این بار قابل پیشنهاد نیست'}</Button>
   </div> : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
