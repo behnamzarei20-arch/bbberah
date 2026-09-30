@@ -210,6 +210,12 @@ export function MainApp() {
   const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
   return saved === null ? 5000000 : Number(saved);
 });
+const [settledShipmentIds, setSettledShipmentIds] = useState<string[]>(() => {
+  try {
+    const v = JSON.parse(window.localStorage.getItem('bbberah_settled_shipments_v1') || '[]');
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+  } catch { return []; }
+});
 const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => {
     window.localStorage.removeItem('bbberah_contact_history_v1');
     try { const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v2') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
@@ -231,6 +237,7 @@ const [contactHistory, setContactHistory] = useState<Array<{loadId:string; statu
   }, [agreedFollowupLoadId]);
   useEffect(() => { window.localStorage.setItem('bbberah_driver_score_v1', String(driverScore)); }, [driverScore]);
   useEffect(() => { window.localStorage.setItem('bbberah_wallet_balance_v1', String(walletBalance)); }, [walletBalance]);
+  useEffect(() => { window.localStorage.setItem('bbberah_settled_shipments_v1', JSON.stringify(settledShipmentIds)); }, [settledShipmentIds]);
   useEffect(() => { window.localStorage.setItem('bbberah_owner_driver_rating_v1', String(ownerDriverRating)); }, [ownerDriverRating]);
 useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON.stringify(contactHistory)); }, [contactHistory]);
   useEffect(() => {
@@ -714,6 +721,22 @@ const ProfilePage = () => <div className="space-y-3">
     });
   };
 
+  const settleShipment = (load:Load) => {
+    const commission = Math.round(load.price * 0.05);
+    const scoreChange = Math.max(1, Math.round(commission / 50000));
+    if (settledShipmentIds.includes(load.id)) {
+      notify('کمیسیون و امتیاز این حمل قبلاً ثبت شده است.');
+      setAgreedFollowupLoadId(null);
+      return;
+    }
+    setSettledShipmentIds(prev => [...prev, load.id]);
+    setWalletBalance(prev => prev - commission);
+    setDriverScore(prev => prev + scoreChange);
+    setContactHistory(prev => [...prev, {loadId:load.id, status:'carried', at:Date.now()}]);
+    setAgreedFollowupLoadId(null);
+    notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان کسر و ${fa(scoreChange)} امتیاز اضافه شد.`);
+  };
+
   const ContactReportPage = () => {
     const declinedCount = selected ? (declinedContactCounts[selected.id] || 0) : 0;
     const declinedBlocked = declinedCount >= 2;
@@ -825,14 +848,7 @@ const ProfilePage = () => <div className="space-y-3">
           <div className="flex items-center gap-3"><CheckCircle2 className="w-7 h-7 text-emerald-600"/><div><b>تعیین تکلیف حمل</b><p className="text-xs text-gray-400 mt-1">{followupLoad.from} به {followupLoad.to}</p></div></div>
           <div className="mt-4 rounded-2xl bg-gray-50 p-4 text-sm font-bold leading-7">برای این بار توافق ثبت شده است. پس از تعیین نتیجه، امتیاز و کمیسیون مطابق عملکرد شما ثبت می‌شود.</div>
           <div className="grid grid-cols-1 gap-3 mt-4">
-            <Button size="full" className="h-14 text-base font-black" onClick={()=>{
-              setContactHistory(prev=>[...prev,{loadId:followupLoad.id,status:'carried',at:Date.now()}]);
-              setWalletBalance(v=>v-commission);
-              setDriverScore(v=>v+scoreChange);
-              setAgreedFollowupLoadId(null);
-              setAgreedFollowupLoadId(null);
-              notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان کسر و ${fa(scoreChange)} امتیاز اضافه شد.`);
-            }}>۱. بار را حمل کردم</Button>
+            <Button size="full" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad)}>۱. بار را حمل کردم</Button>
             <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>{
               setContactHistory(prev=>[...prev,{loadId:followupLoad.id,status:'declined',at:Date.now()}]);
               setDeclinedContactCounts(prev=>({...prev,[followupLoad.id]:(prev[followupLoad.id]||0)+1}));
