@@ -163,7 +163,7 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 }
 
 export function MainApp() {
-  const { profile, signOut } = useAuth();
+  const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads]);
   const [selected, setSelected] = useState<Load|null>(null);
