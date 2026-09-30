@@ -605,46 +605,52 @@ const ProfilePage = () => <div className="space-y-3">
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
   const ContactReportPage = () => {
+    const declinedCount = selected ? (declinedContactCounts[selected.id] || 0) : 0;
+    const declinedBlocked = declinedCount >= 2;
     const submitContactReport = () => {
-      if (!contactReport) return notify('لطفاً نتیجه تماس را مشخص کنید.');
+      if (!contactReport) return notify('لطفاً یکی از سه نتیجه تماس را انتخاب کنید.');
+      if (!selected) return notify('بار موردنظر پیدا نشد.');
       if (contactReport === 'agreed') {
-        const n = Number(contactFinalPrice.replace(/,/g,''));
-        if (!Number.isFinite(n) || n <= 0) return notify('مبلغ نهایی توافق را وارد کنید.');
-        notify('نتیجه توافق و مبلغ نهایی ثبت شد.');
-      } else {
-        notify('نتیجه تماس ثبت شد.');
+        setPendingContactLoadId(null);
+        notify('توافق ثبت شد. کمیسیون بر اساس کرایه اعلامی بار محاسبه می‌شود.');
+        return;
       }
+      if (contactReport === 'declined') {
+        if (declinedBlocked) return notify('این نتیجه برای این بار دو بار ثبت شده و دیگر قابل انتخاب نیست.');
+        const nextCount = declinedCount + 1;
+        setDeclinedContactCounts(prev => ({...prev, [selected.id]: nextCount}));
+        setPendingContactLoadId(null);
+        notify(nextCount >= 2 ? 'این بار دو بار بدون توافق ثبت شد؛ انتخاب دوباره این گزینه برای همین بار بسته شد.' : 'عدم توافق ثبت شد.');
+        return;
+      }
+      setPendingContactLoadId(selected.id);
+      notify('این بار در وضعیت «مشخص نیست» باقی ماند و یادآوری آن در برنامه نمایش داده می‌شود.');
     };
     const options = [
-      ['agreed','توافق کردیم — حمل انجام می‌شود','مبلغ نهایی توافق‌شده را هم ثبت کنید.','bg-emerald-50 border-emerald-200 text-emerald-800'],
-      ['declined','توافق نکردیم','توافقی برای این بار انجام نشد.','bg-red-50 border-red-200 text-red-800'],
-      ['uncertain','هنوز مشخص نیست','هنوز درباره حمل به نتیجه نرسیده‌ایم.','bg-amber-50 border-amber-200 text-amber-800'],
-      ['unanswered','طرف مقابل پاسخ نداد','تماس برقرار شد اما پاسخ دریافت نشد.','bg-gray-50 border-gray-200 text-gray-700'],
-      ['wrong-number','شماره اشتباه / امکان تماس نبود','امکان هماهنگی با این شماره وجود نداشت.','bg-gray-50 border-gray-200 text-gray-700'],
-      ['other','سایر','نتیجه تماس در گزینه‌های بالا نبود.','bg-gray-50 border-gray-200 text-gray-700'],
+      ['agreed','توافق کردیم — حمل انجام می‌شود','کمیسیون بر اساس کرایه اعلامی بار محاسبه می‌شود.','bg-emerald-50 border-emerald-200 text-emerald-800'],
+      ['declined','توافق نکردیم','پس از دو ثبت برای همین بار، انتخاب دوباره این گزینه بسته می‌شود.','bg-red-50 border-red-200 text-red-800'],
+      ['uncertain','مشخص نیست','این مورد باز می‌ماند و تا تعیین تکلیف، یادآوری آن نمایش داده می‌شود.','bg-amber-50 border-amber-200 text-amber-800'],
     ] as const;
     return <div className="space-y-4">
       <Card><CardBody className="p-5">
         <div className="flex items-start gap-3">
           <PhoneCall className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
-          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">برای ادامه، نتیجه تماس درباره این بار را مشخص کنید.</p></div>
+          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">بعد از تماس، فقط یکی از سه نتیجه زیر را ثبت کنید.</p></div>
         </div>
         {selected && <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
       </CardBody></Card>
       <Card><CardBody className="p-4">
         <div className="space-y-2">
-          {options.map(([value,title,desc,cls])=><button key={value} type="button" onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls}`}>
-            <span className="block font-black text-base">{title}</span><span className="block text-xs font-bold mt-1 opacity-75">{desc}</span>
-          </button>)}
+          {options.map(([value,title,desc,cls])=>{
+            const blocked = value==='declined' && declinedBlocked;
+            return <button key={value} type="button" disabled={blocked} onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls} ${blocked?'opacity-45 cursor-not-allowed':''}`}>
+              <span className="block font-black text-base">{title}</span><span className="block text-xs font-bold mt-1 opacity-75">{desc}</span>
+              {value==='declined' && <span className="block text-xs font-black mt-2">{declinedCount}/۲ ثبت برای این بار</span>}
+            </button>;
+          })}
         </div>
-        {contactReport === 'agreed' && <div className="mt-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4">
-          <label className="block text-sm font-black text-emerald-900">مبلغ نهایی توافق‌شده</label>
-          <div className="mt-2 flex items-center gap-2">
-            <input inputMode="numeric" value={contactFinalPrice} onChange={e=>setContactFinalPrice(e.target.value.replace(/[^0-9]/g,''))} className="flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-3 text-lg font-black text-center outline-none focus:border-primary-500" placeholder="مبلغ را وارد کنید"/>
-            <span className="font-black text-emerald-800">تومان</span>
-          </div>
-          <p className="text-xs font-bold text-emerald-800 mt-2 leading-5">ثبت مبلغ نهایی برای ثبت توافق الزامی است.</p>
-        </div>}
+        {contactReport === 'agreed' && selected && <div className="mt-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-sm font-black text-emerald-900 leading-6">با انتخاب این گزینه، کمیسیون بر اساس کرایه اعلامی همین بار محاسبه می‌شود، نه مبلغ توافق نهایی.</div>}
+        {contactReport === 'uncertain' && <div className="mt-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-sm font-black text-amber-900 leading-6">این مورد باز می‌ماند و یادآوری تعیین تکلیف آن در برنامه باقی می‌ماند.</div>}
         <Button size="full" className="mt-4 h-14 text-base font-black" onClick={submitContactReport}>ثبت نتیجه تماس</Button>
         <p className="text-center text-xs font-bold text-gray-400 mt-3 leading-5">ثبت نتیجه تماس برای بستن این مرحله الزامی است.</p>
       </CardBody></Card>
