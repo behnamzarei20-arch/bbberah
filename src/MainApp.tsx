@@ -209,7 +209,10 @@ export function MainApp() {
   const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
   return saved === null ? 5000000 : Number(saved);
 });
-const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v1') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } });
+const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => {
+    window.localStorage.removeItem('bbberah_contact_history_v1');
+    try { const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v2') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+  });
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
@@ -223,7 +226,7 @@ const [contactHistory, setContactHistory] = useState<Array<{loadId:string; statu
   }, [agreedFollowupLoadId]);
   useEffect(() => { window.localStorage.setItem('bbberah_driver_score_v1', String(driverScore)); }, [driverScore]);
   useEffect(() => { window.localStorage.setItem('bbberah_wallet_balance_v1', String(walletBalance)); }, [walletBalance]);
-useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v1', JSON.stringify(contactHistory)); }, [contactHistory]);
+useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON.stringify(contactHistory)); }, [contactHistory]);
   useEffect(() => {
     if (pendingContactLoadId) window.localStorage.setItem('bbberah_pending_contact_load_v1', pendingContactLoadId);
     else window.localStorage.removeItem('bbberah_pending_contact_load_v1');
@@ -404,7 +407,24 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     </aside>
   </div> : null;
 
-  const HomePage = () => <div className="space-y-4">
+  const HomePage = () => {
+    const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
+    const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
+    const resolveUncertainContact = (item: typeof contactHistory[number], status:'agreed'|'declined') => {
+      const load = loads.find(l=>l.id===item.loadId);
+      if (!load) return;
+      setContactHistory(prev=>prev.map(entry=>entry.loadId===item.loadId && entry.at===item.at ? {...entry,status,at:Date.now()} : entry));
+      if (status==='agreed') {
+        setPendingContactLoadId(null);
+        setAgreedFollowupLoadId(load.id);
+        notify('وضعیت تماس به «توافق کردیم» تغییر کرد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
+      } else {
+        setPendingContactLoadId(null);
+        setDeclinedContactCounts(prev=>({...prev,[load.id]:(prev[load.id]||0)+1}));
+        notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
+      }
+    };
+    return <div className="space-y-4">
     <button onClick={openSearchPage} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-600"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
@@ -417,8 +437,27 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">پیشنهادهای من</b><span className="block mt-1 text-sm text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
-
+    <Card><CardBody className="p-5">
+      <div className="flex items-center gap-3"><Phone className="w-6 h-6 text-primary-600"/><b>تماس‌ها و وضعیت‌ها</b></div>
+      <div className="mt-4 space-y-3">
+        {contactHistory.length===0 ? <p className="text-sm text-gray-500">هنوز سابقه تماسی ثبت نشده است.</p> : [...contactHistory].reverse().map((item,idx)=>{
+          const load=loads.find(l=>l.id===item.loadId);
+          return <div key={item.loadId+'-'+item.at+'-'+idx} className="rounded-xl border border-gray-100 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <b>{load ? load.from+' ← '+load.to : 'بار ثبت‌شده'}</b>
+              <span className={'rounded-full px-3 py-1 text-xs font-black '+contactStatusClass[item.status]}>{contactStatusLabel[item.status]}</span>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">{new Date(item.at).toLocaleDateString('fa-IR')}</p>
+            {item.status==='uncertain' && load && <div className="grid grid-cols-2 gap-2 mt-3">
+              <Button size="sm" className="w-full" onClick={()=>resolveUncertainContact(item,'agreed')}>توافق کردیم</Button>
+              <Button size="sm" variant="outline" className="w-full" onClick={()=>resolveUncertainContact(item,'declined')}>توافق نکردیم</Button>
+            </div>}
+          </div>;
+        })}
+      </div>
+    </CardBody></Card>
   </div>;
+  };
 
   const SearchPage = () => {
     const runSearch = () => {
@@ -724,9 +763,6 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='offers') return <div className="space-y-3">
       {offerSuccess && <Card><CardBody className="p-4 bg-emerald-50"><div className="flex items-center gap-3 text-emerald-700"><CheckCircle2 className="w-6 h-6 shrink-0"/><div><b>پیشنهاد با موفقیت ارسال شد</b><p className="text-xs mt-1">پیشنهاد شما در فهرست پیشنهادهای من ثبت شد.</p></div></div></CardBody></Card>}
       <Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">پیشنهادهای فعال</span><b>۲</b></div><div className="h-2 bg-gray-100 rounded-full mt-4 overflow-hidden"><div className="h-full w-2/3 bg-primary-500 rounded-full"/></div></CardBody></Card>
-      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Phone className="w-6 h-6 text-primary-600"/><b>تماس‌ها و وضعیت‌ها</b></div><div className="mt-4 space-y-3">
-        {contactHistory.length===0 ? <p className="text-sm text-gray-500">هنوز تماسی برای پیشنهادهای شما ثبت نشده است.</p> : [...contactHistory].reverse().map((item,idx)=>{ const load=loads.find(l=>l.id===item.loadId); const labels={agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const; const styles={agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const; return <div key={item.loadId+'-'+item.at+'-'+idx} className="rounded-xl border border-gray-100 p-3"><div className="flex items-center justify-between gap-3"><b>{load ? load.from+' ← '+load.to : 'بار ثبت‌شده'}</b><span className={'rounded-full px-3 py-1 text-xs font-black '+styles[item.status]}>{labels[item.status]}</span></div><p className="text-xs text-gray-400 mt-2">{new Date(item.at).toLocaleDateString('fa-IR')}</p></div>})}
-      </div></CardBody></Card>
       <Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">مدیریت پیشنهاد</span><Button variant="outline" className="w-full mt-3" onClick={()=>setConfirmAction('cancel-offer')}>لغو پیشنهاد انتخاب‌شده</Button></div></CardBody></Card>
     </div>;
     if (page==='shipment') return <div className="space-y-4">
