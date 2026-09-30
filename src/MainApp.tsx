@@ -280,6 +280,8 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   }, [pendingContactReturn]);
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerDetailLoadId, setOfferDetailLoadId] = useState<string | null>(null);
+  const [offerDetailDragY, setOfferDetailDragY] = useState(0);
+  const offerDetailTouchStartY = useRef<number | null>(null);
   const [offerSlider, setOfferSlider] = useState(50);
   const [offerPercent, setOfferPercent] = useState(0);
   const offerTouchStartY = useRef<number | null>(null);
@@ -356,6 +358,43 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
 offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس'
   };
+
+  const openOfferDetail = (loadId:string) => {
+    setOfferDetailLoadId(loadId);
+    setOfferDetailDragY(0);
+    window.history.pushState({ bbberahPage: page, bbberahOfferDetail: true }, '', window.location.href);
+  };
+  const closeOfferDetail = () => {
+    if (window.history.state?.bbberahOfferDetail) {
+      window.history.back();
+    } else {
+      setOfferDetailLoadId(null);
+      setOfferDetailDragY(0);
+    }
+  };
+  useEffect(() => {
+    if (!offerDetailLoadId) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overscrollBehavior = 'none';
+    const onOfferDetailBack = () => {
+      setOfferDetailLoadId(null);
+      setOfferDetailDragY(0);
+    };
+    window.addEventListener('popstate', onOfferDetailBack);
+    return () => {
+      window.removeEventListener('popstate', onOfferDetailBack);
+      document.body.style.overflow = prevOverflow;
+      document.body.style.overscrollBehavior = prevOverscroll;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
+    };
+  }, [offerDetailLoadId]);
 
   const requestOffer = (load:Load) => {
     if (myOffers.some(o => o.loadId === load.id)) {
@@ -856,12 +895,12 @@ const ProfilePage = () => <div className="space-y-3">
           return <Card key={offer.loadId}><CardBody className="p-4">
             <div className="flex items-center gap-3" dir="rtl">
               <div className="flex-1 min-w-0"><div className="flex items-center justify-center gap-2 text-lg font-black whitespace-nowrap"><span className="text-gray-950">⚫️{load.from}</span><span className="text-gray-400">---&gt;</span><span className="text-blue-600">🔵{load.to}</span></div><div className="mt-2 text-center text-xs font-bold text-gray-400">{offerDate} / {offerWeekday}</div></div>
-              <button type="button" onClick={()=>setOfferDetailLoadId(offer.loadId)} aria-label="دیدن جزئیات" className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><MoreVertical className="w-5 h-5 text-gray-500"/></button>
+              <button type="button" onClick={()=>openOfferDetail(offer.loadId)} aria-label="دیدن جزئیات" className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><MoreVertical className="w-5 h-5 text-gray-500"/></button>
             </div>
             <div className="mt-4 flex justify-center"><span className={`rounded-xl border px-4 py-2 text-xs font-black ${statusBox}`}>{statusText}</span></div>
           </CardBody></Card>;
         })}
-      {offerDetailLoadId && (()=>{const detailOffer=myOffers.find(o=>o.loadId===offerDetailLoadId), detailLoad=loads.find(l=>l.id===offerDetailLoadId); if(!detailOffer||!detailLoad)return null; return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center" onClick={()=>setOfferDetailLoadId(null)}><div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7" onClick={e=>e.stopPropagation()} dir="rtl"><div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black">جزئیات بار</h3><button type="button" onClick={()=>setOfferDetailLoadId(null)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="text-center text-lg font-black"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div><div className="mt-4 grid grid-cols-2 gap-2">
+      {offerDetailLoadId && (()=>{const detailOffer=myOffers.find(o=>o.loadId===offerDetailLoadId), detailLoad=loads.find(l=>l.id===offerDetailLoadId); if(!detailOffer||!detailLoad)return null; return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center overscroll-none" style={{touchAction:"none"}} onClick={closeOfferDetail} onTouchMove={e=>e.preventDefault()}><div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7 select-none overscroll-none" onClick={e=>e.stopPropagation()} onTouchStart={e=>{const target=e.target as HTMLElement;if(target.closest('button,a'))return;offerDetailTouchStartY.current=e.touches[0].clientY;}} onTouchMove={e=>{const start=offerDetailTouchStartY.current;if(start===null)return;e.preventDefault();setOfferDetailDragY(Math.max(0,e.touches[0].clientY-start));}} onTouchEnd={e=>{const start=offerDetailTouchStartY.current;offerDetailTouchStartY.current=null;if(start!==null){const delta=e.changedTouches[0].clientY-start;if(delta>70){closeOfferDetail();}else setOfferDetailDragY(0);}}} style={{transform:`translateY(${offerDetailDragY}px)`,transition:offerDetailTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}} dir="rtl"><div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black">جزئیات بار</h3><button type="button" onClick={closeOfferDetail} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="text-center text-lg font-black"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div><div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><span className="block text-xs font-bold text-gray-400">وزن بار</span><b className="block mt-1 text-sm font-black">{fa(detailLoad.weight)} کیلو</b></div>
               <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><span className="block text-xs font-bold text-gray-400">نوع بار</span><b className="block mt-1 text-sm font-black">{detailLoad.type}</b></div>
               <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><span className="block text-xs font-bold text-gray-400">کرایه</span><b className="block mt-1 text-sm font-black">{money(detailLoad.price)} تومان</b></div>
