@@ -389,7 +389,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
     const openAllDestinationCities = () => {
       setDestinationProvince(''); setDestinationCounty(''); setDestination('__all__'); setDestinationText('همه شهرها');
-      setQuery(''); setCityLimit(120); setSearchSubmitted(true); go('search');
+      setQuery(''); setCityLimit(120); setSearchSubmitted(false); go('search');
     };
     const chooseProvince = (id:string) => {
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery(''); setCityLimit(120);
@@ -415,14 +415,14 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       }
       setQuery('');
       setCityLimit(120);
-      setSearchSubmitted(true);
+      setSearchSubmitted(false);
       go('search');
     };
     const chooseNearby = () => {
       if (!isOrigin) return;
       setProvince(''); setCounty(''); setCity('__nearby__'); setText('اطراف من');
       setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
-      setSearchSubmitted(true); go('search');
+      setSearchSubmitted(false); go('search');
     };
 
     return <div className="space-y-4">
