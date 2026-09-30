@@ -352,7 +352,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     </div>;
   };
 
-  const LocationSelectPage = ({ mode, allCities = false }: { mode:'origin'|'destination'; allCities?: boolean }) => {
+  const LocationSelectPage = ({ mode }: { mode:'origin'|'destination' }) => {
     const isOrigin = mode === 'origin';
     const provinceId = isOrigin ? originProvince : destinationProvince;
     const setProvince = isOrigin ? setOriginProvince : setDestinationProvince;
@@ -393,7 +393,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       .map(c => ({ countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name, cities:c.cities }))
     );
     const [cityLimit, setCityLimit] = useState(120);
-    const visibleCities = allCities && !normalized ? filteredCities.slice(0, cityLimit) : filteredCities;
+    const visibleCities = filteredCities.slice(0, cityLimit);
 
     const openAllDestinationCities = () => {
       setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
@@ -423,7 +423,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       }
       setQuery('');
       setCityLimit(120);
-      setSearchSubmitted(false);
+      setSearchSubmitted(true);
       go('search');
     };
     const chooseNearby = () => {
@@ -444,11 +444,11 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
           <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={isOrigin ? 'مثال تهران' : 'استان مقصد را انتخاب کنید'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
         </div>
         {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center gap-3 text-right"><Navigation className="w-5 h-5 text-primary-600"/><span className="font-bold text-primary-800">اطراف من</span></button>}
-        {!isOrigin && !allCities && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-between text-right active:scale-[0.99]">
+        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-between text-right active:scale-[0.99]">
           <span><b className="block">همه شهرها</b><span className="text-[11px] text-primary-700">انتخاب مستقیم از کل شهرهای ایران</span></span>
           <ChevronLeft className="w-5 h-5"/>
         </button>}
-        {!provinceData && !allCities && !normalized && <div className="mt-5">
+        {!provinceData && !normalized && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
@@ -462,14 +462,55 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
             {!filteredCounties.length && !filteredCities.length && <Empty title="نتیجه‌ای پیدا نشد" text="نام شهر یا شهرستان را تغییر دهید."/>}
           </div>
         </div>}
-        {!normalized && (provinceData || allCities) && <div className="mt-5">
-          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{allCities ? 'همه شهرها' : provinceData?.name}</b><span className="block text-[11px] text-gray-400 mt-1">{allCities ? 'تمام شهرهای ایران' : 'شهرهای استان'}</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery(''); if (!isOrigin && allCities) go('destination-select');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
-          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">شهرستان {x.countyName}</span><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {allCities ? cityProvinceName(x.city) : provinceData?.name}</span></span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
-          {allCities && !normalized && allDestinationCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, allDestinationCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, allDestinationCities.length-visibleCities.length))})</button>}
+        {!normalized && provinceData && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{provinceData.name}</b><span className="block text-[11px] text-gray-400 mt-1">شهرهای استان</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery('');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">شهرستان {x.countyName}</span><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {provinceData.name}</span></span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
+          {provinceCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, provinceCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, provinceCities.length-visibleCities.length))})</button>}
         </div>}
       </CardBody></Card>
     </div>;
   };
+  const AllDestinationCitiesPage = () => {
+    const [query, setQuery] = useState('');
+    const normalizeSearch = (value:string) => value.normalize('NFKC').trim().toLocaleLowerCase('fa-IR')
+      .replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[ةۀ]/g,'ه').replace(/[إأآ]/g,'ا').replace(/ؤ/g,'و')
+      .replace(/[\u200c\u200f\u202a-\u202e]/g,'').replace(/[ًٌٍَُِّْـ]/g,'').replace(/\s+/g,'');
+    const normalized = normalizeSearch(query).replace(/^شهرستان/,'');
+    const matches = (value:string) => !normalized || normalizeSearch(value).includes(normalized);
+    const chooseCity = (city:string, countyId:string, provinceId:string) => {
+      setDestinationProvince(provinceId); setDestinationCounty(countyId);
+      setDestination(city); setDestinationText(city); setSearchSubmitted(true); go('search');
+    };
+    const totalCities = iranLocations.reduce((sum,p)=>sum+p.counties.reduce((n,c)=>n+c.cities.length,0),0);
+    return <div className="space-y-4">
+      <Card><CardBody className="p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <button type="button" onClick={()=>go('destination-select')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <div><h2 className="font-black text-lg">همه شهرها</h2><p className="text-xs text-gray-400 mt-1">{fa(iranLocations.length)} استان و {fa(totalCities)} شهر ایران</p></div>
+        </div>
+        <div className="relative">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
+        </div>
+        <div className="mt-5 space-y-3 max-h-[68vh] overflow-auto">
+          {iranLocations.map(province => {
+            const provinceMatches = matches(province.name);
+            const counties = province.counties.map(county => ({...county,cities:county.cities.filter(city => provinceMatches || matches(county.name) || matches(city))})).filter(county => provinceMatches || matches(county.name) || county.cities.length);
+            if (normalized && !provinceMatches && !counties.length) return null;
+            return <div key={province.id} className="rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden">
+              <div className="px-4 py-3 bg-primary-50 border-b border-primary-100"><b className="block text-base font-black">{province.name}</b><span className="text-[11px] text-gray-500">{fa(province.counties.length)} شهرستان</span></div>
+              <div className="p-2 space-y-2">{counties.map(county => <div key={county.id} className="rounded-xl bg-white border border-gray-100">
+                <div className="px-3 py-2 border-b border-gray-50"><b className="text-sm">شهرستان {county.name}</b></div>
+                <div className="p-2 grid grid-cols-1 gap-1.5">{county.cities.map(city => <button type="button" key={String(county.id)+'-'+city} onClick={()=>chooseCity(city,String(county.id),String(province.id))} className="w-full rounded-lg bg-gray-50 hover:bg-primary-50 px-3 py-2.5 flex items-center justify-between text-right"><span className="font-bold text-sm">{city}</span><span className="text-[10px] text-gray-400">انتخاب</span></button>)}</div>
+              </div>)}</div>
+            </div>;
+          })}
+          {normalized && !iranLocations.some(p => matches(p.name) || p.counties.some(c => matches(c.name) || c.cities.some(city=>matches(city)))) && <Empty title="نتیجه‌ای پیدا نشد" text="نام استان، شهرستان یا شهر را تغییر دهید."/>}
+        </div>
+      </CardBody></Card>
+    </div>;
+  };
+
 const ProfilePage = () => <div className="space-y-3">
     <Card><CardBody className="p-5 flex items-center gap-4"><div className="w-14 h-14 rounded-2xl bg-primary-100 flex items-center justify-center"><User className="w-7 h-7 text-primary-700"/></div><div><b className="text-lg">{profile?.full_name || 'کاربر براه'}</b><p className="text-xs text-gray-400 mt-1" dir="ltr">{profile?.phone}</p></div></CardBody></Card>
     {[
@@ -547,7 +588,7 @@ const ProfilePage = () => <div className="space-y-3">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' ? 'search':'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <LocationSelectPage mode="destination" allCities/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
