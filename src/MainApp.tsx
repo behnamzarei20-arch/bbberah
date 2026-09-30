@@ -247,6 +247,13 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   };
 
   const requestOffer = (load:Load) => { setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(100); setOfferOpen(true); };
+  const updateOfferSlider = (clientX:number, element:HTMLElement) => {
+    if (!selected) return;
+    const rect = element.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(200, Math.round(((clientX - rect.left) / rect.width) * 200)));
+    setOfferSlider(percent);
+    setOfferPrice(String(Math.round(selected.price * percent / 100)));
+  };
   const submitOffer = () => {
     if (actionBusy) return;
     const n = Number(offerPrice.replace(/,/g,''));
@@ -617,6 +624,29 @@ const ProfilePage = () => <div className="space-y-3">
     <Toast message={toast} onClose={()=>setToast('')} />
     {confirmAction && <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl"><h3 className="font-black text-lg">تأیید عملیات</h3><p className="text-sm text-gray-500 mt-2">{confirmAction==='cancel-offer'?'آیا می‌خواهید پیشنهاد انتخاب‌شده لغو شود؟':'آیا می‌خواهید این بار لغو شود؟ این عملیات در نسخه آزمایشی فقط وضعیت رابط را تغییر می‌دهد.'}</p><div className="grid grid-cols-2 gap-2 mt-5"><Button variant="outline" onClick={()=>setConfirmAction(null)}>انصراف</Button><Button onClick={()=>{setConfirmAction(null);setActionBusy(true);setTimeout(()=>{setActionBusy(false);notify('پیشنهاد لغو شد.');},500)}}>{actionBusy?'در حال انجام...':'تأیید'}</Button></div></div></div>}
     {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-2xl bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><div className="flex gap-2 mt-3">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setRating(n)} className={`text-2xl ${n<=rating?'':'opacity-30'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(rating?'امتیاز شما در حالت آزمایشی ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز</Button></div></div>}
-    {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center"><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7 max-h-[90vh] overflow-y-auto" onTouchStart={e=>{if((e.target as HTMLElement).closest('input,button,a')) return; offerTouchStartY.current=e.touches[0].clientY;}} onTouchEnd={e=>{const start=offerTouchStartY.current; offerTouchStartY.current=null; if(start!==null && e.changedTouches[0].clientY-start>80) setOfferOpen(false);}}> <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3" aria-hidden="true"/><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex items-center justify-between"><span className="text-base font-bold text-gray-500">قیمت اعلامی</span><b className="text-xl font-black">{money(selected.price)} تومان</b></div></div><div className="mt-4"><label className="block text-base font-bold text-gray-700">قیمت پیشنهادی</label><div className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-4 text-center text-xl font-black text-gray-900" dir="ltr">{money(Number(offerPrice)||0)} تومان</div><div className="mt-4 px-1" dir="ltr"><input type="range" min="0" max="200" step="1" value={offerSlider} onChange={e=>{const percent=Math.max(0,Math.min(200,Number(e.target.value)));setOfferSlider(percent);setOfferPrice(String(Math.round(selected.price*percent/100)));}} className="w-full h-2 accent-primary-600 cursor-pointer" aria-label="تغییر قیمت پیشنهاد"/><div className="flex justify-between mt-2 text-xs font-bold text-gray-500"><span>۱۰۰٪ کمتر</span><span>قیمت اعلامی</span><span>۱۰۰٪ بیشتر</span></div></div></div><div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-800 text-center">برای ثبت پیشنهاد، ابتدا باید به براه متصل باشید.</div><Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy || !session} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
+    {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center"><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7 max-h-[90vh] overflow-y-auto" onTouchStart={e=>{if((e.target as HTMLElement).closest('input,button,a')) return; offerTouchStartY.current=e.touches[0].clientY;}} onTouchEnd={e=>{const start=offerTouchStartY.current; offerTouchStartY.current=null; if(start!==null && e.changedTouches[0].clientY-start>80) setOfferOpen(false);}}> <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3" aria-hidden="true"/><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex items-center justify-between"><span className="text-base font-bold text-gray-500">قیمت اعلامی</span><b className="text-xl font-black">{money(selected.price)} تومان</b></div></div><div className="mt-4"><label className="block text-base font-bold text-gray-700">قیمت پیشنهادی</label><div className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-4 text-center text-xl font-black text-gray-900" dir="ltr">{money(Number(offerPrice)||0)} تومان</div><div className="mt-4 px-1" dir="ltr">
+  <div
+    className="relative w-full h-8 flex items-center cursor-pointer touch-none select-none"
+    role="slider"
+    aria-label="تغییر قیمت پیشنهاد"
+    aria-valuemin={0}
+    aria-valuemax={200}
+    aria-valuenow={offerSlider}
+    tabIndex={-1}
+    onPointerDown={e=>{
+      e.currentTarget.setPointerCapture(e.pointerId);
+      updateOfferSlider(e.clientX,e.currentTarget);
+    }}
+    onPointerMove={e=>{
+      if(e.currentTarget.hasPointerCapture(e.pointerId)) updateOfferSlider(e.clientX,e.currentTarget);
+    }}
+    onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);}}
+  >
+    <div className="absolute left-0 right-0 h-2 rounded-full bg-gray-200"/>
+    <div className="absolute left-0 h-2 rounded-full bg-primary-500" style={{width:`${offerSlider/2}%`}}/>
+    <div className="absolute top-1/2 w-6 h-6 rounded-full bg-white border-4 border-primary-600 shadow-md -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{left:`${offerSlider/2}%`}}/>
+  </div>
+  <div className="flex justify-between mt-1 text-xs font-bold text-gray-500"><span>۱۰۰٪ کمتر</span><span>قیمت اعلامی</span><span>۱۰۰٪ بیشتر</span></div>
+</div></div><div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-800 text-center">برای ثبت پیشنهاد، ابتدا باید به براه متصل باشید.</div><Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy || !session} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
 }
