@@ -224,8 +224,11 @@ const [contactHistory, setContactHistory] = useState<Array<{loadId:string; statu
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
   const [offerSuccess, setOfferSuccess] = useState(false);
-  const [myOffers, setMyOffers] = useState<Array<{loadId:string; price:number; at:number}>>(() => {
-    try { const v=JSON.parse(window.localStorage.getItem('bbberah_my_offers_v1') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+  const [myOffers, setMyOffers] = useState<Array<{loadId:string; price:number; at:number; status:'pending'|'accepted'|'rejected'}>>(() => {
+    try {
+      const v=JSON.parse(window.localStorage.getItem('bbberah_my_offers_v1') || '[]');
+      return Array.isArray(v) ? v.map((x:any) => ({...x, status:x?.status==='accepted'||x?.status==='rejected' ? x.status : 'pending'})) : [];
+    } catch { return []; }
   });
   useEffect(() => { window.localStorage.setItem('bbberah_my_offers_v1', JSON.stringify(myOffers)); }, [myOffers]);
   useEffect(() => {
@@ -390,7 +393,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       setOfferOpen(false); setOfferDragY(0);
       return notify('برای این بار قبلاً پیشنهاد ارسال شده است. امکان ارسال یا ویرایش دوباره وجود ندارد.');
     }
-    if (selected) setMyOffers(prev => [...prev, { loadId: selected.id, price: n, at: Date.now() }]);
+    if (selected) setMyOffers(prev => [...prev, { loadId: selected.id, price: n, at: Date.now(), status:'pending' }]);
     setOfferOpen(false); setOfferDragY(0); setOfferSuccess(true); notify('پیشنهاد شما با موفقیت ارسال شد.');
   };
   useEffect(() => {
@@ -715,11 +718,16 @@ const ProfilePage = () => <div className="space-y-3">
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
   const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
+    const at = Date.now();
     setContactHistory(prev => {
-      const lastIndex = [...prev].map((item, i) => ({item, i})).reverse().find(x => x.item.loadId === loadId && x.item.status === 'uncertain')?.i;
-      if (lastIndex !== undefined) return prev.map((item, i) => i === lastIndex ? {...item, status, at: Date.now()} : item);
-      return [...prev, {loadId, status, at: Date.now()}];
+      const next = [...prev.filter(item => item.loadId !== loadId), {loadId, status, at}];
+      return next;
     });
+    if (status === 'agreed' || status === 'carried') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'accepted'} : offer));
+    } else if (status === 'declined') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'rejected'} : offer));
+    }
   };
 
   const settleShipment = (load:Load, outcome:'carried'|'withdrawn') => {
@@ -836,7 +844,10 @@ const ProfilePage = () => <div className="space-y-3">
           const load=loads.find(l=>l.id===offer.loadId);
           if(!load) return null;
           return <Card key={offer.loadId}><CardBody className="p-4">
-            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p></div><span className="rounded-full px-3 py-1 text-xs font-black bg-blue-50 text-blue-700">ارسال شده</span></div>
+            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p></div><div className="flex flex-col gap-2 items-end">
+              {offer.status==='accepted' ? <span className="rounded-xl px-3 py-2 text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">پذیرفته شد</span> : offer.status==='rejected' ? <span className="rounded-xl px-3 py-2 text-xs font-black bg-red-50 text-red-700 border border-red-200">رد شد</span> : <span className="rounded-xl px-3 py-2 text-xs font-black bg-gray-50 text-gray-600 border border-gray-200">در انتظار انتخاب</span>}
+              <span className="text-[10px] text-gray-400">وضعیت انتخاب صاحب کالا</span>
+            </div></div>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">پیشنهاد راننده</span><b className="block mt-1">{money(offer.price)} تومان</b></div>
               <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">کرایه اعلامی</span><b className="block mt-1">{money(load.price)} تومان</b></div>
