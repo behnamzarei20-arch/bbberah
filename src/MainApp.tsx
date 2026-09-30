@@ -84,29 +84,30 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass, a
         <b className="block text-2xl font-black text-gray-950 leading-9">{money(load.price)} تومان</b>
       </div>
 
+      {interactionLabel && (
+        <div className={`mt-1 mb-3 rounded-xl border px-3 py-2 text-center text-sm font-black ${interactionClass || 'border-gray-200 bg-gray-50 text-gray-700'}`}>
+          {interactionLabel}
+        </div>
+      )}
+
       <div className="px-1 pt-2 pb-6">
         <div className="relative mx-auto w-[12.5rem] h-8" dir="ltr">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center" aria-label="قیمت کم">
             <CircleDollarSign className="w-5 h-5 text-primary-200" strokeWidth={2.2} aria-hidden="true"/>
           </div>
-
           <div className="absolute left-7 right-7 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700">
             <span className="absolute top-1/2 left-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
           </div>
-
           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6" aria-label="قیمت زیاد">
             <CircleDollarSign className="absolute inset-0 w-6 h-6 text-primary-700" strokeWidth={2.4} aria-hidden="true"/>
             <Coins className="absolute left-0.5 top-2.5 w-3.5 h-3.5 text-primary-500" strokeWidth={2.2} aria-hidden="true"/>
           </div>
         </div>
-
       </div>
 
       <div className="flex items-start gap-2 py-7 mt-4 mb-16 border-y border-gray-100" dir="rtl">
         <div className="flex-1 min-w-0 text-center">
-          <div className="flex justify-center mb-2 w-full">
-            <Target className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/>
-          </div>
+          <div className="flex justify-center mb-2 w-full"><Target className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/></div>
           <b className="block min-w-0 text-xl font-black leading-8 truncate">{load.from}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
         </div>
@@ -118,46 +119,30 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass, a
           </div>
         </div>
         <div className="flex-1 min-w-0 text-center">
-          <div className="flex justify-center mb-2 w-full">
-            <MapPin className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/>
-          </div>
+          <div className="flex justify-center mb-2 w-full"><MapPin className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/></div>
           <b className="block min-w-0 text-xl font-black leading-8 truncate">{load.to}</b>
           <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mt-0">
-        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
-          <Package className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
-          <b className="block text-xl font-black mt-1">{load.type}</b>
-        </div>
-        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
-          <WeightIcon className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
-          <b className="block text-xl font-black mt-1">{fa(load.weight)} kg</b>
-        </div>
-        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
-          <CircleDollarSign className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
-          <b className="block text-xl font-black mt-1">کمیسیون براه</b>
-          <span className="block text-base font-bold text-gray-500 mt-0.5">{money(commission)} تومان</span>
-        </div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><Package className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">{load.type}</b></div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><WeightIcon className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">{fa(load.weight)} kg</b></div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><CircleDollarSign className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">کمیسیون براه</b><span className="block text-base font-bold text-gray-500 mt-0.5">{money(commission)} تومان</span></div>
       </div>
 
       <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
-        <div className="flex items-center gap-2 mb-1.5">
-          <FileText className="w-5 h-5 text-primary-600" aria-hidden="true"/>
-          <span className="text-xl font-black text-gray-700">توضیحات بار</span>
-        </div>
+        <div className="flex items-center gap-2 mb-1.5"><FileText className="w-5 h-5 text-primary-600" aria-hidden="true"/><span className="text-xl font-black text-gray-700">توضیحات بار</span></div>
         <p className="text-xl leading-8 font-bold text-gray-700 text-right">{load.description}</p>
       </div>
       <div className="mt-3">
-        <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
-          <Truck className="w-5 h-5 ml-2 text-white" aria-hidden="true"/> درخواست برای حمل بار
+        <Button size="full" onClick={actionDisabled ? undefined : onOpen} disabled={actionDisabled} className={`h-14 text-base font-black ${actionDisabled ? 'bg-gray-200 text-gray-500 border-gray-200 cursor-not-allowed' : 'bg-primary-500 hover:bg-primary-600 text-white border-primary-500'}`}>
+          <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> {actionDisabled ? 'اقدام قبلی ثبت شده' : 'درخواست برای حمل بار'}
         </Button>
       </div>
     </CardBody>
   </Card>;
 }
-
 function Empty({ title, text, action }: {title:string;text:string;action?:()=>void}) {
   return <div className="py-14 text-center"><Package className="w-10 h-10 mx-auto text-gray-300"/><h3 className="font-black mt-3">{title}</h3><p className="text-sm text-gray-400 mt-2">{text}</p>{action && <Button size="sm" variant="outline" className="mt-5" onClick={action}>تلاش دوباره</Button>}</div>;
 }
