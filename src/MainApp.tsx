@@ -463,10 +463,10 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-base text-white">پیشنهادهای من</b><span className="block mt-0.5 text-xs text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
-    <button onClick={()=>go('calls')} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
-      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
-      <div className="min-w-0"><b className="block text-base text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-xs text-white/90">سوابق تماس‌ها و وضعیت‌ها را ببینید</span></div>
-    </button>
+    <button type="button" onClick={()=>go('calls')} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
+       <div className="w-10 h-10 rounded-xl bg-white border border-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
+       <div className="min-w-0"><b className="block text-base text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-xs text-white/90">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها را ببینید</span></div>
+     </button>
   </div>;
   };
 
