@@ -759,7 +759,7 @@ const ProfilePage = () => <div className="space-y-3">
           <p className="text-sm font-bold text-gray-500 text-center mt-2">لطفاً تا تعیین تکلیف این بار یکی از گزینه‌ها را انتخاب کنید.</p>
           <div className="mt-5 space-y-3">
             <Button size="full" className="h-14 text-base font-black" onClick={()=>{const load=loads.find(l=>l.id===agreedFollowupLoadId); if(!load)return; const commission=Math.round(load.price*0.05); setWalletBalance(v=>v-commission); setDriverScore(v=>v+Math.max(1, Math.round(commission / 50000))); setAgreedFollowupLoadId(null); notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان ثبت و یک امتیاز اضافه شد.`);}}>۱. بار را حمل کردم</Button>
-            <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>{const load=loads.find(l=>l.id===agreedFollowupLoadId); if(load){setDeclinedContactCounts(prev=>({...prev,[load.id]:(prev[load.id]||0)+1}));} setAgreedFollowupLoadId(null); notify('انصراف از حمل ثبت شد و مانند «توافق نکردیم» لحاظ شد.');}}>۲. از حمل بار منصرف شدم</Button>
+            <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>{const load=loads.find(l=>l.id===agreedFollowupLoadId); if(load){setDeclinedContactCounts(prev=>({...prev,[load.id]:(prev[load.id]||0)+1})); const commission=Math.round(load.price*0.05); setDriverScore(v=>Math.max(0,v-Math.max(1,Math.round(commission/50000))));} setAgreedFollowupLoadId(null); notify('انصراف از حمل ثبت شد و مانند «توافق نکردیم» لحاظ شد.');}}>۲. از حمل بار منصرف شدم</Button>
           </div>
         </CardBody></Card>
       </div>}
