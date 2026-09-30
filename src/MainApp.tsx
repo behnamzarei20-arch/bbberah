@@ -290,6 +290,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   }, [offerOpen]);
   const [vehicleForm, setVehicleForm] = useState({type:'تریلی',plate:'',model:'',year:''});
   const [accountName, setAccountName] = useState(profile?.full_name || '');
+  const [settlingCallLoadId, setSettlingCallLoadId] = useState<string | null>(null);
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   useEffect(() => {
@@ -870,7 +871,11 @@ const ProfilePage = () => <div className="space-y-3">
             <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setContactReport('agreed');go('contact-report')}}>توافق شد</Button>
             <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setContactReport('declined');go('contact-report')}}>عدم توافق</Button>
           </div>}
-          {item.status==='agreed' && <Button size="sm" className="w-full mt-3" onClick={()=>{setSelected(load);setAgreedFollowupLoadId(load.id);go('shipment')}}>تعیین تکلیف حمل</Button>}
+          {item.status==='agreed' && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
+          {item.status==='agreed' && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
+            <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setAgreedFollowupLoadId(load.id);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
+            <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setAgreedFollowupLoadId(load.id);settleShipment(load,'withdrawn');setSettlingCallLoadId(null);}}>از حمل بار منصرف شدم</Button>
+          </div>}
         </CardBody></Card>;
       })}
     </div>;
