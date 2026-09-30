@@ -218,7 +218,16 @@ const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; out
 });
 const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => {
     window.localStorage.removeItem('bbberah_contact_history_v1');
-    try { const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v2') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+    try {
+      const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v2') || '[]');
+      if (!Array.isArray(v)) return [];
+      const byLoad = new Map<string, {loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>();
+      v.filter((x:any) => x && typeof x.loadId === 'string').forEach((x:any) => {
+        const prev = byLoad.get(x.loadId);
+        if (!prev || Number(x.at) >= Number(prev.at)) byLoad.set(x.loadId, {loadId:x.loadId, status:x.status, at:Number(x.at)});
+      });
+      return Array.from(byLoad.values());
+    } catch { return []; }
   });
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
