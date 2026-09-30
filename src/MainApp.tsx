@@ -131,10 +131,10 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
         <div className="flex items-center gap-2 mb-1.5">
-          <FileText className="w-4 h-4 text-primary-600" aria-hidden="true"/>
-          <span className="text-xs font-black text-gray-700">توضیحات بار</span>
+          <FileText className="w-5 h-5 text-primary-600" aria-hidden="true"/>
+          <span className="text-xl font-black text-gray-700">توضیحات بار</span>
         </div>
-        <p className="text-xs leading-5 text-gray-600 text-right">{load.description}</p>
+        <p className="text-xl leading-8 font-bold text-gray-700 text-right">{load.description}</p>
       </div>
       <div className="mt-3">
         <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
