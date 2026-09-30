@@ -456,26 +456,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-base text-white">پیشنهادهای من</b><span className="block mt-0.5 text-xs text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
-    <button onClick={()=>go('calls')} className="w-full text-right">
-    <Card><CardBody className="p-3 bg-primary-500 text-white rounded-2xl">
-      <div className="flex items-center gap-3"><Phone className="w-6 h-6 text-white"/><b>تماس‌ها و وضعیت‌ها</b></div>
-      <div className="mt-2 space-y-2">
-        {contactHistory.length===0 ? <p className="text-sm text-white/80">هنوز سابقه تماسی ثبت نشده است.</p> : [...contactHistory].reverse().map((item,idx)=>{
-          const load=loads.find(l=>l.id===item.loadId);
-          return <div key={item.loadId+'-'+item.at+'-'+idx} className="rounded-xl border border-gray-100 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <b className="text-white">{load ? load.from+' ← '+load.to : 'بار ثبت‌شده'}</b>
-              <span className={'rounded-full px-3 py-1 text-xs font-black '+contactStatusClass[item.status]}>{contactStatusLabel[item.status]}</span>
-            </div>
-            <p className="text-xs text-white/70 mt-2">{new Date(item.at).toLocaleDateString('fa-IR')}</p>
-            {item.status==='uncertain' && load && <div className="grid grid-cols-2 gap-2 mt-3">
-              <Button size="sm" className="w-full" onClick={()=>resolveUncertainContact(item,'agreed')}>توافق کردیم</Button>
-              <Button size="sm" variant="outline" className="w-full" onClick={()=>resolveUncertainContact(item,'declined')}>توافق نکردیم</Button>
-            </div>}
-          </div>;
-        })}
-      </div>
-    </CardBody></Card>
+    <button onClick={()=>go('calls')} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
+      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
+      <div className="min-w-0"><b className="block text-base text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-xs text-white/90">سوابق تماس‌ها و وضعیت‌ها را ببینید</span></div>
     </button>
   </div>;
   };
