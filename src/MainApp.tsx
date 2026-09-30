@@ -189,7 +189,7 @@ export function MainApp() {
   const [offerSuccess, setOfferSuccess] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerSlider, setOfferSlider] = useState(50);
-  const [offerStep, setOfferStep] = useState(0);
+  const [offerPercent, setOfferPercent] = useState(0);
   const offerTouchStartY = useRef<number | null>(null);
   const [offerDragY, setOfferDragY] = useState(0);
   useEffect(() => {
@@ -265,18 +265,15 @@ export function MainApp() {
 offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر'
   };
 
-  const requestOffer = (load:Load) => { setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(50); setOfferStep(0); setOfferDragY(0); setOfferOpen(true); window.history.pushState({ bbberahPage: page, bbberahOffer: true }, '', window.location.href); };
+  const requestOffer = (load:Load) => { setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(50); setOfferPercent(0); setOfferDragY(0); setOfferOpen(true); window.history.pushState({ bbberahPage: page, bbberahOffer: true }, '', window.location.href); };
   const updateOfferSlider = (clientX:number, element:HTMLElement) => {
     if (!selected) return;
     const rect = element.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
-    const maxSteps = Math.max(1, Math.floor((selected.price * 0.5) / 50000));
-    const step = Math.round(((percent - 50) / 50) * maxSteps);
-    const clampedStep = Math.max(-maxSteps, Math.min(maxSteps, step));
-    const snappedPercent = 50 + (clampedStep / maxSteps) * 50;
-    setOfferStep(clampedStep);
-    setOfferSlider(snappedPercent);
-    setOfferPrice(String(selected.price + clampedStep * 50000));
+    const raw = ((clientX - rect.left) / rect.width) * 40 - 20;
+    const percent = Math.max(-20, Math.min(20, Math.round(raw)));
+    setOfferPercent(percent);
+    setOfferSlider(((percent + 20) / 40) * 100);
+    setOfferPrice(String(Math.round(selected.price * (1 + percent / 100))));
   };
   const submitOffer = () => {
     if (actionBusy) return;
@@ -681,7 +678,7 @@ const ProfilePage = () => <div className="space-y-3">
     <div className="absolute left-0 h-2 rounded-full bg-primary-500" style={{width:`${offerSlider}%`}}/>
     <div className="absolute top-1/2 w-6 h-6 rounded-full bg-white border-4 border-primary-600 shadow-md -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{left:`${offerSlider}%`}}/>
   </div>
-  <div className="flex justify-between mt-1 text-xs font-bold text-gray-500"><span>۵۰٪ کمتر</span><span>قیمت اعلامی</span><span>۵۰٪ بیشتر</span></div>
-</div></div><div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-800 text-center">برای ثبت پیشنهاد، ابتدا باید به براه متصل باشید.</div><Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
+  <div className="flex justify-between mt-1 text-xs font-bold text-gray-500"><span>۲۰٪ کمتر</span><span>۰٪ قیمت اعلامی</span><span>۲۰٪ بیشتر</span></div><div className="mt-1 text-center text-xs font-black text-primary-700">{offerPercent > 0 ? `+${fa(offerPercent)}٪` : `${fa(offerPercent)}٪`} نسبت به قیمت اعلامی</div>
+</div></div><label className="mt-4 flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><div className="mt-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-800 text-center">برای ثبت نهایی پیشنهاد، باید به براه متصل باشید.</div><Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
 }
