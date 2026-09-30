@@ -200,6 +200,7 @@ export function MainApp() {
   }
   return saved === null ? 5000000 : Number(saved);
 });
+const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v1') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } });
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
@@ -213,6 +214,7 @@ export function MainApp() {
   }, [agreedFollowupLoadId]);
   useEffect(() => { window.localStorage.setItem('bbberah_driver_score_v1', String(driverScore)); }, [driverScore]);
   useEffect(() => { window.localStorage.setItem('bbberah_wallet_balance_v1', String(walletBalance)); }, [walletBalance]);
+useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v1', JSON.stringify(contactHistory)); }, [contactHistory]);
   useEffect(() => {
     if (pendingContactLoadId) window.localStorage.setItem('bbberah_pending_contact_load_v1', pendingContactLoadId);
     else window.localStorage.removeItem('bbberah_pending_contact_load_v1');
@@ -710,7 +712,14 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>;
     if (page==='calls') return <div className="space-y-3">{loads.slice(0,2).map(l=><Card key={l.id}><CardBody className="p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center"><PhoneCall className="w-5 h-5 text-primary-600"/></div><div className="flex-1"><b>هماهنگی بار</b><p className="text-xs text-gray-400 mt-1">{l.title}</p></div><a href={`tel:${l.phone}`} className="w-11 h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center"><Phone className="w-5 h-5"/></a></CardBody></Card>)}<Empty title="سوابق تماس" text="تماس‌های واقعی بعد از اتصال به سرویس ثبت خواهند شد."/></div>;
     if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
-    if (page==='offers') return <div className="space-y-3">{offerSuccess && <Card><CardBody className="p-4 bg-emerald-50"><div className="flex items-center gap-3 text-emerald-700"><CheckCircle2 className="w-6 h-6 shrink-0"/><div><b>پیشنهاد با موفقیت ارسال شد</b><p className="text-xs mt-1">پیشنهاد شما در فهرست پیشنهادهای من ثبت شد.</p></div></div></CardBody></Card>}<Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">پیشنهادهای فعال</span><b>۲</b><Button variant="outline" className="w-full mt-3" onClick={()=>setConfirmAction('cancel-offer')}>لغو پیشنهاد انتخاب‌شده</Button></div><div className="h-2 bg-gray-100 rounded-full mt-4 overflow-hidden"><div className="h-full w-2/3 bg-primary-500 rounded-full"/></div></CardBody></Card><Card><CardBody className="p-5"><b>تهران ← مشهد</b><p className="text-xs text-gray-400 mt-1">پیشنهاد شما: ۲۳,۵۰۰,۰۰۰ تومان</p><div className="mt-4 flex items-center gap-2 text-xs text-amber-700"><Clock3 className="w-4 h-4"/> در انتظار پاسخ صاحب بار</div></CardBody></Card></div>;
+    if (page==='offers') return <div className="space-y-3">
+      {offerSuccess && <Card><CardBody className="p-4 bg-emerald-50"><div className="flex items-center gap-3 text-emerald-700"><CheckCircle2 className="w-6 h-6 shrink-0"/><div><b>پیشنهاد با موفقیت ارسال شد</b><p className="text-xs mt-1">پیشنهاد شما در فهرست پیشنهادهای من ثبت شد.</p></div></div></CardBody></Card>}
+      <Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">پیشنهادهای فعال</span><b>۲</b></div><div className="h-2 bg-gray-100 rounded-full mt-4 overflow-hidden"><div className="h-full w-2/3 bg-primary-500 rounded-full"/></div></CardBody></Card>
+      <Card><CardBody className="p-5"><b>تماس‌ها و وضعیت‌ها</b><div className="mt-4 space-y-3">
+        {contactHistory.length===0 ? <p className="text-sm text-gray-500">هنوز تماسی برای پیشنهادهای شما ثبت نشده است.</p> : [...contactHistory].reverse().map((item,idx)=>{ const load=loads.find(l=>l.id===item.loadId); const labels={agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const; const styles={agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const; return <div key={item.loadId+'-'+item.at+'-'+idx} className="rounded-xl border border-gray-100 p-3"><div className="flex items-center justify-between gap-3"><b>{load ? load.from+' ← '+load.to : 'بار ثبت‌شده'}</b><span className={'rounded-full px-3 py-1 text-xs font-black '+styles[item.status]}>{labels[item.status]}</span></div><p className="text-xs text-gray-400 mt-2">{new Date(item.at).toLocaleDateString('fa-IR')}</p></div>})}
+      </div></CardBody></Card>
+      <Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">مدیریت پیشنهاد</span><Button variant="outline" className="w-full mt-3" onClick={()=>setConfirmAction('cancel-offer')}>لغو پیشنهاد انتخاب‌شده</Button></div></CardBody></Card>
+    </div>;
     if (page==='shipment') return <div className="space-y-4">
       {agreedFollowupLoadId ? (() => {
         const followupLoad = loads.find(l=>l.id===agreedFollowupLoadId);
@@ -722,12 +731,14 @@ const ProfilePage = () => <div className="space-y-3">
           <div className="mt-4 rounded-2xl bg-gray-50 p-4 text-sm font-bold leading-7">برای این بار توافق ثبت شده است. پس از تعیین نتیجه، امتیاز و کمیسیون مطابق عملکرد شما ثبت می‌شود.</div>
           <div className="grid grid-cols-1 gap-3 mt-4">
             <Button size="full" className="h-14 text-base font-black" onClick={()=>{
+              setContactHistory(prev=>[...prev,{loadId:followupLoad.id,status:'carried',at:Date.now()}]);
               setWalletBalance(v=>v-commission);
               setDriverScore(v=>v+scoreChange);
               setAgreedFollowupLoadId(null);
               notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان کسر و ${fa(scoreChange)} امتیاز اضافه شد.`);
             }}>۱. بار را حمل کردم</Button>
             <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>{
+              setContactHistory(prev=>[...prev,{loadId:followupLoad.id,status:'declined',at:Date.now()}]);
               setDeclinedContactCounts(prev=>({...prev,[followupLoad.id]:(prev[followupLoad.id]||0)+1}));
               setDriverScore(v=>Math.max(0,v-scoreChange));
               setAgreedFollowupLoadId(null);
