@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route';
+  | 'cargo-detail' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -183,6 +183,8 @@ export function MainApp() {
   const [offerPrice, setOfferPrice] = useState('');
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
+  const [contactReport, setContactReport] = useState<null | 'agreed' | 'declined' | 'uncertain' | 'unanswered' | 'wrong-number' | 'other'>(null);
+  const [contactFinalPrice, setContactFinalPrice] = useState('');
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
@@ -598,9 +600,56 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><WeightIcon className="w-5 h-5 text-amber-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">وزن بار</span><b className="block mt-1 text-base font-black">{fa(selected.weight)} کیلو</b></div>
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
     </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
-    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p><div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-base font-black text-red-700 leading-7 shadow-sm"><AlertTriangle className="w-6 h-6 shrink-0 mt-0.5 text-red-600"/><span>توجه: پرداخت کرایه و شرایط حمل و تحویل بر عهده طرفین است.<br/>براه در قبال پرداخت یا اجرای حمل مسئولیتی ندارد.</span></div><a href={`tel:${selected.phone}`} className="mt-4 w-full rounded-xl bg-emerald-400 hover:bg-emerald-500 py-4 flex items-center justify-center gap-2 font-black text-base text-white shadow-sm"><Phone className="w-5 h-5 text-white"/> تماس برای هماهنگی</a></CardBody></Card>
+    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p><div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-base font-black text-red-700 leading-7 shadow-sm"><AlertTriangle className="w-6 h-6 shrink-0 mt-0.5 text-red-600"/><span>توجه: پرداخت کرایه و شرایط حمل و تحویل بر عهده طرفین است.<br/>براه در قبال پرداخت یا اجرای حمل مسئولیتی ندارد.</span></div><a href={`tel:${selected.phone}`} onClick={()=>{setContactReport(null);setContactFinalPrice(String(selected.price));setSelected(selected);go('contact-report');}} className="mt-4 w-full rounded-xl bg-emerald-400 hover:bg-emerald-500 py-4 flex items-center justify-center gap-2 font-black text-base text-white shadow-sm"><Phone className="w-5 h-5 text-white"/> تماس برای هماهنگی</a></CardBody></Card>
     <Button size="full" disabled={selected.status!=='open'} onClick={()=>requestOffer(selected)}>{selected.status==='open'?'ثبت پیشنهاد برای این بار':'این بار قابل پیشنهاد نیست'}</Button>
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
+
+  const ContactReportPage = () => {
+    const submitContactReport = () => {
+      if (!contactReport) return notify('لطفاً نتیجه تماس را مشخص کنید.');
+      if (contactReport === 'agreed') {
+        const n = Number(contactFinalPrice.replace(/,/g,''));
+        if (!Number.isFinite(n) || n <= 0) return notify('مبلغ نهایی توافق را وارد کنید.');
+        notify('نتیجه توافق و مبلغ نهایی ثبت شد.');
+      } else {
+        notify('نتیجه تماس ثبت شد.');
+      }
+    };
+    const options = [
+      ['agreed','توافق کردیم — حمل انجام می‌شود','مبلغ نهایی توافق‌شده را هم ثبت کنید.','bg-emerald-50 border-emerald-200 text-emerald-800'],
+      ['declined','توافق نکردیم','توافقی برای این بار انجام نشد.','bg-red-50 border-red-200 text-red-800'],
+      ['uncertain','هنوز مشخص نیست','هنوز درباره حمل به نتیجه نرسیده‌ایم.','bg-amber-50 border-amber-200 text-amber-800'],
+      ['unanswered','طرف مقابل پاسخ نداد','تماس برقرار شد اما پاسخ دریافت نشد.','bg-gray-50 border-gray-200 text-gray-700'],
+      ['wrong-number','شماره اشتباه / امکان تماس نبود','امکان هماهنگی با این شماره وجود نداشت.','bg-gray-50 border-gray-200 text-gray-700'],
+      ['other','سایر','نتیجه تماس در گزینه‌های بالا نبود.','bg-gray-50 border-gray-200 text-gray-700'],
+    ] as const;
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="flex items-start gap-3">
+          <PhoneCall className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
+          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">برای ادامه، نتیجه تماس درباره این بار را مشخص کنید.</p></div>
+        </div>
+        {selected && <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
+      </CardBody></Card>
+      <Card><CardBody className="p-4">
+        <div className="space-y-2">
+          {options.map(([value,title,desc,cls])=><button key={value} type="button" onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls}`}>
+            <span className="block font-black text-base">{title}</span><span className="block text-xs font-bold mt-1 opacity-75">{desc}</span>
+          </button>)}
+        </div>
+        {contactReport === 'agreed' && <div className="mt-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4">
+          <label className="block text-sm font-black text-emerald-900">مبلغ نهایی توافق‌شده</label>
+          <div className="mt-2 flex items-center gap-2">
+            <input inputMode="numeric" value={contactFinalPrice} onChange={e=>setContactFinalPrice(e.target.value.replace(/[^0-9]/g,''))} className="flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-3 text-lg font-black text-center outline-none focus:border-primary-500" placeholder="مبلغ را وارد کنید"/>
+            <span className="font-black text-emerald-800">تومان</span>
+          </div>
+          <p className="text-xs font-bold text-emerald-800 mt-2 leading-5">ثبت مبلغ نهایی برای ثبت توافق الزامی است.</p>
+        </div>}
+        <Button size="full" className="mt-4 h-14 text-base font-black" onClick={submitContactReport}>ثبت نتیجه تماس</Button>
+        <p className="text-center text-xs font-bold text-gray-400 mt-3 leading-5">ثبت نتیجه تماس برای بستن این مرحله الزامی است.</p>
+      </CardBody></Card>
+    </div>;
+  };
 
   const SimplePage = () => {
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>;
@@ -659,8 +708,8 @@ const ProfilePage = () => <div className="space-y-3">
   return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
-      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search':'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : <SimplePage/>}
+      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
