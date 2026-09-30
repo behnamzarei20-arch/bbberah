@@ -188,6 +188,9 @@ export function MainApp() {
   const [declinedContactCounts, setDeclinedContactCounts] = useState<Record<string, number>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_declined_contact_counts_v1') || '{}'); return v && typeof v==='object' ? v : {}; } catch { return {}; } });
   const contactCallStartedAt = useRef<number | null>(null);
   const [pendingContactReturn, setPendingContactReturn] = useState(false);
+  const [agreedFollowupLoadId, setAgreedFollowupLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_agreed_followup_load_v1'));
+  const [driverScore, setDriverScore] = useState<number>(() => Number(window.localStorage.getItem('bbberah_driver_score_v1') || '0'));
+  const [walletBalance, setWalletBalance] = useState<number>(() => Number(window.localStorage.getItem('bbberah_wallet_balance_v1') || '0'));
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
@@ -195,6 +198,12 @@ export function MainApp() {
   useEffect(() => {
     window.localStorage.setItem('bbberah_terms_accepted_v1', termsAccepted ? '1' : '0');
   }, [termsAccepted]);
+  useEffect(() => {
+    if (agreedFollowupLoadId) window.localStorage.setItem('bbberah_agreed_followup_load_v1', agreedFollowupLoadId);
+    else window.localStorage.removeItem('bbberah_agreed_followup_load_v1');
+  }, [agreedFollowupLoadId]);
+  useEffect(() => { window.localStorage.setItem('bbberah_driver_score_v1', String(driverScore)); }, [driverScore]);
+  useEffect(() => { window.localStorage.setItem('bbberah_wallet_balance_v1', String(walletBalance)); }, [walletBalance]);
   useEffect(() => {
     if (pendingContactLoadId) window.localStorage.setItem('bbberah_pending_contact_load_v1', pendingContactLoadId);
     else window.localStorage.removeItem('bbberah_pending_contact_load_v1');
@@ -641,7 +650,9 @@ const ProfilePage = () => <div className="space-y-3">
       if (!selected) return notify('بار موردنظر پیدا نشد.');
       if (contactReport === 'agreed') {
         setPendingContactLoadId(null);
-        notify('توافق ثبت شد. کمیسیون بر اساس کرایه اعلامی بار محاسبه می‌شود.');
+        setAgreedFollowupLoadId(selected.id);
+        notify('توافق ثبت شد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
+        go('home');
         return;
       }
       if (contactReport === 'declined') {
@@ -650,38 +661,37 @@ const ProfilePage = () => <div className="space-y-3">
         setDeclinedContactCounts(prev => ({...prev, [selected.id]: nextCount}));
         setPendingContactLoadId(null);
         notify(nextCount >= 2 ? 'این بار دو بار بدون توافق ثبت شد؛ انتخاب دوباره این گزینه برای همین بار بسته شد.' : 'عدم توافق ثبت شد.');
+        go('home');
         return;
       }
       setPendingContactLoadId(selected.id);
       notify('این بار در وضعیت «مشخص نیست» باقی ماند و یادآوری آن در برنامه نمایش داده می‌شود.');
+      go('home');
     };
     const options = [
-      ['agreed','توافق کردیم — حمل انجام می‌شود','کمیسیون بر اساس کرایه اعلامی بار محاسبه می‌شود.','bg-emerald-50 border-emerald-200 text-emerald-800'],
-      ['declined','توافق نکردیم','پس از دو ثبت برای همین بار، انتخاب دوباره این گزینه بسته می‌شود.','bg-red-50 border-red-200 text-red-800'],
-      ['uncertain','مشخص نیست','این مورد باز می‌ماند و تا تعیین تکلیف، یادآوری آن نمایش داده می‌شود.','bg-amber-50 border-amber-200 text-amber-800'],
+      ['agreed','توافق کردیم','bg-emerald-50 border-emerald-200 text-emerald-800'],
+      ['declined','توافق نکردیم','bg-red-50 border-red-200 text-red-800'],
+      ['uncertain','مشخص نیست','bg-amber-50 border-amber-200 text-amber-800'],
     ] as const;
     return <div className="space-y-4">
       <Card><CardBody className="p-5">
         <div className="flex items-start gap-3">
           <PhoneCall className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
-          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">بعد از تماس، فقط یکی از سه نتیجه زیر را ثبت کنید.</p></div>
+          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">بعد از تماس یکی از سه گزینه را انتخاب کنید.</p></div>
         </div>
         {selected && <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
       </CardBody></Card>
       <Card><CardBody className="p-4">
         <div className="space-y-2">
-          {options.map(([value,title,desc,cls])=>{
+          {options.map(([value,title,cls])=>{
             const blocked = value==='declined' && declinedBlocked;
             return <button key={value} type="button" disabled={blocked} onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls} ${blocked?'opacity-45 cursor-not-allowed':''}`}>
-              <span className="block font-black text-base">{title}</span><span className="block text-xs font-bold mt-1 opacity-75">{desc}</span>
+              <span className="block font-black text-base">{title}</span>
               {value==='declined' && <span className="block text-xs font-black mt-2">{declinedCount}/۲ ثبت برای این بار</span>}
             </button>;
           })}
         </div>
-        {contactReport === 'agreed' && selected && <div className="mt-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-sm font-black text-emerald-900 leading-6">با انتخاب این گزینه، کمیسیون بر اساس کرایه اعلامی همین بار محاسبه می‌شود، نه مبلغ توافق نهایی.</div>}
-        {contactReport === 'uncertain' && <div className="mt-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-sm font-black text-amber-900 leading-6">این مورد باز می‌ماند و یادآوری تعیین تکلیف آن در برنامه باقی می‌ماند.</div>}
         <Button size="full" className="mt-4 h-14 text-base font-black" onClick={submitContactReport}>ثبت نتیجه تماس</Button>
-        <p className="text-center text-xs font-bold text-gray-400 mt-3 leading-5">ثبت نتیجه تماس برای بستن این مرحله الزامی است.</p>
       </CardBody></Card>
     </div>;
   };
@@ -743,6 +753,16 @@ const ProfilePage = () => <div className="space-y-3">
   return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
+      {agreedFollowupLoadId && <div className="fixed inset-0 z-[65] bg-black/50 flex items-center justify-center px-4">
+        <Card><CardBody className="p-5">
+          <h2 className="text-xl font-black text-center">نتیجه نهایی حمل این بار</h2>
+          <p className="text-sm font-bold text-gray-500 text-center mt-2">لطفاً تا تعیین تکلیف این بار یکی از گزینه‌ها را انتخاب کنید.</p>
+          <div className="mt-5 space-y-3">
+            <Button size="full" className="h-14 text-base font-black" onClick={()=>{const load=loads.find(l=>l.id===agreedFollowupLoadId); if(!load)return; const commission=Math.round(load.price*0.05); setWalletBalance(v=>v-commission); setDriverScore(v=>v+1); setAgreedFollowupLoadId(null); notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان ثبت و یک امتیاز اضافه شد.`);}}>۱. بار را حمل کردم</Button>
+            <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>{const load=loads.find(l=>l.id===agreedFollowupLoadId); if(load){setDeclinedContactCounts(prev=>({...prev,[load.id]:(prev[load.id]||0)+1}));} setAgreedFollowupLoadId(null); notify('انصراف از حمل ثبت شد و مانند «توافق نکردیم» لحاظ شد.');}}>۲. از حمل بار منصرف شدم</Button>
+          </div>
+        </CardBody></Card>
+      </div>}
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
