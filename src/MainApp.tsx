@@ -189,17 +189,24 @@ export function MainApp() {
   const [offerSuccess, setOfferSuccess] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerSlider, setOfferSlider] = useState(50);
+  const [offerStep, setOfferStep] = useState(0);
   const offerTouchStartY = useRef<number | null>(null);
   const [offerDragY, setOfferDragY] = useState(0);
   useEffect(() => {
     if (!offerOpen) return;
     const prevOverflow = document.body.style.overflow;
     const prevOverscroll = document.body.style.overscrollBehavior;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
     document.body.style.overflow = 'hidden';
     document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overscrollBehavior = 'none';
     return () => {
       document.body.style.overflow = prevOverflow;
       document.body.style.overscrollBehavior = prevOverscroll;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
     };
   }, [offerOpen]);
   const [vehicleForm, setVehicleForm] = useState({type:'تریلی',plate:'',model:'',year:''});
@@ -258,14 +265,18 @@ export function MainApp() {
 offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر'
   };
 
-  const requestOffer = (load:Load) => { setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(50); setOfferDragY(0); setOfferOpen(true); window.history.pushState({ bbberahPage: page, bbberahOffer: true }, '', window.location.href); };
+  const requestOffer = (load:Load) => { setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(50); setOfferStep(0); setOfferDragY(0); setOfferOpen(true); window.history.pushState({ bbberahPage: page, bbberahOffer: true }, '', window.location.href); };
   const updateOfferSlider = (clientX:number, element:HTMLElement) => {
     if (!selected) return;
     const rect = element.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(100, Math.round((((clientX - rect.left) / rect.width) * 100) / 5) * 5));
-    setOfferSlider(percent);
-    const multiplier = 0.5 + percent / 100;
-    setOfferPrice(String(Math.round(selected.price * multiplier)));
+    const percent = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    const maxSteps = Math.max(1, Math.floor((selected.price * 0.5) / 50000));
+    const step = Math.round(((percent - 50) / 50) * maxSteps);
+    const clampedStep = Math.max(-maxSteps, Math.min(maxSteps, step));
+    const snappedPercent = 50 + (clampedStep / maxSteps) * 50;
+    setOfferStep(clampedStep);
+    setOfferSlider(snappedPercent);
+    setOfferPrice(String(selected.price + clampedStep * 50000));
   };
   const submitOffer = () => {
     if (actionBusy) return;
@@ -275,7 +286,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     if (!Number.isFinite(n) || n < 0) return notify('مبلغ پیشنهاد نامعتبر است.');
     setActionBusy(true);
     setTimeout(()=>setActionBusy(false),500);
-    setOfferOpen(false); setOfferDragY(0); setOfferSuccess(true); setToast('پیشنهاد شما با موفقیت ارسال شد.');
+    setOfferOpen(false); setOfferDragY(0); setOfferSuccess(true); notify('پیشنهاد شما با موفقیت ارسال شد.');
   };
   useEffect(() => {
     if (!offerOpen) return;
