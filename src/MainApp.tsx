@@ -183,8 +183,11 @@ export function MainApp() {
   const [offerPrice, setOfferPrice] = useState('');
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
-  const [contactReport, setContactReport] = useState<null | 'agreed' | 'declined' | 'uncertain' | 'unanswered' | 'wrong-number' | 'other'>(null);
-  const [contactFinalPrice, setContactFinalPrice] = useState('');
+  const [contactReport, setContactReport] = useState<null | 'agreed' | 'declined' | 'uncertain'>(null);
+  const [pendingContactLoadId, setPendingContactLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_pending_contact_load_v1'));
+  const [declinedContactCounts, setDeclinedContactCounts] = useState<Record<string, number>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_declined_contact_counts_v1') || '{}'); return v && typeof v==='object' ? v : {}; } catch { return {}; } });
+  const contactCallStartedAt = useRef<number | null>(null);
+  const [pendingContactReturn, setPendingContactReturn] = useState(false);
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
@@ -192,6 +195,32 @@ export function MainApp() {
   useEffect(() => {
     window.localStorage.setItem('bbberah_terms_accepted_v1', termsAccepted ? '1' : '0');
   }, [termsAccepted]);
+  useEffect(() => {
+    if (pendingContactLoadId) window.localStorage.setItem('bbberah_pending_contact_load_v1', pendingContactLoadId);
+    else window.localStorage.removeItem('bbberah_pending_contact_load_v1');
+  }, [pendingContactLoadId]);
+  useEffect(() => {
+    window.localStorage.setItem('bbberah_declined_contact_counts_v1', JSON.stringify(declinedContactCounts));
+  }, [declinedContactCounts]);
+  useEffect(() => {
+    if (!pendingContactReturn) return;
+    const returnFromCall = () => {
+      const started = contactCallStartedAt.current;
+      if (started && Date.now() - started < 800) return;
+      if (document.visibilityState !== 'visible') return;
+      setPendingContactReturn(false);
+      contactCallStartedAt.current = null;
+      go('contact-report');
+    };
+    window.addEventListener('pageshow', returnFromCall);
+    document.addEventListener('visibilitychange', returnFromCall);
+    window.addEventListener('focus', returnFromCall);
+    return () => {
+      window.removeEventListener('pageshow', returnFromCall);
+      document.removeEventListener('visibilitychange', returnFromCall);
+      window.removeEventListener('focus', returnFromCall);
+    };
+  }, [pendingContactReturn]);
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerSlider, setOfferSlider] = useState(50);
   const [offerPercent, setOfferPercent] = useState(0);
@@ -600,7 +629,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><WeightIcon className="w-5 h-5 text-amber-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">وزن بار</span><b className="block mt-1 text-base font-black">{fa(selected.weight)} کیلو</b></div>
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
     </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
-    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p><div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-base font-black text-red-700 leading-7 shadow-sm"><AlertTriangle className="w-6 h-6 shrink-0 mt-0.5 text-red-600"/><span>توجه: پرداخت کرایه و شرایط حمل و تحویل بر عهده طرفین است.<br/>براه در قبال پرداخت یا اجرای حمل مسئولیتی ندارد.</span></div><a href={`tel:${selected.phone}`} onClick={()=>{setContactReport(null);setContactFinalPrice(String(selected.price));setSelected(selected);go('contact-report');}} className="mt-4 w-full rounded-xl bg-emerald-400 hover:bg-emerald-500 py-4 flex items-center justify-center gap-2 font-black text-base text-white shadow-sm"><Phone className="w-5 h-5 text-white"/> تماس برای هماهنگی</a></CardBody></Card>
+    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p><div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-base font-black text-red-700 leading-7 shadow-sm"><AlertTriangle className="w-6 h-6 shrink-0 mt-0.5 text-red-600"/><span>توجه: پرداخت کرایه و شرایط حمل و تحویل بر عهده طرفین است.<br/>براه در قبال پرداخت یا اجرای حمل مسئولیتی ندارد.</span></div><a href={`tel:${selected.phone}`} onClick={()=>{setContactReport(null);setSelected(selected);setPendingContactLoadId(selected.id);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="mt-4 w-full rounded-xl bg-emerald-400 hover:bg-emerald-500 py-4 flex items-center justify-center gap-2 font-black text-base text-white shadow-sm"><Phone className="w-5 h-5 text-white"/> تماس برای هماهنگی</a></CardBody></Card>
     <Button size="full" disabled={selected.status!=='open'} onClick={()=>requestOffer(selected)}>{selected.status==='open'?'ثبت پیشنهاد برای این بار':'این بار قابل پیشنهاد نیست'}</Button>
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
