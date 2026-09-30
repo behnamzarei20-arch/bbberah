@@ -334,16 +334,6 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         }} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
       </CardBody></Card>
 
-      <div className="pt-3">
-        <div className="mb-2 text-sm font-black text-gray-700">نمونه بار</div>
-        <LoadCard
-          key="sample-l6"
-          load={loads.find(l=>l.id==='l6') || loads[0]}
-          onOpen={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];setSelected(sample);go('cargo-detail')}}
-          onOffer={()=>{const sample=loads.find(l=>l.id==='l6') || loads[0];requestOffer(sample)}}
-        />
-      </div>
-
       {searchSubmitted && <>
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500">{filtered.length ? `بارهای مرتبط: ${fa(filtered.length)} مورد` : 'بار مرتبط پیدا نشد'}</span>
