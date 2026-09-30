@@ -185,8 +185,8 @@ export function MainApp() {
   const [rating, setRating] = useState(0);
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [offerSuccess, setOfferSuccess] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
+  const [offerSuccess, setOfferSuccess] = useState(false);\n  useEffect(() => {\n    window.localStorage.setItem('bbberah_terms_accepted_v1', termsAccepted ? '1' : '0');\n  }, [termsAccepted]);
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerSlider, setOfferSlider] = useState(50);
   const [offerPercent, setOfferPercent] = useState(0);
