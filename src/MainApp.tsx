@@ -3,7 +3,7 @@ import {
   ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
-  Truck, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle
+  Truck, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -279,6 +279,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     };
   }, [pendingContactReturn]);
   const [offerOpen, setOfferOpen] = useState(false);
+  const [offerDetailLoadId, setOfferDetailLoadId] = useState<string | null>(null);
   const [offerSlider, setOfferSlider] = useState(50);
   const [offerPercent, setOfferPercent] = useState(0);
   const offerTouchStartY = useRef<number | null>(null);
@@ -846,26 +847,39 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
     if (page==='offers') return <div className="space-y-3">
       <Card><CardBody className="p-5">
-        <div className="flex items-center justify-between gap-3"><div><b className="text-lg">پیشنهادهای ارسال‌شده</b><p className="text-xs text-gray-500 mt-1">هر بار فقط یک پیشنهاد دارد؛ این فهرست فقط برای مشاهده است.</p></div><span className="text-sm font-black text-primary-700">{fa(myOffers.length)}</span></div>
+        <div className="flex items-center justify-between gap-3"><div><b className="text-lg">پیشنهادهای من</b><p className="text-xs text-gray-500 mt-1">وضعیت هر پیشنهاد و جزئیات بار را ببینید.</p></div><span className="text-sm font-black text-primary-700">{fa(myOffers.length)}</span></div>
       </CardBody></Card>
-      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
+      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال اینجا نمایش داده می‌شود."/></CardBody></Card> :
         [...myOffers].reverse().map((offer)=>{
           const load=loads.find(l=>l.id===offer.loadId);
           if(!load) return null;
+          const statusClass = offer.status==='accepted'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            : offer.status==='rejected'
+              ? 'bg-red-50 text-red-700 border-red-200'
+              : 'bg-gray-100 text-gray-600 border-gray-200';
+          const statusText = offer.status==='accepted' ? 'پذیرفته شد' : offer.status==='rejected' ? 'رد شد' : 'در انتظار';
+          const dateText = new Date(offer.at).toLocaleDateString('fa-IR', {year:'numeric', month:'2-digit', day:'2-digit', weekday:'long'});
+          const detailsOpen = offerDetailLoadId === offer.loadId;
           return <Card key={offer.loadId}><CardBody className="p-4">
-            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p></div><div className="flex flex-col gap-2 items-end">
-              {offer.status==='accepted' ? <span className="rounded-xl px-3 py-2 text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">پذیرفته شد</span> : offer.status==='rejected' ? <span className="rounded-xl px-3 py-2 text-xs font-black bg-red-50 text-red-700 border border-red-200">رد شد</span> : <span className="rounded-xl px-3 py-2 text-xs font-black bg-gray-50 text-gray-600 border border-gray-200">در انتظار انتخاب</span>}
-              <span className="text-[10px] text-gray-400">وضعیت انتخاب صاحب کالا</span>
-            </div></div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">پیشنهاد راننده</span><b className="block mt-1">{money(offer.price)} تومان</b></div>
-              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">کرایه اعلامی</span><b className="block mt-1">{money(load.price)} تومان</b></div>
-              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">نوع بار</span><b className="block mt-1">{load.type}</b></div>
-              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">خودرو</span><b className="block mt-1">{load.vehicle}</b></div>
+            <div className="flex items-center gap-3" dir="rtl">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 text-base font-black whitespace-nowrap">
+                  <span className="text-gray-950">⚫️ {load.from}</span>
+                  <span className="text-gray-400">--→</span>
+                  <span className="text-blue-600">🔵 {load.to}</span>
+                </div>
+                <div className="text-xs font-bold text-gray-500 mt-2">{dateText}</div>
+              </div>
+              <span className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black ${statusClass}`}>{statusText}</span>
+              <button type="button" aria-label="دیدن جزئیات بار" onClick={()=>setOfferDetailLoadId(detailsOpen ? null : offer.loadId)} className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+                <MoreVertical className="w-5 h-5 text-gray-600"/>
+              </button>
             </div>
-            <div className="mt-3 rounded-xl border border-gray-100 p-3 text-sm leading-6"><b>جزئیات بار:</b> {load.weight.toLocaleString('fa-IR')} کیلو، بارگیری {load.pickup}، تحویل {load.delivery}</div>
-            <p className="text-[11px] text-gray-400 mt-3">ارسال شده در {new Date(offer.at).toLocaleString('fa-IR')}</p>
-            <div className="mt-3 rounded-xl bg-gray-50 p-3 text-xs text-gray-500">این پیشنهاد فقط قابل مشاهده است و امکان ویرایش یا ارسال دوباره برای این بار وجود ندارد.</div>
+            {detailsOpen && <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
+              <div className="flex items-center gap-2 mb-1.5"><FileText className="w-5 h-5 text-primary-600"/><span className="text-sm font-black text-gray-700">توضیحات بار</span></div>
+              <p className="text-sm leading-7 font-bold text-gray-700">{load.description}</p>
+            </div>}
           </CardBody></Card>;
         })}
     </div>;
