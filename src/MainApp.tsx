@@ -273,7 +273,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     if (!selected) return;
     const rect = element.getBoundingClientRect();
     const rawPrice = selected.price * (1 + ((((clientX - rect.left) / rect.width) * 40 - 20) / 100));
-    const steppedPrice = Math.max(0, Math.round(rawPrice / 250000) * 250000);
+    const steppedPrice = Math.max(0, Math.round(rawPrice / 50000) * 50000);
     const percent = selected.price ? ((steppedPrice / selected.price) - 1) * 100 : 0;
     setOfferPercent(Math.round(percent));
     setOfferSlider(Math.max(0, Math.min(100, ((percent + 20) / 40) * 100)));
