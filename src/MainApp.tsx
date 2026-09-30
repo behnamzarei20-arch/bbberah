@@ -218,6 +218,10 @@ const [contactHistory, setContactHistory] = useState<Array<{loadId:string; statu
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
   const [offerSuccess, setOfferSuccess] = useState(false);
+  const [myOffers, setMyOffers] = useState<Array<{loadId:string; price:number; at:number}>>(() => {
+    try { const v=JSON.parse(window.localStorage.getItem('bbberah_my_offers_v1') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+  });
+  useEffect(() => { window.localStorage.setItem('bbberah_my_offers_v1', JSON.stringify(myOffers)); }, [myOffers]);
   useEffect(() => {
     window.localStorage.setItem('bbberah_terms_accepted_v1', termsAccepted ? '1' : '0');
   }, [termsAccepted]);
@@ -333,7 +337,14 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
 offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس'
   };
 
-  const requestOffer = (load:Load) => { setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(50); setOfferPercent(0); setOfferDragY(0); setOfferOpen(true); window.history.pushState({ bbberahPage: page, bbberahOffer: true }, '', window.location.href); };
+  const requestOffer = (load:Load) => {
+    if (myOffers.some(o => o.loadId === load.id)) {
+      notify('برای این بار قبلاً پیشنهاد ارسال شده است. امکان ارسال یا ویرایش دوباره وجود ندارد.');
+      go('offers');
+      return;
+    }
+    setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(50); setOfferPercent(0); setOfferDragY(0); setOfferOpen(true); window.history.pushState({ bbberahPage: page, bbberahOffer: true }, '', window.location.href);
+  };
   const updateOfferSlider = (clientX:number, element:HTMLElement) => {
     if (!selected) return;
     const rect = element.getBoundingClientRect();
@@ -368,6 +379,11 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     if (!Number.isFinite(n) || n < 0) return notify('مبلغ پیشنهاد نامعتبر است.');
     setActionBusy(true);
     setTimeout(()=>setActionBusy(false),500);
+    if (selected && myOffers.some(o => o.loadId === selected.id)) {
+      setOfferOpen(false); setOfferDragY(0);
+      return notify('برای این بار قبلاً پیشنهاد ارسال شده است. امکان ارسال یا ویرایش دوباره وجود ندارد.');
+    }
+    if (selected) setMyOffers(prev => [...prev, { loadId: selected.id, price: n, at: Date.now() }]);
     setOfferOpen(false); setOfferDragY(0); setOfferSuccess(true); notify('پیشنهاد شما با موفقیت ارسال شد.');
   };
   useEffect(() => {
@@ -763,12 +779,47 @@ const ProfilePage = () => <div className="space-y-3">
 
   const SimplePage = () => {
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>;
-    if (page==='calls') return <div className="space-y-3">{loads.slice(0,2).map(l=><Card key={l.id}><CardBody className="p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center"><PhoneCall className="w-5 h-5 text-primary-600"/></div><div className="flex-1"><b>هماهنگی بار</b><p className="text-xs text-gray-400 mt-1">{l.title}</p></div><a href={`tel:${l.phone}`} className="w-11 h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center"><Phone className="w-5 h-5"/></a></CardBody></Card>)}<Empty title="سوابق تماس" text="تماس‌های واقعی بعد از اتصال به سرویس ثبت خواهند شد."/></div>;
+    if (page==='calls') return <div className="space-y-3">
+      {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
+        const load=loads.find(l=>l.id===item.loadId);
+        if(!load) return null;
+        const status = item.status==='carried' ? 'حمل انجام شد' : contactStatusLabel[item.status];
+        const canResolve = item.status==='uncertain';
+        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleDateString('fa-IR')}</p></div>
+            <span className={'shrink-0 rounded-full px-3 py-1 text-xs font-black '+contactStatusClass[item.status]}>{status}</span>
+          </div>
+          {canResolve && <div className="grid grid-cols-2 gap-2 mt-4">
+            <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setContactReport('agreed');go('contact-report')}}>توافق شد</Button>
+            <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setContactReport('declined');go('contact-report')}}>عدم توافق</Button>
+          </div>}
+          {item.status==='agreed' && <Button size="sm" className="w-full mt-3" onClick={()=>{setSelected(load);setAgreedFollowupLoadId(load.id);go('shipment')}}>تعیین تکلیف حمل</Button>}
+        </CardBody></Card>;
+      })}
+    </div>;
     if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
     if (page==='offers') return <div className="space-y-3">
-      {offerSuccess && <Card><CardBody className="p-4 bg-emerald-50"><div className="flex items-center gap-3 text-emerald-700"><CheckCircle2 className="w-6 h-6 shrink-0"/><div><b>پیشنهاد با موفقیت ارسال شد</b><p className="text-xs mt-1">پیشنهاد شما در فهرست پیشنهادهای من ثبت شد.</p></div></div></CardBody></Card>}
-      <Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">پیشنهادهای فعال</span><b>۲</b></div><div className="h-2 bg-gray-100 rounded-full mt-4 overflow-hidden"><div className="h-full w-2/3 bg-primary-500 rounded-full"/></div></CardBody></Card>
-      <Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">مدیریت پیشنهاد</span><Button variant="outline" className="w-full mt-3" onClick={()=>setConfirmAction('cancel-offer')}>لغو پیشنهاد انتخاب‌شده</Button></div></CardBody></Card>
+      <Card><CardBody className="p-5">
+        <div className="flex items-center justify-between gap-3"><div><b className="text-lg">پیشنهادهای ارسال‌شده</b><p className="text-xs text-gray-500 mt-1">هر بار فقط یک پیشنهاد دارد؛ این فهرست فقط برای مشاهده است.</p></div><span className="text-sm font-black text-primary-700">{fa(myOffers.length)}</span></div>
+      </CardBody></Card>
+      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
+        [...myOffers].reverse().map((offer)=>{
+          const load=loads.find(l=>l.id===offer.loadId);
+          if(!load) return null;
+          return <Card key={offer.loadId}><CardBody className="p-4">
+            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p></div><span className="rounded-full px-3 py-1 text-xs font-black bg-blue-50 text-blue-700">ارسال شده</span></div>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">پیشنهاد راننده</span><b className="block mt-1">{money(offer.price)} تومان</b></div>
+              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">کرایه اعلامی</span><b className="block mt-1">{money(load.price)} تومان</b></div>
+              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">نوع بار</span><b className="block mt-1">{load.type}</b></div>
+              <div className="rounded-xl bg-gray-50 p-3"><span className="block text-xs text-gray-400">خودرو</span><b className="block mt-1">{load.vehicle}</b></div>
+            </div>
+            <div className="mt-3 rounded-xl border border-gray-100 p-3 text-sm leading-6"><b>جزئیات بار:</b> {load.weight.toLocaleString('fa-IR')} کیلو، بارگیری {load.pickup}، تحویل {load.delivery}</div>
+            <p className="text-[11px] text-gray-400 mt-3">ارسال شده در {new Date(offer.at).toLocaleString('fa-IR')}</p>
+            <div className="mt-3 rounded-xl bg-gray-50 p-3 text-xs text-gray-500">این پیشنهاد فقط قابل مشاهده است و امکان ویرایش یا ارسال دوباره برای این بار وجود ندارد.</div>
+          </CardBody></Card>;
+        })}
     </div>;
     if (page==='shipment') return <div className="space-y-4">
       {agreedFollowupLoadId ? (() => {
