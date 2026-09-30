@@ -723,6 +723,14 @@ const ProfilePage = () => <div className="space-y-3">
     <Button size="full" disabled={selected.status!=='open'} onClick={()=>requestOffer(selected)}>{selected.status==='open'?'ثبت پیشنهاد برای این بار':'این بار قابل پیشنهاد نیست'}</Button>
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
+  const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
+    setContactHistory(prev => {
+      const lastIndex = [...prev].map((item, i) => ({item, i})).reverse().find(x => x.item.loadId === loadId && x.item.status === 'uncertain')?.i;
+      if (lastIndex !== undefined) return prev.map((item, i) => i === lastIndex ? {...item, status, at: Date.now()} : item);
+      return [...prev, {loadId, status, at: Date.now()}];
+    });
+  };
+
   const ContactReportPage = () => {
     const declinedCount = selected ? (declinedContactCounts[selected.id] || 0) : 0;
     const declinedBlocked = declinedCount >= 2;
@@ -731,6 +739,7 @@ const ProfilePage = () => <div className="space-y-3">
       if (!selected) return notify('بار موردنظر پیدا نشد.');
       if (contactReport === 'agreed') {
         setPendingContactLoadId(null);
+        saveContactResult(selected.id, 'agreed');
         setAgreedFollowupLoadId(selected.id);
         notify('توافق ثبت شد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
         go('home');
@@ -740,12 +749,14 @@ const ProfilePage = () => <div className="space-y-3">
         if (declinedBlocked) return notify('این نتیجه برای این بار دو بار ثبت شده و دیگر قابل انتخاب نیست.');
         const nextCount = declinedCount + 1;
         setDeclinedContactCounts(prev => ({...prev, [selected.id]: nextCount}));
+        saveContactResult(selected.id, 'declined');
         setPendingContactLoadId(null);
         notify(nextCount >= 2 ? 'این بار دو بار بدون توافق ثبت شد؛ انتخاب دوباره این گزینه برای همین بار بسته شد.' : 'عدم توافق ثبت شد.');
         go('home');
         return;
       }
       setPendingContactLoadId(selected.id);
+      saveContactResult(selected.id, 'uncertain');
       notify('این بار در وضعیت «مشخص نیست» باقی ماند و یادآوری آن در برنامه نمایش داده می‌شود.');
       go('home');
     };
