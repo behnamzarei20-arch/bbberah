@@ -183,7 +183,7 @@ export function MainApp() {
   const [offerPrice, setOfferPrice] = useState('');
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
-  const [ownerDriverRating, setOwnerDriverRating] = useState<number>(() => { const saved = window.localStorage.getItem('bbberah_owner_driver_rating_v1'); return saved === null ? 4.35 : Number(saved); });
+  const [ownerDriverRating, setOwnerDriverRating] = useState<number>(() => { const version = window.localStorage.getItem('bbberah_owner_driver_rating_seed_v2'); if (version !== '1') { window.localStorage.setItem('bbberah_owner_driver_rating_v1', '4.35'); window.localStorage.setItem('bbberah_owner_driver_rating_seed_v2', '1'); return 4.35; } const saved = window.localStorage.getItem('bbberah_owner_driver_rating_v1'); return saved === null ? 4.35 : Number(saved); });
   const [contactReport, setContactReport] = useState<null | 'agreed' | 'declined' | 'uncertain'>(null);
   const [pendingContactLoadId, setPendingContactLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_pending_contact_load_v1'));
   const [declinedContactCounts, setDeclinedContactCounts] = useState<Record<string, number>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_declined_contact_counts_v1') || '{}'); return v && typeof v==='object' ? v : {}; } catch { return {}; } });
