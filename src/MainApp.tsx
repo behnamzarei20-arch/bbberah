@@ -183,7 +183,7 @@ export function MainApp() {
   const [offerPrice, setOfferPrice] = useState('');
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
-  const [ownerDriverRating, setOwnerDriverRating] = useState<number>(() => Number(window.localStorage.getItem('bbberah_owner_driver_rating_v1') || '0'));
+  const [ownerDriverRating, setOwnerDriverRating] = useState<number>(() => { const saved = window.localStorage.getItem('bbberah_owner_driver_rating_v1'); return saved === null ? 4.35 : Number(saved); });
   const [contactReport, setContactReport] = useState<null | 'agreed' | 'declined' | 'uncertain'>(null);
   const [pendingContactLoadId, setPendingContactLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_pending_contact_load_v1'));
   const [declinedContactCounts, setDeclinedContactCounts] = useState<Record<string, number>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_declined_contact_counts_v1') || '{}'); return v && typeof v==='object' ? v : {}; } catch { return {}; } });
@@ -427,7 +427,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       }
     };
     return <div className="space-y-2">
-    <Card><CardBody className="p-3 text-center"><b className="text-sm">امتیاز شما</b><div className="text-3xl font-black text-primary-700 mt-1">{fa(driverScore)}</div><div className="border-t border-gray-200 my-2"></div><div className="flex justify-center items-center gap-0.5" dir="ltr">{[1,2,3,4,5].map(n=><Star key={n} className={`w-6 h-6 ${n<=ownerDriverRating?'fill-amber-400 text-amber-400':'text-gray-300'}`}/>) }<span className="text-sm font-black text-gray-700 mr-2" dir="rtl">{ownerDriverRating.toLocaleString('fa-IR')}/5</span></div></CardBody></Card>
+    <Card><CardBody className="p-3 text-center"><b className="text-sm">امتیاز شما</b><div className="text-3xl font-black text-primary-700 mt-1">{fa(driverScore)}</div><div className="border-t border-gray-200 my-2"></div><div className="flex justify-center items-center gap-0.5" dir="ltr">{[1,2,3,4,5].map(n=>{const fill=Math.max(0,Math.min(1,ownerDriverRating-n+1));return <span key={n} className="relative w-6 h-6 shrink-0"><Star className="absolute inset-0 w-6 h-6 text-gray-300" strokeWidth={2.2}/><span className="absolute inset-y-0 left-0 overflow-hidden" style={{width:`${fill*100}%`}}><Star className="w-6 h-6 text-amber-400 fill-amber-400" strokeWidth={2.2}/></span></span>})}<span className="text-base font-bold text-amber-600 mr-2" dir="rtl">{fa(ownerDriverRating.toFixed(2)).replace('.', '/')}</span></div></CardBody></Card>
     <button onClick={openSearchPage} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><Search className="w-5 h-5 text-primary-600"/></div>
       <div className="min-w-0"><b className="block text-base text-white">جستجوی بار</b><span className="block mt-0.5 text-xs text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
