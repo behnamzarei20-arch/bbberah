@@ -324,7 +324,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
       <Card><CardBody className="p-4">
         <div className="flex items-center justify-between mb-3"><h3 className="font-black">سه مسیر پرتکرار</h3><span className="text-[11px] text-gray-400">انتخاب سریع</span></div>
-        <div className="space-y-2">{frequentRoutes.map(route=><button key={route.from+'-'+route.to} onClick={()=>{
+        <div className="space-y-2">{frequentRoutes.map(route=><button type="button" key={route.from+'-'+route.to} onClick={()=>{
           const fromLocation=findCityLocation(route.from);
           const toLocation=findCityLocation(route.to);
           setOrigin(route.from); setOriginText(route.from);
