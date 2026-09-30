@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all';
+  | 'cargo-detail' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -162,6 +162,7 @@ export function MainApp() {
   const [destinationText, setDestinationText] = useState('');
   const [destinationProvince, setDestinationProvince] = useState('');
   const [destinationCounty, setDestinationCounty] = useState('');
+  const [frequentRoute, setFrequentRoute] = useState<{from:string;to:string}|null>(null);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
@@ -330,7 +331,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
           setOriginProvince(fromLocation?.provinceId || ''); setOriginCounty(fromLocation?.countyId || '');
           setDestination(route.to); setDestinationText(route.to);
           setDestinationProvince(toLocation?.provinceId || ''); setDestinationCounty(toLocation?.countyId || '');
-          setSearchSubmitted(true); go('search');
+          setFrequentRoute({from:route.from,to:route.to}); go('frequent-route');
         }} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
       </CardBody></Card>
 
@@ -342,6 +343,19 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است." action={clearAll}/></CardBody></Card>}
       </>}
     </div>;
+  };
+
+  const FrequentRoutePage = () => {
+    const routeLoads = frequentRoute
+      ? loads.filter(l => l.status !== 'delivered' && l.from === frequentRoute.from && l.to === frequentRoute.to)
+      : [];
+    return routeLoads.length ? (
+      <div className="space-y-3">
+        {routeLoads.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}
+      </div>
+    ) : (
+      <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است."/></CardBody></Card>
+    );
   };
 
   const LocationSelectPage = ({ mode }: { mode:'origin'|'destination' }) => {
@@ -579,8 +593,8 @@ const ProfilePage = () => <div className="space-y-3">
   return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
-      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' ? 'search':'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : <SimplePage/>}
+      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search':'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
