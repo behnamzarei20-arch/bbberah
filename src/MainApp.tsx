@@ -116,15 +116,15 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       <div className="grid grid-cols-3 gap-2 mt-0">
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
           <Package className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
-          <b className="block text-xs mt-1">{load.type}</b>
+          <b className="block text-sm mt-1">{load.type}</b>
         </div>
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
           <WeightIcon className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
-          <b className="block text-xs mt-1">{fa(load.weight)} kg</b>
+          <b className="block text-sm mt-1">{fa(load.weight)} kg</b>
         </div>
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
           <CircleDollarSign className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/>
-          <b className="block text-[11px] mt-1">کمیسیون براه</b>
+          <b className="block text-sm mt-1">کمیسیون براه</b>
           <span className="block text-[11px] font-bold text-gray-500 mt-0.5">{money(commission)} تومان</span>
         </div>
       </div>
