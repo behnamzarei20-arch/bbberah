@@ -195,6 +195,7 @@ export function MainApp() {
   const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
   return saved === null ? 5000000 : Number(saved);
 });
+const [reportedLoadIds, setReportedLoadIds] = useState<string[]>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_reported_load_ids_v1') || '[]'); return Array.isArray(v) ? v.filter((x:any)=>typeof x==='string') : []; } catch { return []; } });
 const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; outcome:'carried'|'withdrawn'; commission:number; scoreChange:number; at:number}>>(() => {
   try {
     const v = JSON.parse(window.localStorage.getItem('bbberah_shipment_history_v1') || '[]');
@@ -237,6 +238,7 @@ const [contactHistory, setContactHistory] = useState<Array<{loadId:string; statu
   useEffect(() => { window.localStorage.setItem('bbberah_shipment_history_v1', JSON.stringify(shipmentHistory)); }, [shipmentHistory]);
   useEffect(() => { window.localStorage.setItem('bbberah_owner_driver_rating_v1', String(ownerDriverRating)); }, [ownerDriverRating]);
 useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON.stringify(contactHistory)); }, [contactHistory]);
+  useEffect(() => { window.localStorage.setItem('bbberah_reported_load_ids_v1', JSON.stringify(reportedLoadIds)); }, [reportedLoadIds]);
   useEffect(() => {
     if (pendingContactLoadId) window.localStorage.setItem('bbberah_pending_contact_load_v1', pendingContactLoadId);
     else window.localStorage.removeItem('bbberah_pending_contact_load_v1');
@@ -816,6 +818,7 @@ const ProfilePage = () => <div className="space-y-3">
     if (!reportLoad) return <Empty title="بار انتخاب نشده" text="ابتدا بار موردنظر را انتخاب کنید." action={()=>go('calls')}/>;
     const submitReport = () => {
       if (!selectedReports.length && !reportText.trim()) return notify('لطفاً حداقل یک مورد را انتخاب یا توضیحات بیشتری وارد کنید.');
+      setReportedLoadIds(prev => prev.includes(reportLoad.id) ? prev : [...prev, reportLoad.id]);
       notify('گزارش تخلف با موفقیت ثبت شد و برای بررسی ارسال گردید.');
       go('home');
     };
@@ -931,7 +934,7 @@ const ProfilePage = () => <div className="space-y-3">
           {item.status!=='uncertain' && <div className="grid grid-cols-1 gap-2 mt-3">
             <Button size="sm" className="w-full" variant="outline" onClick={()=>{setSelected(load);go('cargo-detail');}}>مشاهده جزئیات بار</Button>
             <a href={`tel:${load.phone}`} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 flex items-center justify-center gap-2 text-sm font-black text-emerald-700"><Phone className="w-4 h-4"/> تماس</a>
-            <Button size="sm" className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-200" variant="outline" onClick={()=>{setSelected(load);go('report');}}>گزارش تخلف</Button>
+            <Button size="sm" className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-200" variant="outline" disabled={reportedLoadIds.includes(load.id)} onClick={()=>{if(reportedLoadIds.includes(load.id)) return; setSelected(load);go('report');}}>{reportedLoadIds.includes(load.id) ? 'گزارش ثبت شده' : 'گزارش تخلف'}</Button>
           </div>}
         </CardBody></Card>;
       })}
