@@ -432,9 +432,10 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     </aside>
   </div> : null;
 
+  const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
+  const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
+
   const HomePage = () => {
-    const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
-    const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
     const resolveUncertainContact = (item: typeof contactHistory[number], status:'agreed'|'declined') => {
       const load = loads.find(l=>l.id===item.loadId);
       if (!load) return;
