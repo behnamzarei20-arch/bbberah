@@ -272,11 +272,14 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   const updateOfferSlider = (clientX:number, element:HTMLElement) => {
     if (!selected) return;
     const rect = element.getBoundingClientRect();
-    const rawPrice = selected.price * (1 + ((((clientX - rect.left) / rect.width) * 40 - 20) / 100));
+    const minPrice = Math.max(0, selected.price * 0.8);
+    const maxPrice = selected.price * 1.2;
+    const rawPrice = minPrice + ((clientX - rect.left) / rect.width) * (maxPrice - minPrice);
     const steppedPrice = Math.max(0, Math.round(rawPrice / 50000) * 50000);
     const percent = selected.price ? ((steppedPrice / selected.price) - 1) * 100 : 0;
+    const slider = maxPrice > minPrice ? ((steppedPrice - minPrice) / (maxPrice - minPrice)) * 100 : 50;
     setOfferPercent(Math.round(percent));
-    setOfferSlider(Math.max(0, Math.min(100, ((percent + 20) / 40) * 100)));
+    setOfferSlider(Math.max(0, Math.min(100, slider)));
     setOfferPrice(String(steppedPrice));
   };
   const submitOffer = () => {
