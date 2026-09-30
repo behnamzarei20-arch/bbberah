@@ -803,20 +803,44 @@ const ProfilePage = () => <div className="space-y-3">
 
   const ViolationReportPage = () => {
     const reportLoad = selected;
+    const reportOptions = [
+      'اطلاعات بار با واقعیت مطابقت ندارد',
+      'صاحب بار پاسخگو نیست',
+      'مبلغ یا شرایط بار متفاوت است',
+      'رفتار نامناسب یا توهین‌آمیز',
+      'مشکل در زمان یا محل بارگیری',
+      'مشکل در تحویل یا شرایط حمل',
+      'درخواست یا رفتار مشکوک',
+    ];
+    const [selectedReports, setSelectedReports] = useState<string[]>([]);
     const [reportText, setReportText] = useState('');
     if (!reportLoad) return <Empty title="بار انتخاب نشده" text="ابتدا بار موردنظر را انتخاب کنید." action={()=>go('calls')}/>;
+    const submitReport = () => {
+      if (!selectedReports.length && !reportText.trim()) return notify('لطفاً حداقل یک مورد را انتخاب یا توضیحات بیشتری وارد کنید.');
+      notify('گزارش تخلف با موفقیت ثبت شد و برای بررسی ارسال گردید.');
+      go('home');
+    };
     return <div className="space-y-4">
       <Card><CardBody className="p-5">
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-1"/>
-          <div><h2 className="text-xl font-black">گزارش تخلف</h2><p className="text-sm text-gray-500 mt-2 leading-6">گزارش مربوط به این بار را ثبت کنید.</p></div>
+          <div><h2 className="text-xl font-black">گزارش تخلف</h2><p className="text-sm text-gray-500 mt-2 leading-6">موارد مربوط به این بار را انتخاب کنید و در صورت نیاز توضیحات بیشتری بنویسید.</p></div>
         </div>
         <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4">
           <b className="block">{reportLoad.title}</b>
           <p className="text-xs text-gray-500 mt-1">{reportLoad.from} ← {reportLoad.to}</p>
         </div>
-        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="شرح تخلف را بنویسید..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
-        <Button size="full" className="mt-3" onClick={()=>{if(!reportText.trim()) return notify('لطفاً شرح تخلف را وارد کنید.'); notify('گزارش تخلف ثبت شد.'); go('calls');}}>ثبت گزارش تخلف</Button>
+        <div className="mt-4 space-y-2">
+          {reportOptions.map(option => {
+            const checked = selectedReports.includes(option);
+            return <button key={option} type="button" onClick={()=>setSelectedReports(prev=>checked ? prev.filter(item=>item!==option) : [...prev, option])} className={`w-full rounded-2xl border p-3 text-right flex items-center gap-3 transition ${checked ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700'}`}>
+              <span className={`w-5 h-5 rounded-md border-2 shrink-0 flex items-center justify-center ${checked ? 'border-red-600 bg-red-600 text-white' : 'border-gray-300 bg-white'}`}>{checked ? '✓' : ''}</span>
+              <span className="text-sm font-bold">{option}</span>
+            </button>;
+          })}
+        </div>
+        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="توضیحات بیشتر (اختیاری)..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
+        <Button size="full" className="mt-3" onClick={submitReport}>ارسال گزارش</Button>
       </CardBody></Card>
     </div>;
   };
