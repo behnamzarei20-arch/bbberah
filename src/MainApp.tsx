@@ -755,8 +755,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><WeightIcon className="w-5 h-5 text-amber-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">وزن بار</span><b className="block mt-1 text-base font-black">{fa(selected.weight)} کیلو</b></div>
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
     </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
-    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p><div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-base font-black text-red-700 leading-7 shadow-sm"><AlertTriangle className="w-6 h-6 shrink-0 mt-0.5 text-red-600"/><span>توجه: پرداخت کرایه و شرایط حمل و تحویل بر عهده طرفین است.<br/>براه در قبال پرداخت یا اجرای حمل مسئولیتی ندارد.</span></div><a href={`tel:${selected.phone}`} onClick={()=>{setContactReport(null);setSelected(selected);setPendingContactLoadId(selected.id);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="mt-4 w-full rounded-xl bg-emerald-400 hover:bg-emerald-500 py-4 flex items-center justify-center gap-2 font-black text-base text-white shadow-sm"><Phone className="w-5 h-5 text-white"/> تماس برای هماهنگی</a></CardBody></Card>
-    <Button size="full" disabled={selected.status!=='open'} onClick={()=>requestOffer(selected)}>{selected.status==='open'?'ثبت پیشنهاد برای این بار':'این بار قابل پیشنهاد نیست'}</Button>
+    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p></CardBody></Card>
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
   const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
@@ -914,7 +913,7 @@ const ProfilePage = () => <div className="space-y-3">
           : shipmentResult?.outcome==='withdrawn'
             ? 'از حمل بار منصرف شدید'
             : contactStatusLabel[item.status];
-        const canResolve = item.status==='uncertain';
+        const canResolve = item.status==='uncertain' && !shipmentResult;
         return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleDateString('fa-IR')}</p></div>
@@ -924,8 +923,8 @@ const ProfilePage = () => <div className="space-y-3">
             <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setContactReport('agreed');go('contact-report')}}>توافق شد</Button>
             <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setContactReport('declined');go('contact-report')}}>عدم توافق</Button>
           </div>}
-          {item.status==='agreed' && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
-          {item.status==='agreed' && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
+          {item.status==='agreed' && !shipmentResult && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
+          {item.status==='agreed' && !shipmentResult && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
             <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" onClick={()=>{setSelected(load);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
             <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);go('home');}}>از حمل بار منصرف شدم</Button>
           </div>}
