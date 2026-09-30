@@ -191,13 +191,13 @@ export function MainApp() {
   const [agreedFollowupLoadId, setAgreedFollowupLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_agreed_followup_load_v1'));
   const [driverScore, setDriverScore] = useState<number>(() => Number(window.localStorage.getItem('bbberah_driver_score_v1') || '0'));
   const [walletBalance, setWalletBalance] = useState<number>(() => {
-  const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
-  const seeded = window.localStorage.getItem('bbberah_wallet_seeded_v1') === '1';
-  if (!seeded && (saved === null || Number(saved) === 0)) {
+  const seededVersion = window.localStorage.getItem('bbberah_wallet_seed_version_v1');
+  if (seededVersion !== '2') {
     window.localStorage.setItem('bbberah_wallet_balance_v1', '5000000');
-    window.localStorage.setItem('bbberah_wallet_seeded_v1', '1');
+    window.localStorage.setItem('bbberah_wallet_seed_version_v1', '2');
     return 5000000;
   }
+  const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
   return saved === null ? 5000000 : Number(saved);
 });
 const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v1') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } });
@@ -748,7 +748,7 @@ const ProfilePage = () => <div className="space-y-3">
         </CardBody></Card>;
       })() : <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><b>سفر جاری</b><p className="text-xs text-gray-400 mt-1">در حال حاضر حمل توافق‌شده‌ای برای تعیین تکلیف ندارید.</p></div></div></CardBody></Card>}
     </div>;
-    if (page==='wallet') return <div className="space-y-4"><Card><CardBody className="p-6 text-center"><CircleDollarSign className="w-8 h-8 mx-auto text-primary-600"/><p className="text-sm text-gray-400 mt-3">موجودی کیف پول</p><b className="text-3xl block mt-2">{money(walletBalance)} تومان</b><Button className="w-full mt-5" onClick={()=>notify('درگاه پرداخت در فاز دوم متصل می‌شود.')}>افزایش موجودی</Button></CardBody></Card></div>;
+    if (page==='wallet') return <div className="space-y-4"><Card><CardBody className="p-6 text-center"><CircleDollarSign className="w-8 h-8 mx-auto text-primary-600"/><p className="text-sm text-gray-400 mt-3">موجودی کیف پول</p><b className={`text-3xl block mt-2 ${walletBalance < 0 ? 'text-red-600' : 'text-gray-900'}`}>{money(walletBalance)} تومان</b><Button className="w-full mt-5" onClick={()=>notify('درگاه پرداخت در فاز دوم متصل می‌شود.')}>افزایش موجودی</Button></CardBody></Card></div>;
     if (page==='transactions') return <Card><CardBody><Empty title="تراکنشی وجود ندارد" text="سوابق مالی پس از اتصال کیف پول نمایش داده می‌شوند." action={()=>notify('داده آزمایشی جدیدی وجود ندارد.')}/></CardBody></Card>;
     if (page==='vehicle') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><b>خودروی من</b><p className="text-xs text-gray-400 mt-1">اطلاعات خودرو در حالت آزمایشی نگهداری می‌شود.</p></div></div><select value={vehicleForm.type} onChange={e=>setVehicleForm(v=>({...v,type:e.target.value}))} className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-white"><option>تریلی</option><option>کامیون</option><option>خاور</option><option>نیسان</option></select><input value={vehicleForm.plate} onChange={e=>setVehicleForm(v=>({...v,plate:e.target.value}))} placeholder="پلاک خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input value={vehicleForm.model} onChange={e=>setVehicleForm(v=>({...v,model:e.target.value}))} placeholder="مدل خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input inputMode="numeric" value={vehicleForm.year} onChange={e=>setVehicleForm(v=>({...v,year:e.target.value.replace(/\D/g,'').slice(0,4)}))} placeholder="سال ساخت" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><Button className="w-full" onClick={()=>{if(!vehicleForm.plate.trim()||!vehicleForm.model.trim())return notify('پلاک و مدل خودرو را کامل کنید.');notify('خودرو در حالت آزمایشی ذخیره شد.')}}>ذخیره خودرو</Button></CardBody></Card>;
     if (page==='account') return <Card><CardBody className="p-5 space-y-4"><label className="text-sm font-bold">نام و نام خانوادگی</label><input value={accountName} onChange={e=>setAccountName(e.target.value)} className="w-full rounded-xl border border-gray-200 px-4 py-3"/><label className="text-sm font-bold">شماره موبایل</label><input value={profile?.phone||''} disabled dir="ltr" className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50"/><Button className="w-full" onClick={()=>notify('تغییرات به‌صورت آزمایشی ذخیره شد.')}>ذخیره تغییرات</Button></CardBody></Card>;
