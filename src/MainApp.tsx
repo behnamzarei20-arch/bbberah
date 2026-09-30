@@ -360,7 +360,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
   const FrequentRoutePage = () => {
     const routeLoads = frequentRoute
-      ? loads.filter(l => l.status !== 'delivered' && l.from === frequentRoute.from && l.to === frequentRoute.to)
+      ? loads.filter(l => !l.id.startsWith('s') && l.status !== 'delivered' && l.from === frequentRoute.from && l.to === frequentRoute.to)
       : [];
     return routeLoads.length ? (
       <div className="space-y-3">
@@ -550,7 +550,7 @@ const ProfilePage = () => <div className="space-y-3">
   </div> : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
   const SimplePage = () => {
-    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>;
+    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div>;
     if (page==='calls') return <div className="space-y-3">{loads.slice(0,2).map(l=><Card key={l.id}><CardBody className="p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center"><PhoneCall className="w-5 h-5 text-primary-600"/></div><div className="flex-1"><b>هماهنگی بار</b><p className="text-xs text-gray-400 mt-1">{l.title}</p></div><a href={`tel:${l.phone}`} className="w-11 h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center"><Phone className="w-5 h-5"/></a></CardBody></Card>)}<Empty title="سوابق تماس" text="تماس‌های واقعی بعد از اتصال به سرویس ثبت خواهند شد."/></div>;
     if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
     if (page==='offers') return <div className="space-y-3">{offerSuccess && <Card><CardBody className="p-4 bg-emerald-50"><div className="flex items-center gap-3 text-emerald-700"><CheckCircle2 className="w-6 h-6 shrink-0"/><div><b>پیشنهاد با موفقیت ارسال شد</b><p className="text-xs mt-1">پیشنهاد شما در فهرست پیشنهادهای من ثبت شد.</p></div></div></CardBody></Card>}<Card><CardBody className="p-5"><div className="flex justify-between"><span className="text-gray-400 text-sm">پیشنهادهای فعال</span><b>۲</b><Button variant="outline" className="w-full mt-3" onClick={()=>setConfirmAction('cancel-offer')}>لغو پیشنهاد انتخاب‌شده</Button></div><div className="h-2 bg-gray-100 rounded-full mt-4 overflow-hidden"><div className="h-full w-2/3 bg-primary-500 rounded-full"/></div></CardBody></Card><Card><CardBody className="p-5"><b>تهران ← مشهد</b><p className="text-xs text-gray-400 mt-1">پیشنهاد شما: ۲۳,۵۰۰,۰۰۰ تومان</p><div className="mt-4 flex items-center gap-2 text-xs text-amber-700"><Clock3 className="w-4 h-4"/> در انتظار پاسخ صاحب بار</div></CardBody></Card></div>;
