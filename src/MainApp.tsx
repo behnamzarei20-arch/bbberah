@@ -210,10 +210,10 @@ export function MainApp() {
   const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
   return saved === null ? 5000000 : Number(saved);
 });
-const [settledShipmentIds, setSettledShipmentIds] = useState<string[]>(() => {
+const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; outcome:'carried'|'withdrawn'; commission:number; scoreChange:number; at:number}>>(() => {
   try {
-    const v = JSON.parse(window.localStorage.getItem('bbberah_settled_shipments_v1') || '[]');
-    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+    const v = JSON.parse(window.localStorage.getItem('bbberah_shipment_history_v1') || '[]');
+    return Array.isArray(v) ? v.filter((x:any) => x && typeof x.loadId === 'string' && (x.outcome === 'carried' || x.outcome === 'withdrawn')) : [];
   } catch { return []; }
 });
 const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => {
@@ -237,7 +237,7 @@ const [contactHistory, setContactHistory] = useState<Array<{loadId:string; statu
   }, [agreedFollowupLoadId]);
   useEffect(() => { window.localStorage.setItem('bbberah_driver_score_v1', String(driverScore)); }, [driverScore]);
   useEffect(() => { window.localStorage.setItem('bbberah_wallet_balance_v1', String(walletBalance)); }, [walletBalance]);
-  useEffect(() => { window.localStorage.setItem('bbberah_settled_shipments_v1', JSON.stringify(settledShipmentIds)); }, [settledShipmentIds]);
+  useEffect(() => { window.localStorage.setItem('bbberah_shipment_history_v1', JSON.stringify(shipmentHistory)); }, [shipmentHistory]);
   useEffect(() => { window.localStorage.setItem('bbberah_owner_driver_rating_v1', String(ownerDriverRating)); }, [ownerDriverRating]);
 useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON.stringify(contactHistory)); }, [contactHistory]);
   useEffect(() => {
@@ -722,20 +722,30 @@ const ProfilePage = () => <div className="space-y-3">
     });
   };
 
-  const settleShipment = (load:Load) => {
-    const commission = Math.round(load.price * 0.05);
-    const scoreChange = Math.max(1, Math.round(commission / 50000));
-    if (settledShipmentIds.includes(load.id)) {
-      notify('کمیسیون و امتیاز این حمل قبلاً ثبت شده است.');
+  const settleShipment = (load:Load, outcome:'carried'|'withdrawn') => {
+    const existing = shipmentHistory.find(item => item.loadId === load.id);
+    if (existing) {
+      notify('این بار قبلاً تعیین تکلیف شده و امکان ثبت دوباره ندارد.');
       setAgreedFollowupLoadId(null);
       return;
     }
-    setSettledShipmentIds(prev => [...prev, load.id]);
-    setWalletBalance(prev => prev - commission);
-    setDriverScore(prev => prev + scoreChange);
-    setContactHistory(prev => [...prev, {loadId:load.id, status:'carried', at:Date.now()}]);
+    const commission = Math.round(load.price * 0.05);
+    const scoreChange = Math.max(1, Math.round(commission / 50000));
+    const at = Date.now();
+    if (outcome === 'carried') {
+      setWalletBalance(prev => prev - commission);
+      setDriverScore(prev => prev + scoreChange);
+      setContactHistory(prev => [...prev, {loadId:load.id, status:'carried', at}]);
+      setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission, scoreChange, at}]);
+      setAgreedFollowupLoadId(null);
+      notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان کسر و ${fa(scoreChange)} امتیاز اضافه شد.`);
+      return;
+    }
+    setDriverScore(prev => prev - scoreChange);
+    setContactHistory(prev => [...prev, {loadId:load.id, status:'declined', at}]);
+    setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:0, scoreChange:-scoreChange, at}]);
     setAgreedFollowupLoadId(null);
-    notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان کسر و ${fa(scoreChange)} امتیاز اضافه شد.`);
+    notify(`انصراف از حمل ثبت شد؛ ${fa(scoreChange)} امتیاز کسر شد و این بار دیگر قابل تعیین تکلیف نیست.`);
   };
 
   const ContactReportPage = () => {
@@ -849,20 +859,29 @@ const ProfilePage = () => <div className="space-y-3">
           <div className="flex items-center gap-3"><CheckCircle2 className="w-7 h-7 text-emerald-600"/><div><b>تعیین تکلیف حمل</b><p className="text-xs text-gray-400 mt-1">{followupLoad.from} به {followupLoad.to}</p></div></div>
           <div className="mt-4 rounded-2xl bg-gray-50 p-4 text-sm font-bold leading-7">برای این بار توافق ثبت شده است. پس از تعیین نتیجه، امتیاز و کمیسیون مطابق عملکرد شما ثبت می‌شود.</div>
           <div className="grid grid-cols-1 gap-3 mt-4">
-            <Button size="full" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad)}>۱. بار را حمل کردم</Button>
-            <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>{
-              setContactHistory(prev=>[...prev,{loadId:followupLoad.id,status:'declined',at:Date.now()}]);
-              setDeclinedContactCounts(prev=>({...prev,[followupLoad.id]:(prev[followupLoad.id]||0)+1}));
-              setDriverScore(v=>v-scoreChange);
-              setAgreedFollowupLoadId(null);
-              notify(`انصراف از حمل ثبت شد؛ ${fa(scoreChange)} امتیاز کسر شد.`);
-            }}>۲. از حمل بار منصرف شدم</Button>
+            <Button size="full" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'carried')}>۱. بار را حمل کردم</Button>
+            <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'withdrawn')}>۲. از حمل بار منصرف شدم</Button>
           </div>
         </CardBody></Card>;
       })() : <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><b>سفر جاری</b><p className="text-xs text-gray-400 mt-1">در حال حاضر حمل توافق‌شده‌ای برای تعیین تکلیف ندارید.</p></div></div></CardBody></Card>}
     </div>;
     if (page==='wallet') return <div className="space-y-4"><Card><CardBody className="p-6 text-center"><CircleDollarSign className="w-8 h-8 mx-auto text-primary-600"/><p className="text-sm text-gray-400 mt-3">موجودی کیف پول</p><b className={`text-3xl block mt-2 ${walletBalance < 0 ? 'text-red-600' : 'text-gray-900'}`}>{money(walletBalance)} تومان</b><Button className="w-full mt-5" onClick={()=>notify('درگاه پرداخت در فاز دوم متصل می‌شود.')}>افزایش موجودی</Button></CardBody></Card></div>;
-    if (page==='transactions') return <Card><CardBody><Empty title="تراکنشی وجود ندارد" text="سوابق مالی پس از اتصال کیف پول نمایش داده می‌شوند." action={()=>notify('داده آزمایشی جدیدی وجود ندارد.')}/></CardBody></Card>;
+    if (page==='transactions') return <div className="space-y-3">
+      {shipmentHistory.length===0 ? <Card><CardBody><Empty title="سابقه‌ای وجود ندارد" text="پس از تعیین تکلیف هر بار، سابقه کمیسیون و امتیاز اینجا ثبت می‌شود."/></CardBody></Card> : [...shipmentHistory].reverse().map((item,idx)=>{
+        const load=loads.find(l=>l.id===item.loadId);
+        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0"><b className="block">{load?.title || 'بار ثبت‌شده'}</b><p className="text-xs text-gray-500 mt-1">{load ? load.from+' ← '+load.to : ''}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleString('fa-IR')}</p></div>
+            <span className={item.outcome==='carried' ? 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-emerald-700 bg-emerald-50' : 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-red-700 bg-red-50'}>{item.outcome==='carried'?'حمل انجام شد':'انصراف از حمل'}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">کمیسیون</span><b className="block mt-1">{item.commission ? money(item.commission)+' تومان' : '۰ تومان'}</b></div>
+            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">تغییر امتیاز</span><b className="block mt-1">{item.scoreChange > 0 ? '+' : ''}{fa(item.scoreChange)}</b></div>
+          </div>
+          <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3 text-xs font-bold text-gray-600">این بار یک‌بار تعیین تکلیف شده و ثبت مجدد کمیسیون یا امتیاز برای آن امکان‌پذیر نیست.</div>
+        </CardBody></Card>;
+      })}
+    </div>;
     if (page==='vehicle') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><b>خودروی من</b><p className="text-xs text-gray-400 mt-1">اطلاعات خودرو در حالت آزمایشی نگهداری می‌شود.</p></div></div><select value={vehicleForm.type} onChange={e=>setVehicleForm(v=>({...v,type:e.target.value}))} className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-white"><option>تریلی</option><option>کامیون</option><option>خاور</option><option>نیسان</option></select><input value={vehicleForm.plate} onChange={e=>setVehicleForm(v=>({...v,plate:e.target.value}))} placeholder="پلاک خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input value={vehicleForm.model} onChange={e=>setVehicleForm(v=>({...v,model:e.target.value}))} placeholder="مدل خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input inputMode="numeric" value={vehicleForm.year} onChange={e=>setVehicleForm(v=>({...v,year:e.target.value.replace(/\D/g,'').slice(0,4)}))} placeholder="سال ساخت" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><Button className="w-full" onClick={()=>{if(!vehicleForm.plate.trim()||!vehicleForm.model.trim())return notify('پلاک و مدل خودرو را کامل کنید.');notify('خودرو در حالت آزمایشی ذخیره شد.')}}>ذخیره خودرو</Button></CardBody></Card>;
     if (page==='account') return <Card><CardBody className="p-5 space-y-4"><label className="text-sm font-bold">نام و نام خانوادگی</label><input value={accountName} onChange={e=>setAccountName(e.target.value)} className="w-full rounded-xl border border-gray-200 px-4 py-3"/><label className="text-sm font-bold">شماره موبایل</label><input value={profile?.phone||''} disabled dir="ltr" className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50"/><Button className="w-full" onClick={()=>notify('تغییرات به‌صورت آزمایشی ذخیره شد.')}>ذخیره تغییرات</Button></CardBody></Card>;
     if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headphones className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
