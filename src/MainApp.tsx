@@ -291,6 +291,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   const [vehicleForm, setVehicleForm] = useState({type:'تریلی',plate:'',model:'',year:''});
   const [accountName, setAccountName] = useState(profile?.full_name || '');
   const [settlingCallLoadId, setSettlingCallLoadId] = useState<string | null>(null);
+  const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   useEffect(() => {
@@ -779,22 +780,25 @@ const ProfilePage = () => <div className="space-y-3">
       return;
     }
     const commission = Math.round(load.price * 0.05);
-    const scoreChange = Math.max(1, Math.round(commission / 50000));
+    const discount = Number((load as Load & {discount?:number}).discount || 0);
+    const payableCommission = Math.max(0, commission - discount);
+    const scoreChange = Math.max(1, Math.round(payableCommission / 50000));
     const at = Date.now();
     if (outcome === 'carried') {
-      setWalletBalance(prev => prev - commission);
+      const walletBefore = walletBalance;
+      const walletAfter = walletBefore - payableCommission;
+      setWalletBalance(walletAfter);
       setDriverScore(prev => prev + scoreChange);
       setContactHistory(prev => [...prev, {loadId:load.id, status:'carried', at}]);
-      setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission, scoreChange, at}]);
+      setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:payableCommission, scoreChange, at}]);
       setAgreedFollowupLoadId(null);
-      notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان کسر و ${fa(scoreChange)} امتیاز اضافه شد.`);
+      setShipmentRewardSummary({scoreChange, commission:payableCommission, discount, walletBefore, walletAfter});
       return;
     }
     setDriverScore(prev => prev - scoreChange);
     setContactHistory(prev => [...prev, {loadId:load.id, status:'declined', at}]);
     setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:0, scoreChange:-scoreChange, at}]);
     setAgreedFollowupLoadId(null);
-    notify(`انصراف از حمل ثبت شد؛ ${fa(scoreChange)} امتیاز کسر شد و این بار دیگر قابل تعیین تکلیف نیست.`);
   };
 
   const ContactReportPage = () => {
@@ -873,8 +877,8 @@ const ProfilePage = () => <div className="space-y-3">
           </div>}
           {item.status==='agreed' && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
           {item.status==='agreed' && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
-            <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setAgreedFollowupLoadId(load.id);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
-            <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setAgreedFollowupLoadId(load.id);settleShipment(load,'withdrawn');setSettlingCallLoadId(null);}}>از حمل بار منصرف شدم</Button>
+            <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" onClick={()=>{setSelected(load);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
+            <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);go('home');}}>از حمل بار منصرف شدم</Button>
           </div>}
         </CardBody></Card>;
       })}
@@ -992,6 +996,21 @@ const ProfilePage = () => <div className="space-y-3">
     <BottomNav />
     <Drawer />
     <Toast message={toast} onClose={()=>setToast('')} />
+    {shipmentRewardSummary && <div className="fixed inset-0 z-[75] bg-black/40 flex items-center justify-center p-5">
+      <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center"><Star className="w-6 h-6 text-emerald-600"/></div>
+          <div><h3 className="font-black text-lg">امتیاز حمل ثبت شد</h3><p className="text-xs text-gray-500 mt-1">جزئیات نتیجه حمل</p></div>
+        </div>
+        <div className="mt-5 space-y-2 text-sm font-bold">
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">امتیاز دریافت‌شده</span><b className="text-emerald-700">+{fa(shipmentRewardSummary.scoreChange)} امتیاز</b></div>
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">کسر از کیف پول</span><b>{money(shipmentRewardSummary.commission)} تومان</b></div>
+          {shipmentRewardSummary.discount > 0 && <div className="flex items-center justify-between rounded-xl bg-emerald-50 p-3"><span className="text-gray-500">تخفیف</span><b className="text-emerald-700">{money(shipmentRewardSummary.discount)} تومان</b></div>}
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">موجودی باقی‌مانده کیف پول</span><b>{money(shipmentRewardSummary.walletAfter)} تومان</b></div>
+        </div>
+        <Button className="w-full mt-5" onClick={()=>{setShipmentRewardSummary(null);go('home');}}>باشه</Button>
+      </div>
+    </div>}
     {confirmAction && <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl"><h3 className="font-black text-lg">تأیید عملیات</h3><p className="text-sm text-gray-500 mt-2">{confirmAction==='cancel-offer'?'آیا می‌خواهید پیشنهاد انتخاب‌شده لغو شود؟':'آیا می‌خواهید این بار لغو شود؟ این عملیات در نسخه آزمایشی فقط وضعیت رابط را تغییر می‌دهد.'}</p><div className="grid grid-cols-2 gap-2 mt-5"><Button variant="outline" onClick={()=>setConfirmAction(null)}>انصراف</Button><Button onClick={()=>{setConfirmAction(null);setActionBusy(true);setTimeout(()=>{setActionBusy(false);notify('پیشنهاد لغو شد.');},500)}}>{actionBusy?'در حال انجام...':'تأیید'}</Button></div></div></div>}
     {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-2xl bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><p className="text-xs text-gray-500 mt-1">صاحب کالا امتیاز راننده را ثبت می‌کند.</p><div className="flex gap-2 mt-3" dir="ltr">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setOwnerDriverRating(n)} className={`text-3xl ${n<=ownerDriverRating?'text-amber-400':'text-gray-300'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(ownerDriverRating?'امتیاز صاحب کالا ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز راننده</Button></div></div>}
     {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center overscroll-none" style={{touchAction:"none"}} onTouchMove={e=>e.preventDefault()} onWheel={e=>e.preventDefault()}><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7 select-none overscroll-none" onTouchStart={e=>{const target=e.target as HTMLElement;if(target.closest('button,a,[role="slider"]'))return;offerTouchStartY.current=e.touches[0].clientY;}} onTouchMove={e=>{const start=offerTouchStartY.current;if(start===null)return;e.preventDefault();setOfferDragY(Math.max(0,e.touches[0].clientY-start));}} onTouchEnd={e=>{const start=offerTouchStartY.current;offerTouchStartY.current=null;if(start!==null){const delta=e.changedTouches[0].clientY-start;if(delta>70){setOfferOpen(false);setOfferDragY(0);}else setOfferDragY(0);}}} style={{transform:`translateY(${offerDragY}px)`,transition:offerTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}}> <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex items-center justify-between"><span className="text-base font-bold text-gray-500">قیمت اعلامی</span><b className="text-xl font-black">{money(selected.price)} تومان</b></div></div><div className="mt-4"><label className="block text-base font-bold text-gray-700">قیمت پیشنهادی</label><div className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-4 text-center text-xl font-black text-gray-900" dir="ltr">{money(Number(offerPrice)||0)} تومان</div><div className="mt-4 px-1" dir="ltr">
