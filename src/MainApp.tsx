@@ -252,7 +252,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
       if (document.visibilityState !== 'visible') return;
       setPendingContactReturn(false);
       contactCallStartedAt.current = null;
-      go('contact-report');
+      go('calls');
     };
     window.addEventListener('pageshow', returnFromCall);
     document.addEventListener('visibilitychange', returnFromCall);
