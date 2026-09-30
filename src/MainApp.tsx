@@ -426,24 +426,24 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <div className="space-y-4">
-    <Card><CardBody className="p-5 text-center"><div className="flex items-center justify-center gap-2"><Star className="w-6 h-6 fill-amber-400 text-amber-400"/><b>امتیاز راننده</b></div><div className="mt-3 flex justify-center items-center gap-1" dir="ltr">{[1,2,3,4,5].map(n=><Star key={n} className={`w-7 h-7 ${n<=ownerDriverRating?'fill-amber-400 text-amber-400':'text-gray-300'}`}/>)}</div><div className="mt-2"><b className="text-3xl font-black text-primary-700">{fa(driverScore)}</b><span className="text-xs text-gray-400 mr-2">امتیاز عملکرد</span></div><p className="text-xs text-gray-400 mt-2">امتیاز ستاره‌ای توسط صاحب کالا داده می‌شود.</p></CardBody></Card>
-    <button onClick={openSearchPage} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
-      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-600"/></div>
-      <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
+    return <div className="space-y-2">
+    <Card><CardBody className="p-3 text-center"><b className="text-sm">امتیاز شما</b><div className="text-3xl font-black text-primary-700 mt-1">{fa(driverScore)}</div><div className="border-t border-gray-200 my-2"></div><div className="flex justify-center items-center gap-0.5" dir="ltr">{[1,2,3,4,5].map(n=><Star key={n} className={`w-6 h-6 ${n<=ownerDriverRating?'fill-amber-400 text-amber-400':'text-gray-300'}`}/>) }<span className="text-sm font-black text-gray-700 mr-2" dir="rtl">{ownerDriverRating.toLocaleString('fa-IR')}/5</span></div></CardBody></Card>
+    <button onClick={openSearchPage} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
+      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><Search className="w-5 h-5 text-primary-600"/></div>
+      <div className="min-w-0"><b className="block text-base text-white">جستجوی بار</b><span className="block mt-0.5 text-xs text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
     </button>
-    <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
-      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-6 h-6 text-emerald-700"/></div>
-      <div className="min-w-0"><b className="block text-lg text-white">اطراف من</b><span className="block mt-1 text-sm text-white/90">بارهای نزدیک را ببین</span></div>
+    <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
+      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-5 h-5 text-emerald-700"/></div>
+      <div className="min-w-0"><b className="block text-base text-white">اطراف من</b><span className="block mt-0.5 text-xs text-white/90">بارهای نزدیک را ببین</span></div>
     </button>
-    <button onClick={()=>go('offers')} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
-      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
-      <div className="min-w-0"><b className="block text-lg text-white">پیشنهادهای من</b><span className="block mt-1 text-sm text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
+    <button onClick={()=>go('offers')} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
+      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
+      <div className="min-w-0"><b className="block text-base text-white">پیشنهادهای من</b><span className="block mt-0.5 text-xs text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
     <button onClick={()=>go('calls')} className="w-full text-right">
-    <Card><CardBody className="p-5 bg-primary-500 text-white rounded-2xl">
+    <Card><CardBody className="p-3 bg-primary-500 text-white rounded-2xl">
       <div className="flex items-center gap-3"><Phone className="w-6 h-6 text-white"/><b>تماس‌ها و وضعیت‌ها</b></div>
-      <div className="mt-4 space-y-3">
+      <div className="mt-2 space-y-2">
         {contactHistory.length===0 ? <p className="text-sm text-white/80">هنوز سابقه تماسی ثبت نشده است.</p> : [...contactHistory].reverse().map((item,idx)=>{
           const load=loads.find(l=>l.id===item.loadId);
           return <div key={item.loadId+'-'+item.at+'-'+idx} className="rounded-xl border border-gray-100 p-3">
