@@ -190,7 +190,10 @@ export function MainApp() {
   const [pendingContactReturn, setPendingContactReturn] = useState(false);
   const [agreedFollowupLoadId, setAgreedFollowupLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_agreed_followup_load_v1'));
   const [driverScore, setDriverScore] = useState<number>(() => Number(window.localStorage.getItem('bbberah_driver_score_v1') || '0'));
-  const [walletBalance, setWalletBalance] = useState<number>(() => Number(window.localStorage.getItem('bbberah_wallet_balance_v1') || '5000000'));
+  const [walletBalance, setWalletBalance] = useState<number>(() => {
+  const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
+  return saved === null ? 5000000 : Number(saved);
+});
   const [actionBusy, setActionBusy] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
