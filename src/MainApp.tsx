@@ -189,7 +189,16 @@ export function MainApp() {
   const contactCallStartedAt = useRef<number | null>(null);
   const [pendingContactReturn, setPendingContactReturn] = useState(false);
   const [agreedFollowupLoadId, setAgreedFollowupLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_agreed_followup_load_v1'));
-  const [driverScore, setDriverScore] = useState<number>(() => Number(window.localStorage.getItem('bbberah_driver_score_v1') || '0'));
+  const [driverScore, setDriverScore] = useState<number>(() => {
+  const seededVersion = window.localStorage.getItem('bbberah_driver_score_seed_version_v1');
+  if (seededVersion !== '2') {
+    window.localStorage.setItem('bbberah_driver_score_v1', '200');
+    window.localStorage.setItem('bbberah_driver_score_seed_version_v1', '2');
+    return 200;
+  }
+  const saved = window.localStorage.getItem('bbberah_driver_score_v1');
+  return saved === null ? 200 : Number(saved);
+});
   const [walletBalance, setWalletBalance] = useState<number>(() => {
   const seededVersion = window.localStorage.getItem('bbberah_wallet_seed_version_v1');
   if (seededVersion !== '2') {
