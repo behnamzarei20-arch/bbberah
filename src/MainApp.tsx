@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'report' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -343,7 +343,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
     account:'اطلاعات حساب', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
     support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
-offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس'
+offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس'
   };
 
   const openOfferDetail = (loadId:string) => {
@@ -801,6 +801,26 @@ const ProfilePage = () => <div className="space-y-3">
     setAgreedFollowupLoadId(null);
   };
 
+  const ViolationReportPage = () => {
+    const reportLoad = selected;
+    const [reportText, setReportText] = useState('');
+    if (!reportLoad) return <Empty title="بار انتخاب نشده" text="ابتدا بار موردنظر را انتخاب کنید." action={()=>go('calls')}/>;
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-1"/>
+          <div><h2 className="text-xl font-black">گزارش تخلف</h2><p className="text-sm text-gray-500 mt-2 leading-6">گزارش مربوط به این بار را ثبت کنید.</p></div>
+        </div>
+        <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4">
+          <b className="block">{reportLoad.title}</b>
+          <p className="text-xs text-gray-500 mt-1">{reportLoad.from} ← {reportLoad.to}</p>
+        </div>
+        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="شرح تخلف را بنویسید..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
+        <Button size="full" className="mt-3" onClick={()=>{if(!reportText.trim()) return notify('لطفاً شرح تخلف را وارد کنید.'); notify('گزارش تخلف ثبت شد.'); go('calls');}}>ثبت گزارش تخلف</Button>
+      </CardBody></Card>
+    </div>;
+  };
+
   const ContactReportPage = () => {
     const declinedCount = selected ? (declinedContactCounts[selected.id] || 0) : 0;
     const declinedBlocked = declinedCount >= 2;
@@ -864,7 +884,12 @@ const ProfilePage = () => <div className="space-y-3">
       {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
         const load=loads.find(l=>l.id===item.loadId);
         if(!load) return null;
-        const status = item.status==='carried' ? 'حمل انجام شد' : contactStatusLabel[item.status];
+        const shipmentResult = shipmentHistory.find(h => h.loadId === load.id);
+        const status = item.status==='carried'
+          ? 'حمل انجام شد'
+          : shipmentResult?.outcome==='withdrawn'
+            ? 'از حمل بار منصرف شدید'
+            : contactStatusLabel[item.status];
         const canResolve = item.status==='uncertain';
         return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
           <div className="flex items-start justify-between gap-3">
@@ -879,6 +904,11 @@ const ProfilePage = () => <div className="space-y-3">
           {item.status==='agreed' && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
             <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" onClick={()=>{setSelected(load);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
             <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);go('home');}}>از حمل بار منصرف شدم</Button>
+          </div>}
+          {item.status!=='uncertain' && <div className="grid grid-cols-1 gap-2 mt-3">
+            <Button size="sm" className="w-full" variant="outline" onClick={()=>{setSelected(load);go('cargo-detail');}}>مشاهده جزئیات بار</Button>
+            <a href={`tel:${load.phone}`} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 flex items-center justify-center gap-2 text-sm font-black text-emerald-700"><Phone className="w-4 h-4"/> تماس</a>
+            <Button size="sm" className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-200" variant="outline" onClick={()=>{setSelected(load);go('report');}}>گزارش تخلف</Button>
           </div>}
         </CardBody></Card>;
       })}
@@ -990,8 +1020,8 @@ const ProfilePage = () => <div className="space-y-3">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
-      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
