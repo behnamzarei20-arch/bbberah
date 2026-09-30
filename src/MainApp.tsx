@@ -327,7 +327,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
   const HomePage = () => <div className="space-y-4">
     <button onClick={openSearchPage} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-600"/></div>
-      <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ، مقصد یا نوع بار را جستجو کن</span></div>
+      <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
     </button>
     <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-6 h-6 text-emerald-700"/></div>
@@ -342,15 +342,11 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
   const SearchPage = () => {
     const runSearch = () => {
-      const nearbyMode = origin === '__nearby__' || originText === 'اطراف من';
       const allDestinationsMode = destinationText === 'همه شهرها';
-      if ((!originText && !nearbyMode) || (!destinationText && !nearbyMode && !allDestinationsMode)) {
-        return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
-      }
-      if (!origin && originText && originText !== 'اطراف من') setOrigin(originText);
-      if (!destination && destinationText && destinationText !== 'همه شهرها') setDestination(destinationText);
+      if (!originText || (!destinationText && !allDestinationsMode)) return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
+      if (!origin) setOrigin(originText);
+      if (!destination && destinationText && !allDestinationsMode) setDestination(destinationText);
       setSearchSubmitted(true);
-      notify(nearbyMode ? 'بارهای اطراف من نمایش داده شد.' : 'بارهای مطابق مسیر نمایش داده شد.');
     };
     const clearAll = () => {
       setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
@@ -358,45 +354,39 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       setSearchSubmitted(false);
     };
 
+    if (searchSubmitted) {
+      return filtered.length ? (
+        <div className="space-y-3">
+          {filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}
+        </div>
+      ) : (
+        <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است." action={clearAll}/></CardBody></Card>
+      );
+    }
+
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-2 px-1"><Search className="w-5 h-5 text-primary-700" aria-hidden="true"/><h2 className="font-black text-lg text-gray-900">جستجوی بار</h2></div>
-
         <button onClick={()=>go('origin-select')} className="w-full mt-5 mb-3 rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مبدأ</span>
-          <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={originText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{originText || 'استان یا شهر مبدا را وارد کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
+          <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={originText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{originText || 'مبدأ را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
         </button>
-
         <div className="border-t border-gray-100 my-6"/>
-
         <button onClick={()=>go('destination-select')} className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مقصد</span>
-          <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={destinationText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{destinationText || 'استان یا شهر مقصد را وارد کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
+          <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={destinationText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{destinationText || 'مقصد را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
         </button>
       </CardBody></Card>
-
       <Button size="full" className="mt-6 h-14 text-base font-black shadow-lg shadow-primary-100" onClick={runSearch}><Search className="w-5 h-5 ml-2"/> جستجوی بار</Button>
-
       <Card><CardBody className="p-4">
         <div className="flex items-center justify-between mb-3"><h3 className="font-black">سه مسیر پرتکرار</h3><span className="text-[11px] text-gray-400">انتخاب سریع</span></div>
         <div className="space-y-2">{frequentRoutes.map(route=><button type="button" key={route.from+'-'+route.to} onClick={()=>{
-          const fromLocation=findCityLocation(route.from);
-          const toLocation=findCityLocation(route.to);
-          setOrigin(route.from); setOriginText(route.from);
-          setOriginProvince(fromLocation?.provinceId || ''); setOriginCounty(fromLocation?.countyId || '');
-          setDestination(route.to); setDestinationText(route.to);
-          setDestinationProvince(toLocation?.provinceId || ''); setDestinationCounty(toLocation?.countyId || '');
+          const fromLocation=findCityLocation(route.from); const toLocation=findCityLocation(route.to);
+          setOrigin(route.from); setOriginText(route.from); setOriginProvince(fromLocation?.provinceId || ''); setOriginCounty(fromLocation?.countyId || '');
+          setDestination(route.to); setDestinationText(route.to); setDestinationProvince(toLocation?.provinceId || ''); setDestinationCounty(toLocation?.countyId || '');
           setFrequentRoute({from:route.from,to:route.to}); go('frequent-route');
         }} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
       </CardBody></Card>
-
-      {searchSubmitted && <>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500">{filtered.length ? `بارهای مرتبط: ${fa(filtered.length)} مورد` : 'بار مرتبط پیدا نشد'}</span>
-          {(origin || destination) && <button onClick={clearAll} className="text-xs font-bold text-primary-700">پاک کردن</button>}
-        </div>
-        {filtered.length ? <div className="space-y-3">{filtered.map(l=><LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>)}</div> : <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است." action={clearAll}/></CardBody></Card>}
-      </>}
     </div>;
   };
 
@@ -461,8 +451,10 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       setQuery(''); setCityLimit(120); setSearchSubmitted(false); go('search');
     };
     const chooseProvince = (id:string) => {
-      setProvince(id); setCounty(''); setCity(''); setText(''); setQuery(''); setCityLimit(120);
-      if (!isOrigin && provinceId === '__all_cities__') setDestinationProvince('');
+      const province = iranLocations.find(p => String(p.id) === id);
+      setProvince(id); setCounty(''); setCity(''); setText(province?.name || ''); setQuery(''); setCityLimit(120);
+      setSearchSubmitted(false);
+      go('search');
     };
     const chooseCounty = (provinceId:string, countyId:string) => {
       setProvince(provinceId); setCounty(countyId); setCity(''); setText('');
@@ -498,13 +490,12 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-3 mb-4">
           <button type="button" onClick={()=>go('search')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
-          <div><h2 className="font-black text-lg">{isOrigin ? 'انتخاب مبدأ' : 'انتخاب مقصد'}</h2><p className="text-xs text-gray-400 mt-1">{isOrigin ? 'استان یا شهر مبدأ را انتخاب کنید' : 'استان یا شهر مقصد را انتخاب کنید'}</p></div>
+          <div><h2 className="font-black text-lg">{isOrigin ? 'انتخاب مبدأ' : 'انتخاب مقصد'}</h2><p className="text-xs text-gray-400 mt-1">{isOrigin ? 'مبدأ را انتخاب کنید' : 'مقصد را انتخاب کنید'}</p></div>
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
           <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={isOrigin ? 'مثال تهران' : 'استان مقصد را انتخاب کنید'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
         </div>
-        {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center gap-3 text-right"><Navigation className="w-5 h-5 text-primary-600"/><span className="font-bold text-primary-800">اطراف من</span></button>}
         {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
           <Globe2 className="w-5 h-5" />
           همه شهرها
