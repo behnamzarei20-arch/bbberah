@@ -183,6 +183,7 @@ export function MainApp() {
   const [offerPrice, setOfferPrice] = useState('');
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
+  const [ownerDriverRating, setOwnerDriverRating] = useState<number>(() => Number(window.localStorage.getItem('bbberah_owner_driver_rating_v1') || '0'));
   const [contactReport, setContactReport] = useState<null | 'agreed' | 'declined' | 'uncertain'>(null);
   const [pendingContactLoadId, setPendingContactLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_pending_contact_load_v1'));
   const [declinedContactCounts, setDeclinedContactCounts] = useState<Record<string, number>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_declined_contact_counts_v1') || '{}'); return v && typeof v==='object' ? v : {}; } catch { return {}; } });
@@ -226,6 +227,7 @@ const [contactHistory, setContactHistory] = useState<Array<{loadId:string; statu
   }, [agreedFollowupLoadId]);
   useEffect(() => { window.localStorage.setItem('bbberah_driver_score_v1', String(driverScore)); }, [driverScore]);
   useEffect(() => { window.localStorage.setItem('bbberah_wallet_balance_v1', String(walletBalance)); }, [walletBalance]);
+  useEffect(() => { window.localStorage.setItem('bbberah_owner_driver_rating_v1', String(ownerDriverRating)); }, [ownerDriverRating]);
 useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON.stringify(contactHistory)); }, [contactHistory]);
   useEffect(() => {
     if (pendingContactLoadId) window.localStorage.setItem('bbberah_pending_contact_load_v1', pendingContactLoadId);
@@ -425,6 +427,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       }
     };
     return <div className="space-y-4">
+    <Card><CardBody className="p-5 text-center"><div className="flex items-center justify-center gap-2"><Star className="w-6 h-6 fill-amber-400 text-amber-400"/><b>امتیاز راننده</b></div><div className="mt-3 flex justify-center items-center gap-1" dir="ltr">{[1,2,3,4,5].map(n=><Star key={n} className={`w-7 h-7 ${n<=ownerDriverRating?'fill-amber-400 text-amber-400':'text-gray-300'}`}/>)}</div><div className="mt-2"><b className="text-3xl font-black text-primary-700">{fa(driverScore)}</b><span className="text-xs text-gray-400 mr-2">امتیاز عملکرد</span></div><p className="text-xs text-gray-400 mt-2">امتیاز ستاره‌ای توسط صاحب کالا داده می‌شود.</p></CardBody></Card>
     <button onClick={openSearchPage} className="w-full min-h-[112px] rounded-2xl bg-primary-500 border border-primary-600 p-5 text-right flex items-center gap-4 shadow-sm text-white">
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-6 h-6 text-primary-600"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">جستجوی بار</b><span className="block mt-1 text-sm text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
@@ -437,8 +440,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-6 h-6 text-amber-700"/></div>
       <div className="min-w-0"><b className="block text-lg text-white">پیشنهادهای من</b><span className="block mt-1 text-sm text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
     </button>
-    <Card><CardBody className="p-5">
-      <div className="flex items-center gap-3"><Phone className="w-6 h-6 text-primary-600"/><b>تماس‌ها و وضعیت‌ها</b></div>
+    <button onClick={()=>go('calls')} className="w-full text-right">
+    <Card><CardBody className="p-5 bg-primary-500 text-white rounded-2xl">
+      <div className="flex items-center gap-3"><Phone className="w-6 h-6 text-white"/><b>تماس‌ها و وضعیت‌ها</b></div>
       <div className="mt-4 space-y-3">
         {contactHistory.length===0 ? <p className="text-sm text-gray-500">هنوز سابقه تماسی ثبت نشده است.</p> : [...contactHistory].reverse().map((item,idx)=>{
           const load=loads.find(l=>l.id===item.loadId);
@@ -456,6 +460,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
         })}
       </div>
     </CardBody></Card>
+    </button>
   </div>;
   };
 
@@ -684,7 +689,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
 const ProfilePage = () => <div className="space-y-3">
     <Card><CardBody className="p-5 flex items-center gap-4"><div className="w-14 h-14 rounded-2xl bg-primary-100 flex items-center justify-center"><User className="w-7 h-7 text-primary-700"/></div><div><b className="text-lg">{profile?.full_name || 'کاربر براه'}</b><p className="text-xs text-gray-400 mt-1" dir="ltr">{profile?.phone}</p></div></CardBody></Card>
-    <Card><CardBody className="p-5"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><Star className="w-7 h-7 text-amber-500"/><div><b className="text-sm">امتیاز راننده</b><p className="text-xs text-gray-400 mt-1">بر اساس حمل موفق و ناموفق</p></div></div><b className="text-3xl font-black text-primary-700">{fa(driverScore)}</b></div><p className="text-xs text-gray-500 mt-4">زیر ۱۰۰ امتیاز شامل محدودیت‌های مرحله‌ای می‌شود.</p></CardBody></Card>
+    <Card><CardBody className="p-5"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><Star className="w-7 h-7 text-amber-500"/><div><b className="text-sm">امتیاز عملکرد راننده</b><p className="text-xs text-gray-400 mt-1">امتیاز عملکرد + ارزیابی صاحب کالا</p></div></div><b className="text-3xl font-black text-primary-700">{fa(driverScore)}</b></div><div className="flex items-center gap-1 mt-4" dir="ltr">{[1,2,3,4,5].map(n=><Star key={n} className={`w-6 h-6 ${n<=ownerDriverRating?'fill-amber-400 text-amber-400':'text-gray-300'}`}/>)}</div><p className="text-xs text-gray-500 mt-2">امتیاز ستاره‌ای توسط صاحب کالا ثبت می‌شود.</p></CardBody></Card>
     {[
       ['account','اطلاعات حساب','نام، شهر و شماره تماس',User],['vehicle','خودروی من','مشخصات خودرو و پلاک',CarFront],['wallet','کیف پول','موجودی و عملیات مالی',WalletCards],['transactions','تراکنش‌ها','سوابق مالی',ReceiptText],['offers','پیشنهادهای من','پیشنهادهای ارسال‌شده',ReceiptText],['shipment','سفر جاری','وضعیت بار فعال',Truck],['support','پشتیبانی','راهنما و ارتباط',Headphones]
     ].map(([p,l,s,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full rounded-2xl bg-white border border-gray-100 p-4 flex items-center gap-3 text-right">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1"><b className="block text-sm">{String(l)}</b><small className="text-gray-400">{String(s)}</small></span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
@@ -780,12 +785,13 @@ const ProfilePage = () => <div className="space-y-3">
               setWalletBalance(v=>v-commission);
               setDriverScore(v=>v+scoreChange);
               setAgreedFollowupLoadId(null);
+              setAgreedFollowupLoadId(null);
               notify(`حمل انجام شد؛ کمیسیون ${money(commission)} تومان کسر و ${fa(scoreChange)} امتیاز اضافه شد.`);
             }}>۱. بار را حمل کردم</Button>
             <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>{
               setContactHistory(prev=>[...prev,{loadId:followupLoad.id,status:'declined',at:Date.now()}]);
               setDeclinedContactCounts(prev=>({...prev,[followupLoad.id]:(prev[followupLoad.id]||0)+1}));
-              setDriverScore(v=>Math.max(0,v-scoreChange));
+              setDriverScore(v=>v-scoreChange);
               setAgreedFollowupLoadId(null);
               notify(`انصراف از حمل ثبت شد؛ ${fa(scoreChange)} امتیاز کسر شد.`);
             }}>۲. از حمل بار منصرف شدم</Button>
