@@ -824,14 +824,6 @@ const ProfilePage = () => <div className="space-y-3">
     };
     return <div className="space-y-4">
       <Card><CardBody className="p-5">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-1"/>
-          <div><h2 className="text-xl font-black">گزارش تخلف</h2><p className="text-sm text-gray-500 mt-2 leading-6">موارد مربوط به این بار را انتخاب کنید و در صورت نیاز توضیحات بیشتری بنویسید.</p></div>
-        </div>
-        <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4">
-          <b className="block">{reportLoad.title}</b>
-          <p className="text-xs text-gray-500 mt-1">{reportLoad.from} ← {reportLoad.to}</p>
-        </div>
         <div className="mt-4 space-y-2">
           {reportOptions.map(option => {
             const checked = selectedReports.includes(option);
