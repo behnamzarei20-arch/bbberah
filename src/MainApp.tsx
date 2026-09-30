@@ -214,11 +214,13 @@ export function MainApp() {
         : !originProvince
           ? true
           : !!ol && ol.provinceId === originProvince && (!originCounty || ol.countyId === originCounty);
-    const destinationMatch = destination
-      ? l.to === destination
-      : !destinationProvince
-        ? true
-        : !!dl && dl.provinceId === destinationProvince && (!destinationCounty || dl.countyId === destinationCounty);
+    const destinationMatch = destination === '__all__'
+      ? true
+      : destination
+        ? l.to === destination
+        : !destinationProvince
+          ? true
+          : !!dl && dl.provinceId === destinationProvince && (!destinationCounty || dl.countyId === destinationCounty);
     return originMatch && destinationMatch;
   }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty]);
   const title:Record<Page,string> = {
@@ -396,8 +398,8 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     const visibleCities = filteredCities.slice(0, cityLimit);
 
     const openAllDestinationCities = () => {
-      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
-      setQuery(''); setCityLimit(120); go('destination-all');
+      setDestinationProvince(''); setDestinationCounty(''); setDestination('__all__'); setDestinationText('همه شهرها');
+      setQuery(''); setCityLimit(120); setSearchSubmitted(true); go('search');
     };
     const chooseProvince = (id:string) => {
       setProvince(id); setCounty(''); setCity(''); setText(''); setQuery(''); setCityLimit(120);
@@ -444,9 +446,8 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
           <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={isOrigin ? 'مثال تهران' : 'استان مقصد را انتخاب کنید'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
         </div>
         {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-50 border border-primary-100 p-3.5 flex items-center gap-3 text-right"><Navigation className="w-5 h-5 text-primary-600"/><span className="font-bold text-primary-800">اطراف من</span></button>}
-        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-between text-right active:scale-[0.99]">
-          <span><b className="block">همه شهرها</b><span className="text-[11px] text-primary-700">انتخاب مستقیم از کل شهرهای ایران</span></span>
-          <ChevronLeft className="w-5 h-5"/>
+        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 text-center font-black active:scale-[0.99]">
+          همه شهرها
         </button>}
         {!provinceData && !normalized && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
