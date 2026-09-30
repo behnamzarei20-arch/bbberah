@@ -76,7 +76,7 @@ function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
   </div>;
 }
 
-function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass, actionDisabled }: { load:Load; onOpen:()=>void; onOffer:()=>void; interactionLabel?:string; interactionClass?:string; actionDisabled?:boolean }) {
+function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }: { load:Load; onOpen:()=>void; onOffer:()=>void; interactionLabel?:string; interactionClass?:string }) {
   const commission = Math.round(load.price * 0.05);
   return <Card hoverable>
     <CardBody className="p-4">
@@ -136,8 +136,8 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass, a
         <p className="text-xl leading-8 font-bold text-gray-700 text-right">{load.description}</p>
       </div>
       <div className="mt-3">
-        <Button size="full" onClick={actionDisabled ? undefined : onOpen} disabled={actionDisabled} className={`h-14 text-base font-black ${actionDisabled ? 'bg-gray-200 text-gray-500 border-gray-200 cursor-not-allowed' : 'bg-primary-500 hover:bg-primary-600 text-white border-primary-500'}`}>
-          <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> {actionDisabled ? 'اقدام قبلی ثبت شده' : 'درخواست برای حمل بار'}
+        <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
+          <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> {interactionLabel ? 'تماس گرفته‌اید' : 'درخواست برای حمل بار'}
         </Button>
       </div>
     </CardBody>
@@ -471,21 +471,9 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
 
   const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
   const getLoadInteraction = (loadId:string) => {
-    const settled = shipmentHistory.some(item => item.loadId === loadId);
-    if (settled) return { label:'این بار قبلاً تعیین تکلیف شده است', cls:'border-blue-200 bg-blue-50 text-blue-700' };
-    const contact = contactHistory.find(item => item.loadId === loadId);
-    if (contact) {
-      if (contact.status === 'agreed') return { label:'تماس گرفته‌اید • توافق شده', cls:'border-emerald-200 bg-emerald-50 text-emerald-700' };
-      if (contact.status === 'declined') return { label:'تماس گرفته‌اید • توافق نشده', cls:'border-red-200 bg-red-50 text-red-700' };
-      if (contact.status === 'uncertain') return { label:'تماس گرفته‌اید • نتیجه مشخص نیست', cls:'border-amber-200 bg-amber-50 text-amber-700' };
-      if (contact.status === 'carried') return { label:'تماس گرفته‌اید • حمل انجام شده', cls:'border-blue-200 bg-blue-50 text-blue-700' };
-    }
-    const offer = myOffers.find(item => item.loadId === loadId);
-    if (offer) {
-      if (offer.status === 'accepted') return { label:'پیشنهاد قیمت ارسال کرده‌اید • پذیرفته شد', cls:'border-emerald-200 bg-emerald-50 text-emerald-700' };
-      if (offer.status === 'rejected') return { label:'پیشنهاد قیمت ارسال کرده‌اید • رد شد', cls:'border-red-200 bg-red-50 text-red-700' };
-      return { label:'پیشنهاد قیمت ارسال کرده‌اید', cls:'border-amber-200 bg-amber-50 text-amber-700' };
-    }
+    const contact = contactHistory.some(item => item.loadId === loadId);
+    const offer = myOffers.some(item => item.loadId === loadId);
+    if (contact || offer) return { label:'تماس گرفته‌اید', cls:'border-primary-200 bg-primary-50 text-primary-700' };
     return null;
   };
   const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
@@ -543,7 +531,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
     if (searchSubmitted) {
       return filtered.length ? (
         <div className="space-y-3">
-          {filtered.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls} actionDisabled={!!interaction}/>;})}
+          {filtered.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
         </div>
       ) : (
         <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است." action={clearAll}/></CardBody></Card>
@@ -582,7 +570,7 @@ offers:'پیشنهادهای من', shipment:'سفر جاری', 'origin-select':
       : [];
     return routeLoads.length ? (
       <div className="space-y-3">
-        {routeLoads.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls} actionDisabled={!!interaction}/>;})}
+        {routeLoads.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
       </div>
     ) : (
       <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است."/></CardBody></Card>
@@ -866,7 +854,7 @@ const ProfilePage = () => <div className="space-y-3">
   };
 
   const SimplePage = () => {
-    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls} actionDisabled={!!interaction}/>;})}</div>;
+    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
     if (page==='calls') return <div className="space-y-3">
       {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
         const load=loads.find(l=>l.id===item.loadId);
