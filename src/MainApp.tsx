@@ -675,7 +675,7 @@ const ProfilePage = () => <div className="space-y-3">
     <div className="absolute left-0 h-2 rounded-full bg-primary-500" style={{width:`${offerSlider}%`}}/>
     <div className="absolute top-1/2 w-6 h-6 rounded-full bg-white border-4 border-primary-600 shadow-md -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{left:`${offerSlider}%`}}/>
   </div>
-  <div className="flex justify-between mt-1 text-xs font-bold text-gray-500"><span>۲۰٪ کمتر</span><span>۰٪ قیمت اعلامی</span><span>۲۰٪ بیشتر</span></div><div className="mt-1 text-center text-xs font-black text-primary-700">{offerPercent > 0 ? `+${fa(offerPercent)}٪` : `${fa(offerPercent)}٪`} نسبت به قیمت اعلامی</div>
+  
 </div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-blue-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<div className="mt-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-800 text-center">برای ثبت نهایی پیشنهاد، باید به براه متصل باشید.</div><Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
 }
