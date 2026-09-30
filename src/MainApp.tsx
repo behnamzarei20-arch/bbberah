@@ -846,42 +846,22 @@ const ProfilePage = () => <div className="space-y-3">
     </div>;
     if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
     if (page==='offers') return <div className="space-y-3">
-      <Card><CardBody className="p-5">
-        <div className="flex items-center justify-between gap-3"><div><b className="text-lg">پیشنهادهای من</b><p className="text-xs text-gray-500 mt-1">وضعیت هر پیشنهاد و جزئیات بار را ببینید.</p></div><span className="text-sm font-black text-primary-700">{fa(myOffers.length)}</span></div>
-      </CardBody></Card>
-      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال اینجا نمایش داده می‌شود."/></CardBody></Card> :
+      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
         [...myOffers].reverse().map((offer)=>{
-          const load=loads.find(l=>l.id===offer.loadId);
-          if(!load) return null;
-          const statusClass = offer.status==='accepted'
-            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-            : offer.status==='rejected'
-              ? 'bg-red-50 text-red-700 border-red-200'
-              : 'bg-gray-100 text-gray-600 border-gray-200';
-          const statusText = offer.status==='accepted' ? 'پذیرفته شد' : offer.status==='rejected' ? 'رد شد' : 'در انتظار';
-          const dateText = new Date(offer.at).toLocaleDateString('fa-IR', {year:'numeric', month:'2-digit', day:'2-digit', weekday:'long'});
-          const detailsOpen = offerDetailLoadId === offer.loadId;
+          const load=loads.find(l=>l.id===offer.loadId); if(!load) return null;
+          const offerDate=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(offer.at));
+          const offerWeekday=new Intl.DateTimeFormat('fa-IR',{weekday:'long'}).format(new Date(offer.at));
+          const statusBox=offer.status==='accepted'?'bg-emerald-50 text-emerald-700 border-emerald-200':offer.status==='rejected'?'bg-red-50 text-red-700 border-red-200':'bg-gray-100 text-gray-600 border-gray-200';
+          const statusText=offer.status==='accepted'?'پذیرفته شد':offer.status==='rejected'?'رد شد':'در انتظار';
           return <Card key={offer.loadId}><CardBody className="p-4">
             <div className="flex items-center gap-3" dir="rtl">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 text-base font-black whitespace-nowrap">
-                  <span className="text-gray-950">⚫️ {load.from}</span>
-                  <span className="text-gray-400">--→</span>
-                  <span className="text-blue-600">🔵 {load.to}</span>
-                </div>
-                <div className="text-xs font-bold text-gray-500 mt-2">{dateText}</div>
-              </div>
-              <span className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black ${statusClass}`}>{statusText}</span>
-              <button type="button" aria-label="دیدن جزئیات بار" onClick={()=>setOfferDetailLoadId(detailsOpen ? null : offer.loadId)} className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
-                <MoreVertical className="w-5 h-5 text-gray-600"/>
-              </button>
+              <div className="flex-1 min-w-0"><div className="flex items-center justify-center gap-2 text-lg font-black whitespace-nowrap"><span className="text-gray-950">⚫️{load.from}</span><span className="text-gray-400">---&gt;</span><span className="text-blue-600">🔵{load.to}</span></div><div className="mt-2 text-center text-xs font-bold text-gray-400">{offerDate} / {offerWeekday}</div></div>
+              <button type="button" onClick={()=>setOfferDetailLoadId(offer.loadId)} aria-label="دیدن جزئیات" className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><MoreVertical className="w-5 h-5 text-gray-500"/></button>
             </div>
-            {detailsOpen && <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
-              <div className="flex items-center gap-2 mb-1.5"><FileText className="w-5 h-5 text-primary-600"/><span className="text-sm font-black text-gray-700">توضیحات بار</span></div>
-              <p className="text-sm leading-7 font-bold text-gray-700">{load.description}</p>
-            </div>}
+            <div className="mt-4 flex justify-center"><span className={`rounded-xl border px-4 py-2 text-xs font-black ${statusBox}`}>{statusText}</span></div>
           </CardBody></Card>;
         })}
+      {offerDetailLoadId && (()=>{const detailOffer=myOffers.find(o=>o.loadId===offerDetailLoadId), detailLoad=loads.find(l=>l.id===offerDetailLoadId); if(!detailOffer||!detailLoad)return null; return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center" onClick={()=>setOfferDetailLoadId(null)}><div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7" onClick={e=>e.stopPropagation()} dir="rtl"><div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black">جزئیات بار</h3><button type="button" onClick={()=>setOfferDetailLoadId(null)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="text-center text-lg font-black"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div><p className="mt-4 text-sm font-bold leading-7 text-gray-700">{detailLoad.description}</p></div></div></div>})()}
     </div>;
     if (page==='shipment') return <div className="space-y-4">
       {agreedFollowupLoadId ? (() => {
