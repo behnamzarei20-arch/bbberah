@@ -806,12 +806,9 @@ const ProfilePage = () => <div className="space-y-3">
     const reportLoad = selected;
     const reportOptions = [
       'اطلاعات بار با واقعیت مطابقت ندارد',
-      'صاحب بار پاسخگو نیست',
       'مبلغ یا شرایط بار متفاوت است',
       'رفتار نامناسب یا توهین‌آمیز',
-      'مشکل در زمان یا محل بارگیری',
-      'مشکل در تحویل یا شرایط حمل',
-      'درخواست یا رفتار مشکوک',
+      'مشکل در زمان یا محل بارگیری یا تحویل',
     ];
     const [selectedReports, setSelectedReports] = useState<string[]>([]);
     const [reportText, setReportText] = useState('');
@@ -834,7 +831,7 @@ const ProfilePage = () => <div className="space-y-3">
           })}
         </div>
         <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="توضیحات بیشتر (اختیاری)..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
-        <Button size="full" className="mt-3" onClick={submitReport}>ارسال گزارش</Button>
+        <Button size="full" className="mt-3 bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={submitReport}>ارسال گزارش</Button>
       </CardBody></Card>
     </div>;
   };
