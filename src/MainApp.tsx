@@ -769,7 +769,7 @@ const ProfilePage = () => <div className="space-y-3">
     };
 
     const submitNationalId = () => {
-      if (!/^\\d{10}$/.test(nationalId)) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      if (nationalId.replace(/\\D/g, '').length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
       setVerificationStep(2);
     };
 
