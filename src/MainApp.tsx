@@ -812,7 +812,530 @@ const ProfilePage = () => <div className="space-y-3">
     if (verificationStep === 1) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
         <h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2>
-        <input value={nationalId} onChange={e => setNationalId(e.target.value.replace(/\\D/g, '').slice(0, 10))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+        <div>
+          <input value={nationalId} onChange={e => setNationalId(e.target.value.replace(/\\D/g, '').slice(0, 10))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+          <div className="mt-2 text-center text-sm font-black" dir="ltr"><span className={nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}>{fa(nationalId.length)}</span><span className="text-gray-400"> / ۱۰ رقم</span></div>
+        </div>
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
+          مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
+        </div>
+        <Button size="full" onClick={submitNationalId}>ارسال</Button>
+      </CardBody></Card>
+    </div>;
+
+    if (verificationStep === 2) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <h2 className="text-lg font-black">ارسال عکس گواهینامه</h2>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
+        </div>
+        <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licensePhoto ? <img src={URL.createObjectURL(licensePhoto)} alt="تصویر گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
+        </button>
+        {sourceInputs('license')}
+        {licensePhoto && <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        <Button size="full" onClick={submitLicense}>بعدی</Button>
+      </CardBody></Card>
+      {pickerMenu}
+    </div>;
+
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
+        </div>
+        <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licenseFacePhoto ? <img src={URL.createObjectURL(licenseFacePhoto)} alt="چهره همراه گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
+        </button>
+        {sourceInputs('face')}
+        {licenseFacePhoto && <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        <Button size="full" onClick={submitVerification}>ارسال و منتظر تایید</Button>
+      </CardBody></Card>
+      {pickerMenu}
+    </div>;
+  };
+
+  const DetailPage = () => selected ? (() => { const commission = Math.round(selected.price * 0.05); return <div className="space-y-4">
+    <Card><CardBody className="p-5"><h2 className="text-xl font-black">{selected.title}</h2><div className="flex items-center gap-4 mt-5" dir="rtl"><div className="flex-1 text-center"><b className="block text-lg">{selected.from}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.from)}</span></div><div className="w-24 relative flex items-center justify-center"><div className="w-full border-t-2 border-dashed border-primary-300"/><div className="absolute flex flex-col items-center bg-white px-1"><Route className="w-5 h-5 text-primary-500 rotate-180"/><span className="text-xs font-black text-primary-700 mt-0.5">{fa(selected.routeDistance)} کیلومتر</span></div></div><div className="flex-1 text-center"><b className="block text-lg">{selected.to}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.to)}</span></div></div></CardBody></Card>
+    <Card><CardBody className="p-5 space-y-4"><h3 className="font-black">جزئیات بار</h3><div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center"><Package className="w-5 h-5 text-primary-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">نوع بار</span><b className="block mt-1 text-base font-black">{selected.type}</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-8 h-8 rounded-xl bg-primary-50 flex items-center justify-center"><Percent className="w-4 h-4 text-primary-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کمیسیون براه</span><b className="block mt-1 text-base font-black">{money(commission)} تومان</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><WeightIcon className="w-5 h-5 text-amber-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">وزن بار</span><b className="block mt-1 text-base font-black">{fa(selected.weight)} کیلو</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
+    </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
+    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p></CardBody></Card>
+  </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
+
+  const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
+    const at = Date.now();
+    setContactHistory(prev => {
+      const next = [...prev.filter(item => item.loadId !== loadId), {loadId, status, at}];
+      return next;
+    });
+    if (status === 'agreed' || status === 'carried') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'accepted'} : offer));
+    } else if (status === 'declined') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'rejected'} : offer));
+    }
+  };
+
+  const settleShipment = (load:Load, outcome:'carried'|'withdrawn') => {
+    const existing = shipmentHistory.find(item => item.loadId === load.id);
+    if (existing) {
+      notify('این بار قبلاً تعیین تکلیف شده و امکان ثبت دوباره ندارد.');
+      setAgreedFollowupLoadId(null);
+      return;
+    }
+    const commission = Math.round(load.price * 0.05);
+    const discount = Number((load as Load & {discount?:number}).discount || 0);
+    const payableCommission = Math.max(0, commission - discount);
+    const scoreChange = Math.max(1, Math.round(payableCommission / 50000));
+    const at = Date.now();
+    if (outcome === 'carried') {
+      const walletBefore = walletBalance;
+      const walletAfter = walletBefore - payableCommission;
+      setWalletBalance(walletAfter);
+      setDriverScore(prev => prev + scoreChange);
+      setContactHistory(prev => [...prev, {loadId:load.id, status:'carried', at}]);
+      setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:payableCommission, scoreChange, at}]);
+      setAgreedFollowupLoadId(null);
+      setShipmentRewardSummary({scoreChange, commission:payableCommission, discount, walletBefore, walletAfter});
+      return;
+    }
+    setDriverScore(prev => prev - scoreChange);
+    setContactHistory(prev => [...prev, {loadId:load.id, status:'declined', at}]);
+    setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:0, scoreChange:-scoreChange, at}]);
+    setAgreedFollowupLoadId(null);
+  };
+
+  const ViolationReportPage = () => {
+    const reportLoad = selected;
+    const reportOptions = [
+      'اطلاعات بار با واقعیت مطابقت ندارد',
+      'مبلغ یا شرایط بار متفاوت است',
+      'رفتار نامناسب یا توهین‌آمیز',
+      'مشکل در زمان یا محل بارگیری یا تحویل',
+    ];
+    const [selectedReports, setSelectedReports] = useState<string[]>([]);
+    const [reportText, setReportText] = useState('');
+    if (!reportLoad) return <Empty title="بار انتخاب نشده" text="ابتدا بار موردنظر را انتخاب کنید." action={()=>go('calls')}/>;
+    const submitReport = () => {
+      if (!selectedReports.length && !reportText.trim()) return notify('لطفاً حداقل یک مورد را انتخاب یا توضیحات بیشتری وارد کنید.');
+      setReportedLoadIds(prev => prev.includes(reportLoad.id) ? prev : [...prev, reportLoad.id]);
+      notify('گزارش تخلف با موفقیت ثبت شد و برای بررسی ارسال گردید.');
+      go('home');
+    };
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="mt-4 space-y-2">
+          {reportOptions.map(option => {
+            const checked = selectedReports.includes(option);
+            return <button key={option} type="button" onClick={()=>setSelectedReports(prev=>checked ? prev.filter(item=>item!==option) : [...prev, option])} className={`w-full rounded-2xl border p-3 text-right flex items-center gap-3 transition ${checked ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700'}`}>
+              <span className={`w-5 h-5 rounded-md border-2 shrink-0 flex items-center justify-center ${checked ? 'border-red-600 bg-red-600 text-white' : 'border-gray-300 bg-white'}`}>{checked ? '✓' : ''}</span>
+              <span className="text-sm font-bold">{option}</span>
+            </button>;
+          })}
+        </div>
+        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="توضیحات بیشتر (اختیاری)..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
+        <Button size="full" className="mt-3 bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={submitReport}>ارسال گزارش</Button>
+      </CardBody></Card>
+    </div>;
+  };
+
+  const ContactReportPage = () => {
+    const declinedCount = selected ? (declinedContactCounts[selected.id] || 0) : 0;
+    const declinedBlocked = declinedCount >= 2;
+    const submitContactReport = () => {
+      if (!contactReport) return notify('لطفاً یکی از سه نتیجه تماس را انتخاب کنید.');
+      if (!selected) return notify('بار موردنظر پیدا نشد.');
+      if (contactReport === 'agreed') {
+        setPendingContactLoadId(null);
+        saveContactResult(selected.id, 'agreed');
+        setAgreedFollowupLoadId(selected.id);
+        notify('توافق ثبت شد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
+        go('home');
+        return;
+      }
+      if (contactReport === 'declined') {
+        if (declinedBlocked) return notify('این نتیجه برای این بار دو بار ثبت شده و دیگر قابل انتخاب نیست.');
+        const nextCount = declinedCount + 1;
+        setDeclinedContactCounts(prev => ({...prev, [selected.id]: nextCount}));
+        saveContactResult(selected.id, 'declined');
+        setPendingContactLoadId(null);
+        notify(nextCount >= 2 ? 'این بار دو بار بدون توافق ثبت شد؛ انتخاب دوباره این گزینه برای همین بار بسته شد.' : 'عدم توافق ثبت شد.');
+        go('home');
+        return;
+      }
+      setPendingContactLoadId(selected.id);
+      saveContactResult(selected.id, 'uncertain');
+      notify('این بار در وضعیت «مشخص نیست» باقی ماند و یادآوری آن در برنامه نمایش داده می‌شود.');
+      go('home');
+    };
+    const options = [
+      ['agreed','توافق کردیم','bg-emerald-50 border-emerald-200 text-emerald-800'],
+      ['declined','توافق نکردیم','bg-red-50 border-red-200 text-red-800'],
+      ['uncertain','مشخص نیست','bg-amber-50 border-amber-200 text-amber-800'],
+    ] as const;
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="flex items-start gap-3">
+          <PhoneCall className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
+          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">بعد از تماس یکی از سه گزینه را انتخاب کنید.</p></div>
+        </div>
+        {selected && <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
+      </CardBody></Card>
+      <Card><CardBody className="p-4">
+        <div className="space-y-2">
+          {options.map(([value,title,cls])=>{
+            const blocked = value==='declined' && declinedBlocked;
+            return <button key={value} type="button" disabled={blocked} onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls} ${blocked?'opacity-45 cursor-not-allowed':''}`}>
+              <span className="block font-black text-base">{title}</span>
+              {value==='declined' && <span className="block text-xs font-black mt-2">{declinedCount}/۲ ثبت برای این بار</span>}
+            </button>;
+          })}
+        </div>
+        <Button size="full" className="mt-4 h-14 text-base font-black" onClick={submitContactReport}>ثبت نتیجه تماس</Button>
+      </CardBody></Card>
+    </div>;
+  };
+
+  const SimplePage = () => {
+    if (page==='verification') return <VerificationPage/>;
+    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
+    if (page==='calls') return <div className="space-y-3">
+      {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
+        const load=loads.find(l=>l.id===item.loadId);
+        if(!load) return null;
+        const shipmentResult = shipmentHistory.find(h => h.loadId === load.id);
+        const status = item.status==='carried'
+          ? 'حمل انجام شد'
+          : shipmentResult?.outcome==='withdrawn'
+            ? 'از حمل بار منصرف شدید'
+            : contactStatusLabel[item.status];
+        const canResolve = item.status==='uncertain' && !shipmentResult;
+        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleDateString('fa-IR')}</p></div>
+            <span className={'shrink-0 rounded-full px-3 py-1 text-xs font-black '+contactStatusClass[item.status]}>{status}</span>
+          </div>
+          {canResolve && <div className="grid grid-cols-2 gap-2 mt-4">
+            <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setContactReport('agreed');go('contact-report')}}>توافق شد</Button>
+            <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setContactReport('declined');go('contact-report')}}>عدم توافق</Button>
+          </div>}
+          {item.status==='agreed' && !shipmentResult && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
+          {item.status==='agreed' && !shipmentResult && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
+            <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" onClick={()=>{setSelected(load);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
+            <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);go('home');}}>از حمل بار منصرف شدم</Button>
+          </div>}
+          {item.status!=='uncertain' && <div className="grid grid-cols-1 gap-2 mt-3">
+            <Button size="sm" className="w-full" variant="outline" onClick={()=>{setSelected(load);go('cargo-detail');}}>مشاهده جزئیات بار</Button>
+            <a href={`tel:${load.phone}`} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 flex items-center justify-center gap-2 text-sm font-black text-emerald-700"><Phone className="w-4 h-4"/> تماس</a>
+            <Button size="sm" className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-200" variant="outline" disabled={reportedLoadIds.includes(load.id)} onClick={()=>{if(reportedLoadIds.includes(load.id)) return; setSelected(load);go('report');}}>{reportedLoadIds.includes(load.id) ? 'گزارش ثبت شده' : 'گزارش تخلف'}</Button>
+          </div>}
+        </CardBody></Card>;
+      })}
+    </div>;
+    if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
+    if (page==='offers') return <div className="space-y-3">
+      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
+        [...myOffers].reverse().map((offer)=>{
+          const load=loads.find(l=>l.id===offer.loadId); if(!load) return null;
+          const offerDate=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(offer.at));
+          const offerWeekday=new Intl.DateTimeFormat('fa-IR',{weekday:'long'}).format(new Date(offer.at));
+          const statusBox=offer.status==='accepted'?'bg-emerald-50 text-emerald-700 border-emerald-200':offer.status==='rejected'?'bg-red-50 text-red-700 border-red-200':'bg-gray-100 text-gray-600 border-gray-200';
+          const statusText=offer.status==='accepted'?'پذیرفته شد':offer.status==='rejected'?'رد شد':'در انتظار';
+          return <Card key={offer.loadId}><CardBody className="p-4">
+            <div className="flex items-center gap-3" dir="rtl">
+              <div className="flex-1 min-w-0"><div className="flex items-center justify-center gap-2 text-lg font-black whitespace-nowrap"><span className="text-gray-950">⚫️{load.from}</span><span className="text-gray-400">---&gt;</span><span className="text-blue-600">🔵{load.to}</span></div><div className="mt-2 text-center text-xs font-bold text-gray-400">{offerDate} / {offerWeekday}</div></div>
+              <button type="button" onClick={()=>openOfferDetail(offer.loadId)} aria-label="دیدن جزئیات" className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><MoreVertical className="w-5 h-5 text-gray-500"/></button>
+            </div>
+            <div className="mt-4 flex justify-center"><span className={`rounded-xl border px-4 py-2 text-xs font-black ${statusBox}`}>{statusText}</span></div>
+          </CardBody></Card>;
+        })}
+      {offerDetailLoadId && (()=>{const detailOffer=myOffers.find(o=>o.loadId===offerDetailLoadId), detailLoad=loads.find(l=>l.id===offerDetailLoadId); if(!detailOffer||!detailLoad)return null; return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center overscroll-none" onClick={closeOfferDetail}><div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7 select-none overscroll-none" onClick={e=>e.stopPropagation()} onPointerDown={e=>{const target=e.target as HTMLElement;if(target.closest('button,a'))return;e.currentTarget.setPointerCapture(e.pointerId);offerDetailTouchStartY.current=e.clientY;}} onPointerMove={e=>{const start=offerDetailTouchStartY.current;if(start===null)return;setOfferDetailDragY(Math.max(0,e.clientY-start));}} onPointerUp={e=>{const start=offerDetailTouchStartY.current;offerDetailTouchStartY.current=null;if(start!==null){const delta=e.clientY-start;if(delta>70){closeOfferDetail();}else setOfferDetailDragY(0);}}} onPointerCancel={()=>{offerDetailTouchStartY.current=null;setOfferDetailDragY(0);}} style={{transform:`translateY(${offerDetailDragY}px)`,transition:offerDetailTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}} dir="rtl"><div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black">جزئیات بار</h3><button type="button" onClick={closeOfferDetail} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="text-center text-lg font-black"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div><div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><WeightIcon className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">وزن بار</span><b className="block mt-1 text-sm font-black">{fa(detailLoad.weight)} کیلو</b></div>
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Package className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">نوع بار</span><b className="block mt-1 text-sm font-black">{detailLoad.type}</b></div>
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><CircleDollarSign className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">کرایه</span><b className="block mt-1 text-sm font-black">{money(detailLoad.price)} تومان</b></div>
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Route className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">مسافت</span><b className="block mt-1 text-sm font-black">{fa(detailLoad.routeDistance)} کیلومتر</b></div>
+            </div><p className="mt-4 text-sm font-bold leading-7 text-gray-700">{detailLoad.description}</p></div></div></div>})()}
+    </div>;
+    if (page==='shipment') return <div className="space-y-4">
+      {agreedFollowupLoadId ? (() => {
+        const followupLoad = loads.find(l=>l.id===agreedFollowupLoadId);
+        if (!followupLoad) return null;
+        const commission = Math.round(followupLoad.price * 0.05);
+        const scoreChange = Math.max(1, Math.round(commission / 50000));
+        return <Card><CardBody className="p-5">
+          <div className="flex items-center gap-3"><CheckCircle2 className="w-7 h-7 text-emerald-600"/><div><b>تعیین تکلیف حمل</b><p className="text-xs text-gray-400 mt-1">{followupLoad.from} به {followupLoad.to}</p></div></div>
+          <div className="mt-4 rounded-2xl bg-gray-50 p-4 text-sm font-bold leading-7">برای این بار توافق ثبت شده است. پس از تعیین نتیجه، امتیاز و کمیسیون مطابق عملکرد شما ثبت می‌شود.</div>
+          <div className="grid grid-cols-1 gap-3 mt-4">
+            <Button size="full" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'carried')}>۱. بار را حمل کردم</Button>
+            <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'withdrawn')}>۲. از حمل بار منصرف شدم</Button>
+          </div>
+        </CardBody></Card>;
+      })() : <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><b>سفر جاری</b><p className="text-xs text-gray-400 mt-1">در حال حاضر حمل توافق‌شده‌ای برای تعیین تکلیف ندارید.</p></div></div></CardBody></Card>}
+    </div>;
+    if (page==='wallet') return <div className="space-y-4"><Card><CardBody className="p-6 text-center"><CircleDollarSign className="w-8 h-8 mx-auto text-primary-600"/><p className="text-sm text-gray-400 mt-3">موجودی کیف پول</p><b className={`text-3xl block mt-2 ${walletBalance < 0 ? 'text-red-600' : 'text-gray-900'}`}>{money(walletBalance)} تومان</b><Button className="w-full mt-5" onClick={()=>notify('درگاه پرداخت در فاز دوم متصل می‌شود.')}>افزایش موجودی</Button></CardBody></Card></div>;
+    if (page==='transactions') return <div className="space-y-3">
+      {shipmentHistory.length===0 ? <Card><CardBody><Empty title="سابقه‌ای وجود ندارد" text="پس از تعیین تکلیف هر بار، سابقه کمیسیون و امتیاز اینجا ثبت می‌شود."/></CardBody></Card> : [...shipmentHistory].reverse().map((item,idx)=>{
+        const load=loads.find(l=>l.id===item.loadId);
+        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0"><b className="block">{load?.title || 'بار ثبت‌شده'}</b><p className="text-xs text-gray-500 mt-1">{load ? load.from+' ← '+load.to : ''}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleString('fa-IR')}</p></div>
+            <span className={item.outcome==='carried' ? 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-emerald-700 bg-emerald-50' : 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-red-700 bg-red-50'}>{item.outcome==='carried'?'حمل انجام شد':'انصراف از حمل'}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">کمیسیون</span><b className="block mt-1">{item.commission ? money(item.commission)+' تومان' : '۰ تومان'}</b></div>
+            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">تغییر امتیاز</span><b className="block mt-1">{item.scoreChange > 0 ? '+' : ''}{fa(item.scoreChange)}</b></div>
+          </div>
+          <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3 text-xs font-bold text-gray-600">این بار یک‌بار تعیین تکلیف شده و ثبت مجدد کمیسیون یا امتیاز برای آن امکان‌پذیر نیست.</div>
+        </CardBody></Card>;
+      })}
+    </div>;
+    if (page==='vehicle') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><b>خودروی من</b><p className="text-xs text-gray-400 mt-1">اطلاعات خودرو در حالت آزمایشی نگهداری می‌شود.</p></div></div><select value={vehicleForm.type} onChange={e=>setVehicleForm(v=>({...v,type:e.target.value}))} className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-white"><option>تریلی</option><option>کامیون</option><option>خاور</option><option>نیسان</option></select><input value={vehicleForm.plate} onChange={e=>setVehicleForm(v=>({...v,plate:e.target.value}))} placeholder="پلاک خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input value={vehicleForm.model} onChange={e=>setVehicleForm(v=>({...v,model:e.target.value}))} placeholder="مدل خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input inputMode="numeric" value={vehicleForm.year} onChange={e=>setVehicleForm(v=>({...v,year:e.target.value.replace(/\D/g,'').slice(0,4)}))} placeholder="سال ساخت" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><Button className="w-full" onClick={()=>{if(!vehicleForm.plate.trim()||!vehicleForm.model.trim())return notify('پلاک و مدل خودرو را کامل کنید.');notify('خودرو در حالت آزمایشی ذخیره شد.')}}>ذخیره خودرو</Button></CardBody></Card>;
+    if (page==='account') return <Card><CardBody className="p-5 space-y-1">
+      <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || accountName || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
+      <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-4 border-b border-gray-100 text-right"><span className="text-sm font-bold text-gray-500">احراز هویت</span><span className={identityVerified ? 'text-sm font-black text-emerald-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : 'ارسال مدارک'}</span></button>
+      <div className="flex items-center justify-between py-4"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
+    </CardBody></Card>;
+    if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headphones className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
+    if (page==='display') return <Card><CardBody className="p-5 space-y-4"><div><h3 className="font-black text-lg">تنظیمات ظاهری</h3><p className="text-sm text-gray-500 mt-1">تنظیمات نمایشی فعلاً روی دستگاه شبیه‌سازی می‌شوند.</p></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">حالت کم‌نور</b><p className="text-xs text-gray-400 mt-1">در نسخه نهایی به تنظیمات دستگاه متصل می‌شود.</p></div><button onClick={()=>notify('حالت کم‌نور فعلاً در حالت آزمایشی است.')} className="rounded-full bg-gray-200 px-4 py-2 text-xs font-bold">خاموش</button></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">اعلان‌ها</b><p className="text-xs text-gray-400 mt-1">کنترل اعلان‌های برنامه</p></div><button onClick={()=>{setNotifications(0);notify('اعلان‌ها در حالت آزمایشی خاموش شدند.')}} className="rounded-full bg-emerald-100 text-emerald-700 px-4 py-2 text-xs font-bold">فعال</button></div></CardBody></Card>;
+    if (page==='rules') return <div className="space-y-4">
+      <Card><CardBody className="p-5 text-sm text-gray-700 leading-8">
+        <h3 className="font-black text-xl text-gray-900">قوانین و مقررات اپلیکیشن رانندگان براه</h3>
+        <p className="text-xs text-gray-400 mt-2">نسخه ۱.۰ — آخرین به‌روزرسانی: [تاریخ]</p>
+        <p className="mt-4">این قوانین و مقررات، چارچوب استفاده رانندگان از اپلیکیشن «براه» و خدمات مرتبط با جستجوی بار، ارسال پیشنهاد، پذیرش حمل، انجام سفر و تحویل بار را مشخص می‌کند. استفاده از اپلیکیشن به معنی مطالعه و پذیرش این شرایط است.</p>
+
+        {[
+          ['۱. تعاریف و اصطلاحات','«براه» به اپلیکیشن و خدمات الکترونیکی ارائه‌شده به رانندگان اطلاق می‌شود. «راننده» شخص حقیقی دارای حساب کاربری و مدارک معتبر است که از طریق براه برای دریافت و حمل بار اقدام می‌کند. «صاحب بار» شخص یا مجموعه‌ای است که اطلاعات بار را در سامانه ارائه می‌کند. «بار» محموله‌ای است که مشخصات آن از جمله مبدأ، مقصد، نوع، وزن، زمان و شرایط حمل در سامانه اعلام می‌شود.'],
+          ['۲. موارد سلب مسئولیت','براه بستر ارتباط و هماهنگی میان راننده و صاحب بار است و مسئولیت صحت اطلاعاتی که کاربران وارد می‌کنند بر عهده همان کاربر است. راننده موظف است پیش از پذیرش حمل، اطلاعات بار، نوع کالا، وزن، مبدأ، مقصد، زمان‌بندی، مبلغ و شرایط تحویل را بررسی کند. مسئولیت تصمیم نهایی برای پذیرش یا رد هر بار بر عهده راننده است، مگر در مواردی که قانون یا قرارداد معتبر ترتیب دیگری مقرر کند.'],
+          ['۳. شرایط ایجاد حساب کاربری','ثبت حساب باید با اطلاعات واقعی راننده انجام شود. هر راننده مسئول حفظ اطلاعات ورود، شماره تلفن و دسترسی به حساب خود است و نباید حساب خود را در اختیار شخص دیگری قرار دهد. ایجاد چند حساب یا استفاده از هویت شخص دیگر ممنوع است. براه می‌تواند برای حفظ امنیت، صحت اطلاعات یا اجرای مقررات، اطلاعات حساب را بررسی یا دسترسی را محدود کند.'],
+          ['۴. احراز هویت و مدارک راننده','راننده فقط پس از تکمیل فرایندهای احراز هویت و تأیید مدارک لازم می‌تواند از خدمات حمل بار استفاده کند. اطلاعات هویتی، مدارک رانندگی، مشخصات خودرو، مدارک مرتبط با خودرو و اطلاعات بانکی لازم برای تسویه باید صحیح، معتبر و به‌روز باشند. ارائه مدرک جعلی، منقضی یا متعلق به شخص دیگر ممنوع است و می‌تواند موجب توقف دسترسی به خدمات شود.'],
+          ['۵. شرایط استفاده از اپلیکیشن','راننده باید از براه مطابق قوانین جاری کشور، مقررات حمل‌ونقل و دستورالعمل‌های اعلام‌شده استفاده کند. هرگونه استفاده برای فعالیت غیرقانونی، ارائه اطلاعات خلاف واقع، ایجاد اختلال، دسترسی غیرمجاز، مهندسی معکوس یا سوءاستفاده از امکانات سامانه ممنوع است.'],
+          ['۶. دریافت و انتخاب بار','نمایش بار در براه به معنی الزام راننده به پذیرش آن نیست. راننده باید پیش از ارسال پیشنهاد یا پذیرش حمل، ظرفیت و نوع خودروی خود، مسیر، وزن، زمان بارگیری و شرایط بار را بررسی کند. ارسال پیشنهاد باید آگاهانه و با مبلغی باشد که راننده واقعاً قادر به اجرای حمل با آن است.'],
+          ['۷. کرایه و پرداخت','مبلغ کرایه و شرایط پرداخت باید پیش از شروع حمل برای راننده روشن باشد. هرگونه کارمزد یا هزینه خدمات براه، در صورت وجود، مطابق شرایط اعلام‌شده در سامانه محاسبه می‌شود. تسویه، برگشت وجه، اختلاف مالی و زمان‌بندی پرداخت تابع وضعیت حمل و مقررات اعلامی براه خواهد بود.'],
+          ['۸. بارنامه و مدارک حمل','راننده موظف است مدارک قانونی لازم برای حمل را پیش از حرکت بررسی و در طول سفر نگهداری کند. در صورت وجود مغایرت میان اطلاعات سامانه و اسناد حمل، راننده باید پیش از شروع یا ادامه حمل موضوع را از مسیرهای رسمی پیگیری کند.'],
+          ['۹. لغو بار و انصراف راننده','لغو پیشنهاد یا انصراف از حمل باید از مسیرهای رسمی براه انجام شود. لغو مکرر یا بدون دلیل موجه، عدم حضور در زمان توافق‌شده یا پذیرش بار بدون توانایی اجرای آن می‌تواند طبق مقررات عملیاتی براه موجب محدودیت دسترسی یا بررسی حساب شود.'],
+          ['۱۰. انجام سفر و تحویل بار','پس از پذیرش حمل، راننده موظف است مراحل سفر را مطابق وضعیت‌های اعلام‌شده در اپلیکیشن انجام دهد؛ از جمله مراجعه برای بارگیری، کنترل وضعیت بار، شروع حرکت، حفظ شرایط ایمن حمل و تحویل محموله در مقصد. راننده نباید بدون هماهنگی معتبر، بار را به شخص دیگری واگذار کند. ثبت وضعیت‌های سفر باید مطابق واقع انجام شود.'],
+          ['۱۱. موقعیت مکانی','برای ارائه خدماتی مانند نمایش بارهای نزدیک، ثبت مراحل سفر و بهبود ایمنی و پشتیبانی، براه ممکن است با رضایت و تنظیمات دستگاه از اطلاعات موقعیت مکانی استفاده کند. راننده نباید موقعیت جعلی یا ابزارهای غیرمجاز برای تغییر وضعیت سفر استفاده کند.'],
+          ['۱۲. ارتباط با صاحب بار','ارتباط درباره بار باید تا حد امکان از مسیرهای رسمی و اطلاعاتی که براه در اختیار طرفین قرار می‌دهد انجام شود. راننده موظف است از توهین، تهدید، مزاحمت، افشای اطلاعات خصوصی یا استفاده خارج از موضوع حمل از اطلاعات تماس خودداری کند.'],
+          ['۱۳. قوانین خودرو','خودروی معرفی‌شده در براه باید با اطلاعات ثبت‌شده در حساب مطابقت داشته و از نظر قانونی و فنی برای نوع بار و مسیر موردنظر مناسب باشد. راننده مسئول اعتبار مدارک خودرو، معاینه و الزامات قانونی مرتبط با وسیله نقلیه است.'],
+          ['۱۴. ممنوعیت ربات و روش‌های غیرمجاز','استفاده از ربات، اسکریپت، ابزار خودکار، دستکاری درخواست‌ها، دور زدن محدودیت‌های سامانه یا هر روش غیرمجاز برای دریافت بار، ثبت پیشنهاد یا تغییر وضعیت سفر ممنوع است. براه می‌تواند فعالیت‌های مشکوک را بررسی و در صورت لزوم دسترسی حساب را محدود کند.'],
+          ['۱۵. اطلاعات و محرمانگی','اطلاعات هویتی، تماس، خودرو، موقعیت مکانی، سوابق پیشنهاد و سفر و اطلاعات مالی در حدود لازم برای ارائه خدمات، امنیت، پشتیبانی و انجام تعهدات قانونی پردازش می‌شوند. براه باید اطلاعات کاربران را مطابق قوانین و سیاست‌های حریم خصوصی خود مدیریت کند. راننده نیز موظف است اطلاعاتی را که درباره صاحب بار یا سایر کاربران دریافت می‌کند محرمانه نگه دارد.'],
+          ['۱۶. تعرفه و خدمات براه','در صورت وجود هزینه یا تعرفه برای استفاده از خدمات براه، مبلغ و شرایط آن پیش از اعمال هزینه در مسیرهای رسمی اعلام می‌شود. براه می‌تواند امکانات، تعرفه‌ها و شرایط خدمات را با اعلام قبلی و مطابق قوانین اصلاح کند.'],
+          ['۱۷. قطع یا محدود شدن دسترسی','در صورت تخلف از قوانین، ارائه اطلاعات نادرست، استفاده غیرمجاز، شکایت معتبر، نقص مدارک یا ایجاد خطر برای کاربران و عملیات حمل، براه می‌تواند تا زمان بررسی موضوع دسترسی به بخشی یا تمام خدمات را محدود یا متوقف کند. در موارد لازم، رفع محدودیت منوط به تکمیل مدارک یا بررسی پشتیبانی خواهد بود.'],
+          ['۱۸. مالکیت فکری','نام، نشان تجاری، طراحی، نرم‌افزار، متن‌ها، تصاویر، ساختار و محتوای اختصاصی براه متعلق به براه یا صاحبان قانونی آن است و استفاده، کپی، انتشار یا بهره‌برداری تجاری بدون مجوز ممنوع است.'],
+          ['۱۹. توافق الکترونیکی','ثبت‌نام، ورود، ارسال پیشنهاد، پذیرش بار و استفاده از خدمات براه می‌تواند به عنوان اعلام قصد و پذیرش الکترونیکی شرایط مربوط تلقی شود. سوابق ثبت‌شده در سامانه در حدود قوانین و مقررات قابل استناد خواهند بود.'],
+          ['۲۰. ارتباط با براه','برای مشکلات حساب، احراز هویت، بار، سفر، پرداخت یا اعتراض به محدودیت حساب، راننده باید از مسیرهای رسمی پشتیبانی استفاده کند. اطلاعات تماس رسمی براه در نسخه نهایی در این بخش درج می‌شود: [شماره پشتیبانی]، [ایمیل رسمی براه]، [وب‌سایت رسمی براه].'],
+          ['۲۱. پذیرش قوانین','با استفاده از براه، راننده تأیید می‌کند که قوانین و مقررات را مطالعه کرده و متعهد به رعایت آن‌ها است. ادامه استفاده از خدمات پس از انتشار نسخه به‌روزشده قوانین، در صورت اعلام و مطابق قوانین، به منزله پذیرش شرایط جدید خواهد بود. برای استفاده از خدمات ارسال پیشنهاد، راننده باید تأیید پذیرش قوانین را در حساب خود ثبت کرده باشد.']
+        ].map(([h,p])=><section key={h} className="border-t border-gray-100 pt-4"><h4 className="font-black text-gray-900">{h}</h4><p className="mt-2">{p}</p></section>)}
+        <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 leading-7"><b>توجه حقوقی:</b> این متن برای استفاده در اپلیکیشن براه تنظیم شده و پیش از انتشار عمومی باید توسط مشاور حقوقی براه با اطلاعات ثبتی، قوانین حمل‌ونقل و سیاست حریم خصوصی نهایی تطبیق داده شود.</div>
+      </CardBody></Card>
+      <Card><CardBody className="p-5">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
+          <div className="flex-1"><b>تأیید مطالعه و پذیرش قوانین</b><p className="text-xs text-gray-500 mt-1 leading-6">برای ارسال پیشنهاد بار، مطالعه و تأیید این قوانین الزامی است.</p></div>
+        </div>
+        <button onClick={()=>{setTermsAccepted(v=>!v);notify(!termsAccepted?'پذیرش قوانین ثبت شد.':'پذیرش قوانین لغو شد.')}} className={`w-full mt-4 rounded-xl px-4 py-3 text-sm font-black ${termsAccepted?'bg-emerald-100 text-emerald-700':'bg-primary-600 text-white'}`}>{termsAccepted?'✓ قوانین پذیرفته شده است':'مطالعه کردم و می‌پذیرم'}</button>
+      </CardBody></Card>
+    </div>;
+    return <ProfilePage/>;
+  };
+
+  return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
+    <Header />
+    <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
+      {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
+      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+    </main>
+    <BottomNav />
+    <Drawer />
+    <Toast message={toast} onClose={()=>setToast('')} />
+    {shipmentRewardSummary && <div className="fixed inset-0 z-[75] bg-black/40 flex items-center justify-center p-5">
+      <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center"><Star className="w-6 h-6 text-emerald-600"/></div>
+          <div><h3 className="font-black text-lg">امتیاز حمل ثبت شد</h3><p className="text-xs text-gray-500 mt-1">جزئیات نتیجه حمل</p></div>
+        </div>
+        <div className="mt-5 space-y-2 text-sm font-bold">
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">امتیاز دریافت‌شده</span><b className="text-emerald-700">+{fa(shipmentRewardSummary.scoreChange)} امتیاز</b></div>
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">کسر از کیف پول</span><b>{money(shipmentRewardSummary.commission)} تومان</b></div>
+          {shipmentRewardSummary.discount > 0 && <div className="flex items-center justify-between rounded-xl bg-emerald-50 p-3"><span className="text-gray-500">تخفیف</span><b className="text-emerald-700">{money(shipmentRewardSummary.discount)} تومان</b></div>}
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">موجودی باقی‌مانده کیف پول</span><b>{money(shipmentRewardSummary.walletAfter)} تومان</b></div>
+        </div>
+        <Button className="w-full mt-5" onClick={()=>{setShipmentRewardSummary(null);go('home');}}>باشه</Button>
+      </div>
+    </div>}
+    {confirmAction && <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl"><h3 className="font-black text-lg">تأیید عملیات</h3><p className="text-sm text-gray-500 mt-2">{confirmAction==='cancel-offer'?'آیا می‌خواهید پیشنهاد انتخاب‌شده لغو شود؟':'آیا می‌خواهید این بار لغو شود؟ این عملیات در نسخه آزمایشی فقط وضعیت رابط را تغییر می‌دهد.'}</p><div className="grid grid-cols-2 gap-2 mt-5"><Button variant="outline" onClick={()=>setConfirmAction(null)}>انصراف</Button><Button onClick={()=>{setConfirmAction(null);setActionBusy(true);setTimeout(()=>{setActionBusy(false);notify('پیشنهاد لغو شد.');},500)}}>{actionBusy?'در حال انجام...':'تأیید'}</Button></div></div></div>}
+    {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-2xl bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><p className="text-xs text-gray-500 mt-1">صاحب کالا امتیاز راننده را ثبت می‌کند.</p><div className="flex gap-2 mt-3" dir="ltr">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setOwnerDriverRating(n)} className={`text-3xl ${n<=ownerDriverRating?'text-amber-400':'text-gray-300'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(ownerDriverRating?'امتیاز صاحب کالا ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز راننده</Button></div></div>}
+    {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center overscroll-none" style={{touchAction:"none"}} onTouchMove={e=>e.preventDefault()} onWheel={e=>e.preventDefault()}><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7 select-none overscroll-none" onTouchStart={e=>{const target=e.target as HTMLElement;if(target.closest('button,a,[role="slider"]'))return;offerTouchStartY.current=e.touches[0].clientY;}} onTouchMove={e=>{const start=offerTouchStartY.current;if(start===null)return;e.preventDefault();setOfferDragY(Math.max(0,e.touches[0].clientY-start));}} onTouchEnd={e=>{const start=offerTouchStartY.current;offerTouchStartY.current=null;if(start!==null){const delta=e.changedTouches[0].clientY-start;if(delta>70){setOfferOpen(false);setOfferDragY(0);}else setOfferDragY(0);}}} style={{transform:`translateY(${offerDragY}px)`,transition:offerTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}}> <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex items-center justify-between"><span className="text-base font-bold text-gray-500">قیمت اعلامی</span><b className="text-xl font-black">{money(selected.price)} تومان</b></div></div><div className="mt-4"><label className="block text-base font-bold text-gray-700">قیمت پیشنهادی</label><div className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-4 text-center text-xl font-black text-gray-900" dir="ltr">{money(Number(offerPrice)||0)} تومان</div><div className="mt-4 px-1" dir="ltr">
+  <div className="flex items-center gap-3">
+    <button type="button" aria-label="کاهش ۵۰ هزار تومان" className="w-10 h-10 shrink-0 rounded-xl border border-gray-200 bg-gray-50 text-2xl font-black text-gray-700 flex items-center justify-center" onClick={()=>adjustOfferPrice(-50000)}>−</button>
+    <div className="relative flex-1 h-10 flex items-center cursor-pointer touch-none select-none" role="slider" aria-label="تغییر قیمت پیشنهاد" aria-valuemin={0} aria-valuemax={100} aria-valuenow={offerSlider} tabIndex={-1}
+      onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);updateOfferSlider(e.clientX,e.currentTarget);}}
+      onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId)) updateOfferSlider(e.clientX,e.currentTarget);}}
+      onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);}}>
+      <div className="absolute left-0 right-0 h-3 rounded-full bg-gray-200"/>
+      <div className="absolute left-0 h-3 rounded-full bg-primary-500" style={{width:`${offerSlider}%`}}/>
+      <div className="absolute top-1/2 w-7 h-7 rounded-full bg-white border-4 border-primary-600 shadow-md -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{left:`${offerSlider}%`}}/>
+    </div>
+    <button type="button" aria-label="افزایش ۵۰ هزار تومان" className="w-10 h-10 shrink-0 rounded-xl border border-gray-200 bg-gray-50 text-2xl font-black text-gray-700 flex items-center justify-center" onClick={()=>adjustOfferPrice(50000)}>+</button>
+  </div>
+  
+</div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-blue-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
+  </div>;
+}{page!=='home' && <button onClick={()=>{
+        const backMap: Partial<Record<Page, Page>> = {
+          search:'home', nearby:'home', calls:'home', profile:'home', account:'home', vehicle:'home',
+          wallet:'home', transactions:'wallet', support:'home', rules:'home', notifications:'home', display:'home',
+          offers:'home', shipment:'home', verification:'account', 'cargo-detail':'search', report:'calls',
+          'origin-select':'search', 'destination-select':'search', 'destination-all':'destination-select',
+          'frequent-route':'search', 'contact-report':'cargo-detail'
+        };
+        go(backMap[page] || 'home');
+      }} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}        {!provinceData && !normalized && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
+        </div>}
+        {normalized && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><b className="text-sm">نتایج جستجو</b><span className="text-[11px] text-gray-400">{fa(filteredCities.length)} شهر</span></div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">
+            {filteredCities.map(x=><button type="button" key={'city-' + x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">شهرستان {x.countyName}</span><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {x.provinceName}</span></span><span className="text-[11px] text-gray-400">انتخاب شهر</span></button>)}
+            {filteredCounties.map(x=><button type="button" key={'county-' + x.provinceId + '-' + x.countyId} onClick={()=>chooseCounty(x.provinceId,x.countyId)} className="w-full rounded-xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right">
+              <span><b className="block text-base font-black leading-7">شهرستان {x.countyName}</b><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {x.provinceName}</span><span className="block text-[11px] font-bold text-primary-700 mt-1">{fa(x.cities.length)} شهر — انتخاب شهرستان</span></span><ChevronLeft className="w-4 h-4 text-primary-400"/>
+            </button>)}
+            {!filteredCounties.length && !filteredCities.length && <Empty title="نتیجه‌ای پیدا نشد" text="نام شهر یا شهرستان را تغییر دهید."/>}
+          </div>
+        </div>}
+        {!normalized && provinceData && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{provinceData.name}</b><span className="block text-[11px] text-gray-400 mt-1">شهرهای استان</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery('');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">شهرستان {x.countyName}</span><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {provinceData.name}</span></span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
+          {provinceCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, provinceCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, provinceCities.length-visibleCities.length))})</button>}
+        </div>}
+      </CardBody></Card>
+    </div>;
+  };
+  const AllDestinationCitiesPage = () => {
+    const [query, setQuery] = useState('');
+    const normalizeSearch = (value:string) => value.normalize('NFKC').trim().toLocaleLowerCase('fa-IR')
+      .replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[ةۀ]/g,'ه').replace(/[إأآ]/g,'ا').replace(/ؤ/g,'و')
+      .replace(/[\u200c\u200f\u202a-\u202e]/g,'').replace(/[ًٌٍَُِّْـ]/g,'').replace(/\s+/g,'');
+    const normalized = normalizeSearch(query).replace(/^شهرستان/,'');
+    const matches = (value:string) => !normalized || normalizeSearch(value).includes(normalized);
+    const chooseCity = (city:string, countyId:string, provinceId:string) => {
+      setDestinationProvince(provinceId); setDestinationCounty(countyId);
+      setDestination(city); setDestinationText(city); setSearchSubmitted(true); go('search');
+    };
+    const totalCities = iranLocations.reduce((sum,p)=>sum+p.counties.reduce((n,c)=>n+c.cities.length,0),0);
+    return <div className="space-y-4">
+      <Card><CardBody className="p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <button type="button" onClick={()=>go('destination-select')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <div><h2 className="font-black text-lg">همه شهرها</h2><p className="text-xs text-gray-400 mt-1">{fa(iranLocations.length)} استان و {fa(totalCities)} شهر ایران</p></div>
+        </div>
+        <div className="relative">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
+        </div>
+        <div className="mt-5 space-y-3 max-h-[68vh] overflow-auto">
+          {iranLocations.map(province => {
+            const provinceMatches = matches(province.name);
+            const counties = province.counties.map(county => ({...county,cities:county.cities.filter(city => provinceMatches || matches(county.name) || matches(city))})).filter(county => provinceMatches || matches(county.name) || county.cities.length);
+            if (normalized && !provinceMatches && !counties.length) return null;
+            return <div key={province.id} className="rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden">
+              <div className="px-4 py-3 bg-primary-50 border-b border-primary-100"><b className="block text-base font-black">{province.name}</b><span className="text-[11px] text-gray-500">{fa(province.counties.length)} شهرستان</span></div>
+              <div className="p-2 space-y-2">{counties.map(county => <div key={county.id} className="rounded-xl bg-white border border-gray-100">
+                <div className="px-3 py-2 border-b border-gray-50"><b className="text-sm">شهرستان {county.name}</b></div>
+                <div className="p-2 grid grid-cols-1 gap-1.5">{county.cities.map(city => <button type="button" key={String(county.id)+'-'+city} onClick={()=>chooseCity(city,String(county.id),String(province.id))} className="w-full rounded-lg bg-gray-50 hover:bg-primary-50 px-3 py-2.5 flex items-center justify-between text-right"><span className="font-bold text-sm">{city}</span><span className="text-[10px] text-gray-400">انتخاب</span></button>)}</div>
+              </div>)}</div>
+            </div>;
+          })}
+          {normalized && !iranLocations.some(p => matches(p.name) || p.counties.some(c => matches(c.name) || c.cities.some(city=>matches(city)))) && <Empty title="نتیجه‌ای پیدا نشد" text="نام استان، شهرستان یا شهر را تغییر دهید."/>}
+        </div>
+      </CardBody></Card>
+    </div>;
+  };
+
+const ProfilePage = () => <div className="space-y-3">
+    <Card><CardBody className="p-5 space-y-4">
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
+      <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-2 border-b border-gray-100 text-right">
+        <span className="text-sm font-bold text-gray-500">احراز هویت</span>
+        <span className={identityVerified ? 'text-sm font-black text-emerald-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : 'ارسال مدارک'}</span>
+      </button>
+      <div className="flex items-center justify-between py-2"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
+    </CardBody></Card>
+  </div>;
+
+  const VerificationPage = () => {
+    const [verificationStep, setVerificationStep] = useState<1 | 2 | 3>(1);
+    const [nationalId, setNationalId] = useState('');
+    const [licensePhoto, setLicensePhoto] = useState<File | null>(null);
+    const [licenseFacePhoto, setLicenseFacePhoto] = useState<File | null>(null);
+    const [picker, setPicker] = useState<'license' | 'face' | null>(null);
+
+    const chooseSource = (source: 'gallery' | 'camera') => {
+      const input = document.getElementById(`verification-${picker}-${source}`) as HTMLInputElement | null;
+      setPicker(null);
+      input?.click();
+    };
+
+    const submitNationalId = () => {
+      if (nationalId.replace(/\\D/g, '').length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      setVerificationStep(2);
+    };
+
+    const submitLicense = () => {
+      if (!licensePhoto) return notify('لطفاً تصویر گواهینامه را انتخاب کنید.');
+      setVerificationStep(3);
+    };
+
+    const submitVerification = () => {
+      if (!licenseFacePhoto) return notify('لطفاً تصویر چهره همراه با گواهینامه را انتخاب کنید.');
+      notify('مدارک با موفقیت ارسال شد و منتظر تایید است.');
+      go('account');
+    };
+
+    const sourceInputs = (type: 'license' | 'face') => (
+      <>
+        <input id={`verification-${type}-gallery`} type="file" accept="image/*" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+        <input id={`verification-${type}-camera`} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+      </>
+    );
+
+    const pickerMenu = picker && <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center" onClick={() => setPicker(null)}>
+      <div className="w-full max-w-lg rounded-t-3xl bg-white p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <h3 className="font-black text-lg mb-4">انتخاب تصویر</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('gallery')}>از گالری</button>
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('camera')}>از دوربین</button>
+        </div>
+      </div>
+    </div>;
+
+    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
+
+    if (verificationStep === 1) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2>
+        <div>
+          <input value={nationalId} onChange={e => setNationalId(e.target.value.replace(/\\D/g, '').slice(0, 10))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+          <div className="mt-2 text-center text-sm font-black" dir="ltr"><span className={nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}>{fa(nationalId.length)}</span><span className="text-gray-400"> / ۱۰ رقم</span></div>
+        </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
           مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
         </div>
