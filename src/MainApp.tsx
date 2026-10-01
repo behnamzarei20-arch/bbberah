@@ -1152,16 +1152,7 @@ const ProfilePage = () => <div className="space-y-3">
     return <ProfilePage/>;
   };
 
-}{page!=='home' && <button onClick={()=>{
-        const backMap: Partial<Record<Page, Page>> = {
-          search:'home', nearby:'home', calls:'home', profile:'home', account:'home', vehicle:'home',
-          wallet:'home', transactions:'wallet', support:'home', rules:'home', notifications:'home', display:'home',
-          offers:'home', shipment:'home', verification:'account', 'cargo-detail':'search', report:'calls',
-          'origin-select':'search', 'destination-select':'search', 'destination-all':'destination-select',
-          'frequent-route':'search', 'contact-report':'cargo-detail'
-        };
-        go(backMap[page] || 'home');
-      }} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}        {!provinceData && !normalized && <div className="mt-5">
+}{!provinceData && !normalized && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
