@@ -1198,16 +1198,7 @@ const ProfilePage = () => <div className="space-y-3">
   
 </div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-blue-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
-}{page!=='home' && <button onClick={()=>{
-        const backMap: Partial<Record<Page, Page>> = {
-          search:'home', nearby:'home', calls:'home', profile:'home', account:'home', vehicle:'home',
-          wallet:'home', transactions:'wallet', support:'home', rules:'home', notifications:'home', display:'home',
-          offers:'home', shipment:'home', verification:'account', 'cargo-detail':'search', report:'calls',
-          'origin-select':'search', 'destination-select':'search', 'destination-all':'destination-select',
-          'frequent-route':'search', 'contact-report':'cargo-detail'
-        };
-        go(backMap[page] || 'home');
-      }} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}        {!provinceData && !normalized && <div className="mt-5">
+}{!provinceData && !normalized && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
