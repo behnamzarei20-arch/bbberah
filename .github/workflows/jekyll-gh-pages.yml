@@ -57,3 +57,5 @@ jobs:
       - name: Deploy Pages artifact
         id: deployment
         uses: actions/deploy-pages@v4
+
+# Force Pages workflow refresh
