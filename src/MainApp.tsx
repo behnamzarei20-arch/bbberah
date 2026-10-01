@@ -196,6 +196,7 @@ export function MainApp() {
   return saved === null ? 5000000 : Number(saved);
 });
 const [identityVerified, setIdentityVerified] = useState<boolean>(false);
+const [identityPending, setIdentityPending] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_pending_v1') === 'true');
 const [reportedLoadIds, setReportedLoadIds] = useState<string[]>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_reported_load_ids_v1') || '[]'); return Array.isArray(v) ? v.filter((x:any)=>typeof x==='string') : []; } catch { return []; } });
 const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; outcome:'carried'|'withdrawn'; commission:number; scoreChange:number; at:number}>>(() => {
   try {
@@ -780,6 +781,8 @@ const ProfilePage = () => <div className="space-y-3">
 
     const submitVerification = () => {
       if (!licenseFacePhoto) return notify('لطفاً تصویر چهره همراه با گواهینامه را انتخاب کنید.');
+      setIdentityPending(true);
+      window.localStorage.setItem('bbberah_identity_pending_v1', 'true');
       notify('مدارک با موفقیت ارسال شد و منتظر تایید است.');
       go('account');
     };
@@ -1100,7 +1103,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || accountName || 'ثبت نشده'}</b></div>
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
-      <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-4 border-b border-gray-100 text-right"><span className="text-sm font-bold text-gray-500">احراز هویت</span><span className={identityVerified ? 'text-sm font-black text-emerald-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : 'ارسال مدارک'}</span></button>
+      <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-4 border-b border-gray-100 text-right"><span className="text-sm font-bold text-gray-500">احراز هویت</span><span className={identityVerified ? 'text-sm font-black text-emerald-600' : identityPending ? 'text-sm font-black text-orange-500' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : identityPending ? 'در انتظار تایید' : 'ارسال مدارک'}</span></button>
       <div className="flex items-center justify-between py-4"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
     </CardBody></Card>;
     if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headphones className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
