@@ -828,9 +828,10 @@ const ProfilePage = () => <div className="space-y-3">
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
         </div>
         <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
-          {licensePhoto ? '✓ تصویر گواهینامه انتخاب شد' : 'انتخاب تصویر'}
+          {licensePhoto ? <img src={URL.createObjectURL(licensePhoto)} alt="تصویر گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
         </button>
         {sourceInputs('license')}
+        {licensePhoto && <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
         <Button size="full" onClick={submitLicense}>بعدی</Button>
       </CardBody></Card>
       {pickerMenu}
@@ -844,9 +845,10 @@ const ProfilePage = () => <div className="space-y-3">
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
         </div>
         <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
-          {licenseFacePhoto ? '✓ تصویر چهره و گواهینامه انتخاب شد' : 'انتخاب تصویر'}
+          {licenseFacePhoto ? <img src={URL.createObjectURL(licenseFacePhoto)} alt="چهره همراه گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
         </button>
         {sourceInputs('face')}
+        {licenseFacePhoto && <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
         <Button size="full" onClick={submitVerification}>ارسال و منتظر تایید</Button>
       </CardBody></Card>
       {pickerMenu}
