@@ -756,25 +756,100 @@ const ProfilePage = () => <div className="space-y-3">
   </div>;
 
   const VerificationPage = () => {
-    const [nationalCard, setNationalCard] = useState<File | null>(null);
-    const [driverCard, setDriverCard] = useState<File | null>(null);
+    const [verificationStep, setVerificationStep] = useState<1 | 2 | 3>(1);
+    const [nationalId, setNationalId] = useState('');
+    const [licensePhoto, setLicensePhoto] = useState<File | null>(null);
+    const [licenseFacePhoto, setLicenseFacePhoto] = useState<File | null>(null);
+    const [picker, setPicker] = useState<'license' | 'face' | null>(null);
+
+    const chooseSource = (source: 'gallery' | 'camera') => {
+      const input = document.getElementById(`verification-${picker}-${source}`) as HTMLInputElement | null;
+      setPicker(null);
+      input?.click();
+    };
+
+    const submitNationalId = () => {
+      if (!/^\\d{10}$/.test(nationalId)) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      setVerificationStep(2);
+    };
+
+    const submitLicense = () => {
+      if (!licensePhoto) return notify('لطفاً تصویر گواهینامه را انتخاب کنید.');
+      setVerificationStep(3);
+    };
+
     const submitVerification = () => {
-      if (!nationalCard || !driverCard) return notify('لطفاً مدارک موردنیاز را انتخاب کنید.');
-      notify('مدارک با موفقیت ارسال شد و در انتظار بررسی و تایید است.');
+      if (!licenseFacePhoto) return notify('لطفاً تصویر چهره همراه با گواهینامه را انتخاب کنید.');
+      notify('مدارک با موفقیت ارسال شد و منتظر تایید است.');
       go('account');
     };
+
+    const sourceInputs = (type: 'license' | 'face') => (
+      <>
+        <input id={`verification-${type}-gallery`} type="file" accept="image/*" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+        <input id={`verification-${type}-camera`} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+      </>
+    );
+
+    const pickerMenu = picker && <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center" onClick={() => setPicker(null)}>
+      <div className="w-full max-w-lg rounded-t-3xl bg-white p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <h3 className="font-black text-lg mb-4">انتخاب تصویر</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('gallery')}>از گالری</button>
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('camera')}>از دوربین</button>
+        </div>
+      </div>
+    </div>;
+
     if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
+
+    if (verificationStep === 1) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2>
+        <input value={nationalId} onChange={e => setNationalId(e.target.value.replace(/\\D/g, '').slice(0, 10))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
+          مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
+        </div>
+        <Button size="full" onClick={submitNationalId}>ارسال</Button>
+      </CardBody></Card>
+    </div>;
+
+    if (verificationStep === 2) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <h2 className="text-lg font-black">ارسال عکس گواهینامه</h2>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
+        </div>
+        <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licensePhoto ? '✓ تصویر گواهینامه انتخاب شد' : 'انتخاب تصویر'}
+        </button>
+        {sourceInputs('license')}
+        <Button size="full" onClick={submitLicense}>بعدی</Button>
+      </CardBody></Card>
+      {pickerMenu}
+    </div>;
+
     return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <h2 className="text-lg font-black">ارسال مدارک احراز هویت</h2>
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
-          <b className="block mb-1">دسترسی به دوربین و گالری</b>
-          برای ثبت و ارسال مدارک احراز هویت، می‌توانید با دوربین عکس بگیرید یا تصویر مدارک را از گالری انتخاب کنید.
+        <h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
         </div>
-        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">تصویر کارت ملی</span><input type="file" accept="image/*" onChange={e=>setNationalCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
-        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">مدرک هوشمند راننده</span><input type="file" accept="image/*" onChange={e=>setDriverCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
-        <Button size="full" onClick={submitVerification}>ارسال مدارک</Button>
+        <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licenseFacePhoto ? '✓ تصویر چهره و گواهینامه انتخاب شد' : 'انتخاب تصویر'}
+        </button>
+        {sourceInputs('face')}
+        <Button size="full" onClick={submitVerification}>ارسال و منتظر تایید</Button>
       </CardBody></Card>
+      {pickerMenu}
     </div>;
   };
 
