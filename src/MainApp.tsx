@@ -750,7 +750,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
       <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-2 border-b border-gray-100 text-right">
         <span className="text-sm font-bold text-gray-500">احراز هویت</span>
-        <span className={identityVerified ? 'text-sm font-black text-emerald-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : 'ارسال مدارک'}</span>
+        <span className={identityVerified ? 'text-sm font-black text-emerald-600' : identityPending ? 'text-sm font-black text-orange-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : identityPending ? 'در انتظار تایید' : 'ارسال مدارک'}</span>
       </button>
       <div className="flex items-center justify-between py-2"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
     </CardBody></Card>
