@@ -816,7 +816,7 @@ const ProfilePage = () => <div className="space-y-3">
       <Card><CardBody className="p-5 space-y-4">
         <h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2>
         <div>
-          <input value={nationalId} onChange={e => setNationalId(e.target.value.replace(/\\D/g, '').slice(0, 10))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+          <input value={nationalId} onChange={e => setNationalId(e.target.value.replace(/\\D/g, '').slice(0, 10))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className={`w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500 ${nationalId.length < 10 ? 'text-red-500' : 'text-emerald-600'}`} dir="ltr"/>
           <div className="mt-2 text-center text-sm font-black" dir="ltr"><span className={nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}>{fa(nationalId.length)}</span><span className="text-gray-400"> / ۱۰ رقم</span></div>
         </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
@@ -1194,6 +1194,10 @@ const ProfilePage = () => <div className="space-y-3">
 </div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-blue-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
 }{page!=='home' && <button onClick={()=>{
+        if (page === 'verification' && verificationStep > 1) {
+          setVerificationStep(prev => prev === 3 ? 2 : 1);
+          return;
+        }
         const backMap: Partial<Record<Page, Page>> = {
           search:'home', nearby:'home', calls:'home', profile:'home', account:'home', vehicle:'home',
           wallet:'home', transactions:'wallet', support:'home', rules:'home', notifications:'home', display:'home',
