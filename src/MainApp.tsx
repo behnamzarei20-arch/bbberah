@@ -828,7 +828,7 @@ const ProfilePage = () => <div className="space-y-3">
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
           مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
         </div>
-        <Button size="full" onClick={submitNationalId} disabled={nationalId.length !== 10} className={nationalId.length === 10 ? '!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600' : '!bg-gray-200 !text-gray-400 !border-gray-200'}>ارسال</Button>
+        <Button size="full" onClick={submitNationalId} disabled={nationalId.length !== 10} className={nationalId.length === 10 ? '!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600' : '!bg-gray-300 !text-gray-500 !border-gray-300'}>ارسال</Button>
       </CardBody></Card>
     </div>;
 
