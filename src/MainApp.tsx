@@ -1287,7 +1287,7 @@ const ProfilePage = () => <div className="space-y-3">
       <Card><CardBody className="p-5 space-y-4">
         <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go('account')} className="text-sm font-black text-gray-500">بازگشت</button></div>
         <div>
-          <input value={nationalId} onChange={e => setNationalId(normalizeVerificationNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className={`w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500 ${nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}`} dir="ltr"/>
+          <input value={nationalId} onChange={e => setNationalId(normalizeVerificationNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className={`w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500 ${nationalId.length < 10 ? 'text-red-500' : 'text-emerald-600'}`} dir="ltr"/>
           <div className="mt-2 text-center text-sm font-black" dir="ltr"><span className={nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}>{fa(nationalId.length)}</span><span className="text-gray-400"> / ۱۰ رقم</span></div>
         </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
@@ -1625,7 +1625,7 @@ const ProfilePage = () => <div className="space-y-3">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
-      {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
