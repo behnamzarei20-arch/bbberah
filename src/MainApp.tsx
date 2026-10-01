@@ -52,11 +52,6 @@ const frequentRoutes = [
 
 const money = (v:number) => new Intl.NumberFormat('fa-IR').format(v);
 const fa = (v:string|number) => String(v).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
-const normalizeNationalId = (value:string) => value.split('').map(ch => {
-  const i = '۰۱۲۳۴۵۶۷۸۹'.indexOf(ch);
-  return i >= 0 ? String(i) : ch;
-}).filter(ch => ch >= '0' && ch <= '9').join('').slice(0, 10);
-
 const cityProvinceName = (city:string) => {
   for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return province.name;
   return '';
@@ -761,6 +756,8 @@ const ProfilePage = () => <div className="space-y-3">
     </CardBody></Card>
   </div>;
 
+  const normalizeNationalId = (value:string) => value.split('').map(ch => { const i='۰۱۲۳۴۵۶۷۸۹'.indexOf(ch); return i>=0 ? String(i) : ch; }).filter(ch => ch>='0' && ch<='9').join('').slice(0,10);
+
   const VerificationPage = () => {
     const [verificationStep, setVerificationStep] = useState<1 | 2 | 3>(1);
     const [nationalId, setNationalId] = useState('');
@@ -819,9 +816,9 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (verificationStep === 1) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go('account')} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go("account")} className="text-sm font-black text-gray-500">بازگشت</button></div>
         <div>
-          <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className={`w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500 ${nationalId.length < 10 ? 'text-red-500' : 'text-emerald-600'}`} dir="ltr"/>
+          <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
           <div className="mt-2 text-center text-sm font-black" dir="ltr"><span className={nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}>{fa(nationalId.length)}</span><span className="text-gray-400"> / ۱۰ رقم</span></div>
         </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
@@ -1198,7 +1195,16 @@ const ProfilePage = () => <div className="space-y-3">
   
 </div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-blue-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
-}{!provinceData && !normalized && <div className="mt-5">
+}{page!=='home' && <button onClick={()=>{
+        const backMap: Partial<Record<Page, Page>> = {
+          search:'home', nearby:'home', calls:'home', profile:'home', account:'home', vehicle:'home',
+          wallet:'home', transactions:'wallet', support:'home', rules:'home', notifications:'home', display:'home',
+          offers:'home', shipment:'home', verification:'account', 'cargo-detail':'search', report:'calls',
+          'origin-select':'search', 'destination-select':'search', 'destination-all':'destination-select',
+          'frequent-route':'search', 'contact-report':'cargo-detail'
+        };
+        go(backMap[page] || 'home');
+      }} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}        {!provinceData && !normalized && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
           <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
         </div>}
