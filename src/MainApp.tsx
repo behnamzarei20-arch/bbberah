@@ -1152,8 +1152,6 @@ const ProfilePage = () => <div className="space-y-3">
     return <ProfilePage/>;
   };
 
-}
-
   return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
