@@ -769,8 +769,12 @@ const ProfilePage = () => <div className="space-y-3">
     return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
         <h2 className="text-lg font-black">ارسال مدارک احراز هویت</h2>
-        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">تصویر کارت ملی</span><input type="file" accept="image/*" onChange={e=>setNationalCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
-        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">مدرک هوشمند راننده</span><input type="file" accept="image/*" onChange={e=>setDriverCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
+          <b className="block mb-1">دسترسی به دوربین و گالری</b>
+          برای ثبت و ارسال مدارک احراز هویت، می‌توانید با دوربین عکس بگیرید یا تصویر مدارک را از گالری انتخاب کنید.
+        </div>
+        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">تصویر کارت ملی</span><input type="file" accept="image/*" capture="environment" onChange={e=>setNationalCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
+        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">مدرک هوشمند راننده</span><input type="file" accept="image/*" capture="environment" onChange={e=>setDriverCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
         <Button size="full" onClick={submitVerification}>ارسال مدارک</Button>
       </CardBody></Card>
     </div>;
