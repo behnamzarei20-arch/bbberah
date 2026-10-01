@@ -1234,6 +1234,7 @@ const ProfilePage = () => <div className="space-y-3">
     const [licensePhoto, setLicensePhoto] = useState<File | null>(null);
     const [licenseFacePhoto, setLicenseFacePhoto] = useState<File | null>(null);
     const [picker, setPicker] = useState<'license' | 'face' | null>(null);
+    const normalizeVerificationNationalId = (value:string) => value.split('').map(ch => { const i='۰۱۲۳۴۵۶۷۸۹'.indexOf(ch); return i>=0 ? String(i) : ch; }).filter(ch => ch>='0' && ch<='9').join('').slice(0,10);
 
     const chooseSource = (source: 'gallery' | 'camera') => {
       const input = document.getElementById(`verification-${picker}-${source}`) as HTMLInputElement | null;
@@ -1242,7 +1243,7 @@ const ProfilePage = () => <div className="space-y-3">
     };
 
     const submitNationalId = () => {
-      if (nationalId.replace(/\\D/g, '').length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      if (nationalId.length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
       setVerificationStep(2);
     };
 
@@ -1284,9 +1285,9 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (verificationStep === 1) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go('account')} className="text-sm font-black text-gray-500">بازگشت</button></div>
         <div>
-          <input value={nationalId} onChange={e => setNationalId(e.target.value.replace(/\\D/g, '').slice(0, 10))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+          <input value={nationalId} onChange={e => setNationalId(normalizeVerificationNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className={`w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500 ${nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}`} dir="ltr"/>
           <div className="mt-2 text-center text-sm font-black" dir="ltr"><span className={nationalId.length === 10 ? 'text-emerald-600' : 'text-red-500'}>{fa(nationalId.length)}</span><span className="text-gray-400"> / ۱۰ رقم</span></div>
         </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
@@ -1298,7 +1299,7 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (verificationStep === 2) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <h2 className="text-lg font-black">ارسال عکس گواهینامه</h2>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">ارسال عکس گواهینامه</h2><button type="button" onClick={()=>setVerificationStep(1)} className="text-sm font-black text-gray-500">بازگشت</button></div>
         <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
@@ -1315,7 +1316,7 @@ const ProfilePage = () => <div className="space-y-3">
 
     return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2><button type="button" onClick={()=>setVerificationStep(2)} className="text-sm font-black text-gray-500">بازگشت</button></div>
         <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
