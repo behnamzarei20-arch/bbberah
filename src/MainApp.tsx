@@ -760,12 +760,10 @@ const ProfilePage = () => <div className="space-y-3">
     const [driverCard, setDriverCard] = useState<File | null>(null);
     const submitVerification = () => {
       if (!nationalCard || !driverCard) return notify('لطفاً مدارک موردنیاز را انتخاب کنید.');
-      setIdentityVerified(true);
-      window.localStorage.setItem('bbberah_identity_verified_v1', 'true');
-      notify('مدارک برای احراز هویت ارسال شد.');
+      notify('مدارک با موفقیت ارسال شد و در انتظار بررسی و تایید است.');
       go('account');
     };
-    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما قبلاً تایید شده است.</p></CardBody></Card>;
+    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
     return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
         <h2 className="text-lg font-black">ارسال مدارک احراز هویت</h2>
