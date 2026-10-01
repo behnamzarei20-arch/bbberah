@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'report' | 'offers' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -195,6 +195,7 @@ export function MainApp() {
   const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
   return saved === null ? 5000000 : Number(saved);
 });
+const [identityVerified, setIdentityVerified] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_verified_v1') === 'true');
 const [reportedLoadIds, setReportedLoadIds] = useState<string[]>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_reported_load_ids_v1') || '[]'); return Array.isArray(v) ? v.filter((x:any)=>typeof x==='string') : []; } catch { return []; } });
 const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; outcome:'carried'|'withdrawn'; commission:number; scoreChange:number; at:number}>>(() => {
   try {
@@ -742,12 +743,38 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
   };
 
 const ProfilePage = () => <div className="space-y-3">
-    <Card><CardBody className="p-5 flex items-center gap-4"><div className="w-14 h-14 rounded-2xl bg-primary-100 flex items-center justify-center"><User className="w-7 h-7 text-primary-700"/></div><div><b className="text-lg">{profile?.full_name || 'کاربر براه'}</b><p className="text-xs text-gray-400 mt-1" dir="ltr">{profile?.phone}</p></div></CardBody></Card>
-    <Card><CardBody className="p-5"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><Star className="w-7 h-7 text-amber-500"/><div><b className="text-sm">امتیاز عملکرد راننده</b><p className="text-xs text-gray-400 mt-1">امتیاز عملکرد + ارزیابی صاحب کالا</p></div></div><b className="text-3xl font-black text-primary-700">{fa(driverScore)}</b></div><div className="flex items-center gap-1 mt-4" dir="ltr">{[1,2,3,4,5].map(n=><Star key={n} className={`w-6 h-6 ${n<=ownerDriverRating?'fill-amber-400 text-amber-400':'text-gray-300'}`}/>)}</div><p className="text-xs text-gray-500 mt-2">امتیاز ستاره‌ای توسط صاحب کالا ثبت می‌شود.</p></CardBody></Card>
-    {[
-      ['account','اطلاعات حساب','نام، شهر و شماره تماس',User],['vehicle','خودروی من','مشخصات خودرو و پلاک',CarFront],['wallet','کیف پول','موجودی و عملیات مالی',WalletCards],['transactions','تراکنش‌ها','سوابق مالی',ReceiptText],['offers','پیشنهادهای من','پیشنهادهای ارسال‌شده',ReceiptText],['shipment','سفر جاری','وضعیت بار فعال',Truck],['support','پشتیبانی','راهنما و ارتباط',Headphones]
-    ].map(([p,l,s,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full rounded-2xl bg-white border border-gray-100 p-4 flex items-center gap-3 text-right">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1"><b className="block text-sm">{String(l)}</b><small className="text-gray-400">{String(s)}</small></span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
+    <Card><CardBody className="p-5 space-y-4">
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
+      <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-2 border-b border-gray-100 text-right">
+        <span className="text-sm font-bold text-gray-500">احراز هویت</span>
+        <span className={identityVerified ? 'text-sm font-black text-emerald-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : 'ارسال مدارک'}</span>
+      </button>
+      <div className="flex items-center justify-between py-2"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
+    </CardBody></Card>
   </div>;
+
+  const VerificationPage = () => {
+    const [nationalCard, setNationalCard] = useState<File | null>(null);
+    const [driverCard, setDriverCard] = useState<File | null>(null);
+    const submitVerification = () => {
+      if (!nationalCard || !driverCard) return notify('لطفاً مدارک موردنیاز را انتخاب کنید.');
+      setIdentityVerified(true);
+      window.localStorage.setItem('bbberah_identity_verified_v1', 'true');
+      notify('مدارک برای احراز هویت ارسال شد.');
+      go('account');
+    };
+    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما قبلاً تایید شده است.</p></CardBody></Card>;
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <h2 className="text-lg font-black">ارسال مدارک احراز هویت</h2>
+        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">تصویر کارت ملی</span><input type="file" accept="image/*" onChange={e=>setNationalCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
+        <label className="block rounded-2xl border border-gray-200 p-4"><span className="block text-sm font-black mb-2">مدرک هوشمند راننده</span><input type="file" accept="image/*" onChange={e=>setDriverCard(e.target.files?.[0] || null)} className="w-full text-sm"/></label>
+        <Button size="full" onClick={submitVerification}>ارسال مدارک</Button>
+      </CardBody></Card>
+    </div>;
+
 
   const DetailPage = () => selected ? (() => { const commission = Math.round(selected.price * 0.05); return <div className="space-y-4">
     <Card><CardBody className="p-5"><h2 className="text-xl font-black">{selected.title}</h2><div className="flex items-center gap-4 mt-5" dir="rtl"><div className="flex-1 text-center"><b className="block text-lg">{selected.from}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.from)}</span></div><div className="w-24 relative flex items-center justify-center"><div className="w-full border-t-2 border-dashed border-primary-300"/><div className="absolute flex flex-col items-center bg-white px-1"><Route className="w-5 h-5 text-primary-500 rotate-180"/><span className="text-xs font-black text-primary-700 mt-0.5">{fa(selected.routeDistance)} کیلومتر</span></div></div><div className="flex-1 text-center"><b className="block text-lg">{selected.to}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.to)}</span></div></div></CardBody></Card>
@@ -894,6 +921,7 @@ const ProfilePage = () => <div className="space-y-3">
   };
 
   const SimplePage = () => {
+    if (page==='verification') return <VerificationPage/>;
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
     if (page==='calls') return <div className="space-y-3">
       {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
@@ -1036,7 +1064,7 @@ const ProfilePage = () => <div className="space-y-3">
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page!=='home' && page!=='profile' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
