@@ -1,4 +1,4 @@
-import { createElement, useEffect, useMemo, useRef, useState } from 'react';
+import { createElement, useEffect, useMemo, useRef, useState  , XCircle } from 'react';
 import {
   ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
@@ -197,6 +197,7 @@ export function MainApp() {
 });
 const [identityVerified, setIdentityVerified] = useState<boolean>(false);
 const [identityPending, setIdentityPending] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_pending_v1') === 'true');
+const [identityRejected, setIdentityRejected] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_rejected_v1') === 'true');
 const [reportedLoadIds, setReportedLoadIds] = useState<string[]>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_reported_load_ids_v1') || '[]'); return Array.isArray(v) ? v.filter((x:any)=>typeof x==='string') : []; } catch { return []; } });
 const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; outcome:'carried'|'withdrawn'; commission:number; scoreChange:number; at:number}>>(() => {
   try {
@@ -750,7 +751,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
       <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-2 border-b border-gray-100 text-right">
         <span className="text-sm font-bold text-gray-500">احراز هویت</span>
-        <span className={identityVerified ? 'text-sm font-black text-emerald-600' : identityPending ? 'text-sm font-black text-orange-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : identityPending ? 'در انتظار تایید' : 'ارسال مدارک'}</span>
+        <span className={identityVerified ? 'text-sm font-black text-emerald-600' : identityRejected ? 'text-sm font-black text-red-600' : identityPending ? 'text-sm font-black text-orange-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : identityRejected ? 'عدم تایید' : identityPending ? 'در انتظار تایید' : 'ارسال مدارک'}</span>
       </button>
       <div className="flex items-center justify-between py-2"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
     </CardBody></Card>
@@ -784,7 +785,9 @@ const ProfilePage = () => <div className="space-y-3">
     const submitVerification = () => {
       if (!licenseFacePhoto) return notify('لطفاً تصویر چهره همراه با گواهینامه را انتخاب کنید.');
       setIdentityPending(true);
+      setIdentityRejected(false);
       window.localStorage.setItem('bbberah_identity_pending_v1', 'true');
+      window.localStorage.removeItem('bbberah_identity_rejected_v1');
       notify('مدارک با موفقیت ارسال شد و منتظر تایید است.');
       go('account');
     };
@@ -816,6 +819,8 @@ const ProfilePage = () => <div className="space-y-3">
 
 
     if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
+
+    if (identityRejected) return <Card><CardBody className="p-5 text-center space-y-4"><div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center"><XCircle className="w-8 h-8 text-red-500"/></div><h3 className="font-black text-lg text-red-600">احراز هویت تأیید نشد</h3><p className="text-sm text-gray-500 leading-7">مدارک ارسالی شما نیاز به اصلاح دارد. پس از اصلاح می‌توانید دوباره مدارک را ارسال کنید.</p><div className="rounded-2xl bg-red-50 border border-red-100 p-4 text-right space-y-2"><div className="text-sm font-black text-red-700">دلیل عدم تأیید</div><div className="text-sm text-gray-600 leading-7">تصویر مدارک واضح نیست یا نیاز به بررسی و اصلاح دارد.</div></div><Button size="full" onClick={() => { setIdentityRejected(false); setIdentityPending(false); setVerificationStep(1); window.localStorage.removeItem('bbberah_identity_rejected_v1'); window.localStorage.removeItem('bbberah_identity_pending_v1'); }} className="!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600">اصلاح و ارسال مجدد</Button></CardBody></Card>;
 
     if (identityPending) return <Card><CardBody className="p-5 text-center space-y-3"><Clock3 className="w-12 h-12 mx-auto text-orange-500"/><h3 className="font-black text-lg text-orange-600">در انتظار تایید احراز هویت</h3><p className="text-sm text-gray-500 leading-7">مدارک شما ارسال شده و تا زمان بررسی نهایی قابل ویرایش یا ارسال مجدد نیست.</p><div className="rounded-2xl bg-orange-50 border border-orange-100 p-4 text-sm font-bold text-orange-700">لطفاً منتظر نتیجه بررسی بمانید.</div></CardBody></Card>;
 
