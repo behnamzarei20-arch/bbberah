@@ -4,13 +4,13 @@
 
 @layer base {
   :root {
-    --brah-primary: 15 159 154;
-    --brah-primary-dark: 11 116 112;
-    --brah-primary-light: 34 211 238;
-    --brah-accent: 103 232 249;
+    --brah-primary: 19 88 237;
+    --brah-primary-dark: 29 78 216;
+    --brah-primary-light: 96 165 250;
+    --brah-accent: 147 197 253;
   }
   * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-  html { background: #f6fbfb; }
+  html { background: #f8faff; }
   body { margin: 0; font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif; background: #f8faff; color: #172033; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   input, textarea, select, button { font-family: inherit; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -25,7 +25,7 @@
   .fade-in { animation: fadeIn .24s ease-out; }
   .slide-up { animation: slideUp .28s cubic-bezier(.16,1,.3,1); }
   .scale-in { animation: scaleIn .18s cubic-bezier(.16,1,.3,1); }
-  .shimmer { background: linear-gradient(90deg,#ecfeff 25%,#cffafe 50%,#ecfeff 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  .shimmer { background: linear-gradient(90deg,#eff6ff 25%,#dbeafe 50%,#eff6ff 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
