@@ -712,7 +712,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setDestinationCounty('');
         setDestination('__province__');
         setDestinationText(province?.name || '');
-        setSearchSubmitted(true);
+        setSearchSubmitted(false);
         go('search', true);
       }
     };
@@ -745,7 +745,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setDestinationText(city);
         setQuery('');
         setCityLimit(120);
-        setSearchSubmitted(true);
+        setSearchSubmitted(false);
         go('search', true);
       }
     };
