@@ -612,7 +612,9 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       .replace(/[ًٌٍَُِّْـ]/g,'')
       .replace(/\s+/g,'');
     const normalized = normalizeSearch(query).replace(/^شهرستان/, '');
-    const visibleProvinces = iranLocations.filter(p => !normalized || normalizeSearch(p.name).includes(normalized));
+    const visibleProvinces = iranLocations
+      .filter(p => !normalized || normalizeSearch(p.name).includes(normalized))
+      .sort((a,b) => a.name.localeCompare(b.name, 'fa'));
     const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name }))));
     const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(provinceData.id), provinceName:provinceData.name }))) : [];
     const selectedCountyId = isOrigin ? originCounty : destinationCounty;
@@ -677,19 +679,22 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-3 mb-4">
           <button type="button" onClick={()=>go('search')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
-          <div><h2 className="font-black text-lg">{isOrigin ? 'انتخاب مبدأ' : 'انتخاب مقصد'}</h2><p className="text-xs text-gray-400 mt-1">{isOrigin ? 'مبدأ را انتخاب کنید' : 'مقصد را انتخاب کنید'}</p></div>
+          <div><h2 className="font-black text-lg">{isOrigin ? 'مبدأ را انتخاب کنید' : 'مقصد را انتخاب کنید'}</h2></div>
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={isOrigin ? 'مثال تهران' : 'استان مقصد را انتخاب کنید'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={isOrigin ? 'مثال تهران' : 'مثال یزد'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
         </div>
+        {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
+          <Navigation className="w-5 h-5" />
+          اطراف من
+        </button>}
         {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
           <Globe2 className="w-5 h-5" />
           همه شهرها
         </button>}
         {!provinceData && !normalized && <div className="mt-5">
-          <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
-          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><MapPin className="w-4 h-4 text-black shrink-0" aria-hidden="true"/></button>)}</div>
         </div>}
         {normalized && <div className="mt-5">
           <div className="flex items-center justify-between mb-2"><b className="text-sm">نتایج جستجو</b><span className="text-[11px] text-gray-400">{fa(filteredCities.length)} شهر</span></div>
