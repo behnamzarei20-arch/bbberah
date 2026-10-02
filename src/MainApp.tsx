@@ -306,6 +306,13 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     const onPopState = () => {
       const next = window.history.state?.bbberahPage as Page | undefined;
       if (next) {
+        if (next === 'destination-select') {
+          setDestination('');
+          setDestinationText('');
+          setDestinationProvince('');
+          setDestinationCounty('');
+          setSearchSubmitted(false);
+        }
         setPage(next);
         setShowMenu(false);
         window.scrollTo({top:0,behavior:'smooth'});
