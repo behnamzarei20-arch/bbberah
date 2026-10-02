@@ -314,6 +314,13 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     const onPopState = () => {
       const next = window.history.state?.bbberahPage as Page | undefined;
       if (next) {
+        if (next === 'origin-select') {
+          setOrigin('');
+          setOriginText('');
+          setOriginProvince('');
+          setOriginCounty('');
+          setSearchSubmitted(false);
+        }
         if (next === 'destination-select') {
           setDestination('');
           setDestinationText('');
@@ -757,7 +764,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setOrigin(city);
         setOriginText(city);
         setSearchSubmitted(false);
-        go('destination-select');
+        go('search', true);
       } else if (isNearby) {
         setNearbyDestinationProvince(provinceIdForCity || '');
         setNearbyDestinationCounty(countyId);
@@ -785,7 +792,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       setOriginText('اطراف من');
       requestNearbyLocation();
       setSearchSubmitted(false);
-      go('destination-select');
+      go('search', true);
     };
 
     return <div className="space-y-4">
