@@ -500,29 +500,24 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <div className="space-y-3">
-    <div className="flex flex-col items-center gap-2"><div className="w-28 h-28 rounded-full bg-white border-4 border-primary-100 shadow-sm flex items-center justify-center" aria-label="امتیاز شما ۴"><b className="text-3xl leading-none font-black text-primary-700">۴</b></div><div className="text-[20px] leading-none tracking-tight text-amber-400" dir="ltr" aria-label="۴ ستاره از ۵">★★★★<span className="text-gray-300">★</span></div></div>
-    <div className="grid grid-cols-2 gap-3 w-full">
-      <button onClick={openSearchPage} className="aspect-square w-full rounded-2xl bg-primary-500 border border-primary-600 p-4 text-center flex flex-col items-center justify-center gap-3 shadow-sm text-white">
-        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-7 h-7 text-primary-600"/></div>
-        <div><b className="block text-base text-white">جستجوی بار</b><span className="block mt-1 text-xs text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
+    return <div className="grid grid-cols-2 gap-3 w-full">
+      <button onClick={openSearchPage} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">جستجوی بار</b><span className="block mt-1 text-xs font-bold text-gray-500">مبدأ و مقصد را انتخاب کنید</span></div>
       </button>
-      <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="aspect-square w-full rounded-2xl bg-primary-500 border border-primary-600 p-4 text-center flex flex-col items-center justify-center gap-3 shadow-sm text-white">
-        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-7 h-7 text-primary-600"/></div>
-        <div><b className="block text-base text-white">اطراف من</b><span className="block mt-1 text-xs text-white/90">بارهای نزدیک را ببین</span></div>
+      <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">اطراف من</b><span className="block mt-1 text-xs font-bold text-gray-500">بارهای نزدیک را ببین</span></div>
       </button>
-    </div>
-    <div className="space-y-2 w-full">
-      <button onClick={()=>go('offers')} className="w-full min-h-[58px] rounded-2xl bg-primary-500 border border-primary-600 px-4 py-2 text-right flex items-center gap-3 shadow-sm text-white">
-        <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-primary-600"/></div>
-        <div><b className="block text-sm text-white">پیشنهادهای من</b><span className="block mt-0.5 text-[11px] text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
+      <button onClick={()=>go('offers')} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">پیشنهادهای من</b><span className="block mt-1 text-xs font-bold text-gray-500">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
       </button>
-      <button type="button" onClick={()=>go('calls')} className="w-full min-h-[58px] rounded-2xl bg-primary-500 border border-primary-600 px-4 py-2 text-right flex items-center gap-3 shadow-sm text-white">
-        <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
-        <div><b className="block text-sm text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-[11px] text-white/90">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></div>
+      <button type="button" onClick={()=>go('calls')} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="block mt-1 text-xs font-bold text-gray-500">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></div>
       </button>
-    </div>
-  </div>;
+    </div>;
   };
 
   const SearchPage = () => {
