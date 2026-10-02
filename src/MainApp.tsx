@@ -1434,41 +1434,15 @@ const ProfilePage = () => <div className="space-y-3">
         <div className="rounded-2xl border-2 border-black bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
           <span className="block text-xs font-bold text-gray-400 mb-3">شماره پلاک</span>
           <div className="mx-auto flex h-16 max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white" dir="ltr">
-            <input
-              aria-label="دو رقم اول پلاک"
-              value={plateParts[0]}
-              onChange={e=>updatePlatePart(0,e.target.value.replace(/\\D/g,'').slice(0,2))}
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={2}
-              placeholder="۷۹"
-              className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"
-            />
-            <input
-              aria-label="سه رقم وسط پلاک"
-              value={plateParts[1]}
-              onChange={e=>updatePlatePart(1,e.target.value.replace(/\\D/g,'').slice(0,3))}
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={3}
-              placeholder="۲۳۴"
-              className="w-[72px] border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"
-            />
-            <button type="button" aria-label="انتخاب حرف پلاک" className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none" onClick={()=>document.getElementById('plate-letters')?.scrollIntoView({behavior:'smooth',block:'nearest'})}>
-              {plateParts[2] || 'ع'}
-            </button>
-            <input
-              aria-label="دو رقم آخر پلاک"
-              value={plateParts[3]}
-              onChange={e=>updatePlatePart(3,e.target.value.replace(/\\D/g,'').slice(0,2))}
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={2}
-              placeholder="۵۶"
-              className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"
-            />
             <div className="flex w-12 items-center justify-center bg-blue-700 text-white">
               <span className="text-[9px] font-black leading-3 text-center">IR<br/>IRAN</span>
+            </div>
+            <input aria-label="دو رقم پلاک" value={plateParts[0]} onChange={e=>updatePlatePart(0,e.target.value.replace(/\\D/g,'').slice(0,2))} inputMode="numeric" pattern="[0-9]*" maxLength={2} placeholder="۷۹" className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"/>
+            <button type="button" aria-label="انتخاب حرف پلاک" className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none" onClick={()=>document.getElementById('plate-letters')?.scrollIntoView({behavior:'smooth',block:'nearest'})}>{plateParts[2] || 'ع'}</button>
+            <input aria-label="سه رقم پلاک" value={plateParts[1]} onChange={e=>updatePlatePart(1,e.target.value.replace(/\\D/g,'').slice(0,3))} inputMode="numeric" pattern="[0-9]*" maxLength={3} placeholder="۲۳۴" className="w-[72px] border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"/>
+            <div className="flex w-16 flex-col items-center justify-center border-r border-gray-300 bg-white leading-none">
+              <span className="text-[9px] font-black">ایران</span>
+              <input aria-label="کد شهر" value={plateParts[3]} onChange={e=>updatePlatePart(3,e.target.value.replace(/\\D/g,'').slice(0,2))} inputMode="numeric" pattern="[0-9]*" maxLength={2} placeholder="۵۶" className="w-10 border-0 bg-transparent text-center text-lg font-black outline-none"/>
             </div>
           </div>
           <p className="mt-2 text-center text-[10px] font-bold text-gray-400">عددها با کیبورد عددی وارد می‌شوند؛ حرف از فهرست زیر انتخاب می‌شود.</p>
