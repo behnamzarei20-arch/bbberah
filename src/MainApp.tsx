@@ -503,7 +503,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     return <><style>{`@keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style><div className="grid grid-cols-2 gap-3 w-full">
       <button onClick={openSearchPage} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
         <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-search-marquee 10s linear infinite"}}><span dir="rtl">مبدأ و مقصد را انتخاب کنید</span><span aria-hidden="true" className="mx-10" dir="rtl">مبدأ و مقصد را انتخاب کنید</span></span></span></div>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-search-marquee 10s linear infinite"}}><span dir="rtl">مبدأ/مقصد را انتخاب کن</span><span aria-hidden="true" className="mx-10" dir="rtl">مبدأ/مقصد را انتخاب کن</span></span></span></div>
       </button>
       <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
         <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
@@ -523,7 +523,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
   const SearchPage = () => {
     const runSearch = () => {
       const allDestinationsMode = destinationText === 'همه شهرها';
-      if (!originText || (!destinationText && !allDestinationsMode)) return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
+      if (!originText || (!destinationText && !allDestinationsMode)) return notify('لطفاً مبدأ/مقصد را انتخاب کن.');
       if (!origin) setOrigin(originText);
       if (!destination && destinationText && !allDestinationsMode) setDestination(destinationText);
       setSearchSubmitted(true);
