@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'flatbed-size' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -452,7 +452,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
     account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
     support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
-offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی بارگیر', 'trailer-select':'نوع تریلی را انتخاب کنید', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس', 'nearby-destination-select':'انتخاب مقصد', 'nearby-results':'اطراف من'
+offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی بارگیر', 'trailer-select':'نوع تریلی را انتخاب کنید', 'flatbed-size':'ابعاد بارگیر را انتخاب کنید', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس', 'nearby-destination-select':'انتخاب مقصد', 'nearby-results':'اطراف من'
   };
 
   const openOfferDetail = (loadId:string) => {
@@ -1293,9 +1293,15 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='trailer-select') return <div className="space-y-4">
       <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع تریلی را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">نوع بارگیر تریلی خود را انتخاب کنید.</p></div></div></CardBody></Card>
       <div className="space-y-3">
-        {(['چادری','بغلدار','تیغه','کفی','کمپرسی','تانکر','یخچالی']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'تریلی'}));if(label==='چادری'||label==='بغلدار'||label==='کفی'){go('vehicle-loader');}else{go('vehicle');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {(['چادری','بغلدار','تیغه','کفی','کمپرسی','تانکر','یخچالی']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'تریلی'}));if(label==='چادری'||label==='بغلدار'){go('vehicle-loader');}else if(label==='کفی'){go('flatbed-size');}else{go('vehicle');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
+      </div>
+    </div>;
+    if (page==='flatbed-size') return <div className="space-y-4">
+      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">ابعاد بارگیر را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">ابعاد کفی خود را انتخاب کنید.</p></div></div></CardBody></Card>
+      <div className="space-y-3">
+        {(['طول ۹','طول ۱۱','طول ۱۲.۲۰','طول ۱۲.۶۰','طول ۱۳.۶۰','کفی کشویی']).map(label=><button key={label} type="button" onClick={()=>go('vehicle')} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
       </div>
     </div>;
     if (page==='vehicle-loader') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">ویژگی بارگیر</h2><p className="text-xs text-gray-400 mt-1">ویژگی‌های بارگیر تریلی را انتخاب کنید.</p></div></div></CardBody></Card>;
