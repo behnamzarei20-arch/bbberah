@@ -376,7 +376,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
     account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
     support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
-offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس'
+offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس', 'nearby-destination-select':'انتخاب مقصد', 'nearby-results':'اطراف من'
   };
 
   const openOfferDetail = (loadId:string) => {
