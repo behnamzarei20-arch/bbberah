@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { iranLocations } from '@/data/iranLocations';
 
 type Page =
-  | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
+  | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle' | 'vehicle-select'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
   | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'flatbed-size' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
@@ -450,7 +450,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty, nearbyUserLocation]);
   const title:Record<Page,string> = {
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
-    account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
+    account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', 'vehicle-select':'نوع خودرو', wallet:'کیف پول', transactions:'تراکنش‌ها',
     support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
 offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 'trailer-select':'نوع کاربری را انتخاب کنید', 'flatbed-size':'ویژگی کاربری', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس', 'nearby-destination-select':'انتخاب مقصد', 'nearby-results':'اطراف من'
   };
@@ -1282,10 +1282,18 @@ const ProfilePage = () => <div className="space-y-3">
         </CardBody></Card>;
       })}
     </div>;
+    if (page==='vehicle-select') return <div className="space-y-4">
+      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع خودروی خود را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">خودروی موردنظر را انتخاب کنید.</p></div></div></CardBody></Card>
+      <div className="space-y-3">
+        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label,usage:label==='تریلی'?v.usage:'',feature:''}));if(label==='تریلی'){go('trailer-select');}else{go('vehicle-loader');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+          <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><VehicleIcon type={label}/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
+        </button>)}
+      </div>
+    </div>;
     if (page==='vehicle') return <div className="space-y-4">
       <Card><CardBody className="p-5"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">خودروی من</h2><p className="text-xs text-gray-400 mt-1">هر بخش را لمس کنید تا همان بخش را ویرایش کنید.</p></div></div></CardBody></Card>
       <div className="space-y-3">
-        <button type="button" onClick={()=>setVehicleForm(v=>({...v,feature:label}));go('vehicle') className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        <button type="button" onClick={()=>go('vehicle-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">نوع خودرو</span>
           <span className="block mt-1 text-lg font-black">{vehicleForm.type || 'انتخاب نشده'}</span>
         </button>
@@ -1298,14 +1306,6 @@ const ProfilePage = () => <div className="space-y-3">
           <span className="block mt-1 text-lg font-black">{vehicleForm.feature || 'انتخاب نشده'}</span>
         </button>
       </div>
-      <Card><CardBody className="p-4">
-        <div className="text-sm font-bold text-gray-500">ویرایش نوع خودرو</div>
-        <div className="space-y-3 mt-3">
-          {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label,usage:label==='تریلی'?v.usage:'',feature:''}));if(label==='تریلی'){go('trailer-select');}else{go('vehicle-loader');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
-            <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><VehicleIcon type={label}/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
-          </button>)}
-        </div>
-      </CardBody></Card>
     </div>;
     if (page==='trailer-select') return <div className="space-y-4">
       <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع تریلی را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">نوع بارگیر تریلی خود را انتخاب کنید.</p></div></div></CardBody></Card>
@@ -1318,7 +1318,7 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='flatbed-size') return <div className="space-y-4">
       <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">ابعاد بارگیر را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">ابعاد کفی خود را انتخاب کنید.</p></div></div></CardBody></Card>
       <div className="space-y-3">
-        {(['طول ۹','طول ۱۱','طول ۱۲.۲۰','طول ۱۲.۶۰','طول ۱۳.۶۰','کفی کشویی']).map(label=><button key={label} type="button" onClick={()=>go('vehicle')} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+        {(['طول ۹','طول ۱۱','طول ۱۲.۲۰','طول ۱۲.۶۰','طول ۱۳.۶۰','کفی کشویی']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
       </div>
     </div>;
     if (page==='vehicle-loader') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">ویژگی کاربری</h2><p className="text-xs text-gray-400 mt-1">ویژگی‌های کاربری خودروی خود را انتخاب کنید.</p></div></div><button type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:'ثبت شد'}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right font-black shadow-[0_4px_14px_rgba(0,0,0,0.10)]">ثبت ویژگی کاربری</button></CardBody></Card>;
