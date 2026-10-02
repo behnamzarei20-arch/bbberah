@@ -672,12 +672,12 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-2 px-1"><Search className="w-5 h-5 text-primary-700" aria-hidden="true"/><h2 className="font-black text-lg text-gray-900">جستجوی بار</h2></div>
-        <button onClick={()=>{setOrigin('');setOriginText('');setOriginProvince('');setOriginCounty('');go('origin-select');}} className="w-full mt-5 mb-3 rounded-2xl border border-black bg-white p-4 text-right active:bg-gray-50">
+        <button onClick={()=>{setOrigin('');setOriginText('');setOriginProvince('');setOriginCounty('');replacePage('origin-select');}} className="w-full mt-5 mb-3 rounded-2xl border border-black bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مبدأ</span>
           <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={originText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{originText || 'مبدأ را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
         </button>
         <div className="border-t border-gray-100 my-6"/>
-        <button onClick={()=>{setDestination('');setDestinationText('');setDestinationProvince('');setDestinationCounty('');go('destination-select');}} className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
+        <button onClick={()=>{setDestination('');setDestinationText('');setDestinationProvince('');setDestinationCounty('');replacePage('destination-select');}} className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مقصد</span>
           <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={destinationText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{destinationText || 'مقصد را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
         </button>
@@ -836,7 +836,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-3 mb-4">
-          <button type="button" onClick={()=>{ if (isOrigin) { go('search'); } else if (isNearby) { setNearbyDestination(''); setNearbyDestinationText(''); setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); goHome(); } else { setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty(''); go('search'); } }} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <button type="button" onClick={()=>{ if (isOrigin) { goHome(); } else if (isNearby) { setNearbyDestination(''); setNearbyDestinationText(''); setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); goHome(); } else { setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty(''); goHome(); } }} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
           <div><h2 className="font-black text-lg">{isOrigin ? 'مبدأ را انتخاب کنید' : 'مقصد را انتخاب کنید'}</h2></div>
         </div>
         <div className="relative">
