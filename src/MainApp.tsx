@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { iranLocations } from '@/data/iranLocations';
 
 type Page =
-  | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle' | 'vehicle-select'
+  | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle' | 'vehicle-dashboard' | 'vehicle-select'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
   | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'jooft-usage' | 'jooft-feature' | 'tak-usage' | 'tak-feature' | 'flatbed-size' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
@@ -458,7 +458,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty, nearbyUserLocation]);
   const title:Record<Page,string> = {
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
-    account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', 'vehicle-select':'نوع خودرو', wallet:'کیف پول', transactions:'تراکنش‌ها',
+    account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', 'vehicle-dashboard':'خودروی من', 'vehicle-select':'نوع خودرو', wallet:'کیف پول', transactions:'تراکنش‌ها',
     support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
 offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 'trailer-select':'نوع کاربری را انتخاب کنید', 'jooft-usage':'نوع کاربری خودرو خود را انتخاب کنید', 'jooft-feature':'ویژگی کاربری', 'tak-usage':'نوع کاربری خودرو خود را انتخاب کنید', 'tak-feature':'ویژگی کاربری', 'flatbed-size':'ویژگی کاربری', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس', 'nearby-destination-select':'انتخاب مقصد', 'nearby-results':'اطراف من'
   };
@@ -581,7 +581,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       <div className="flex items-center justify-between mb-6"><div><b className="text-xl">{profile?.full_name || 'کاربر براه'}</b><span className="block text-xs text-gray-400 mt-1">{profile?.phone}</span></div><button onClick={()=>setShowMenu(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div>
       <div className="space-y-1">
         {[
-          ['account','حساب کاربری',User],['vehicle','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText],['display','تنظیمات برنامه',Settings]
+          ['account','حساب کاربری',User],['vehicle-dashboard','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText],['display','تنظیمات برنامه',Settings]
         ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-primary-50">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{String(l)}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
         <button onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right text-red-600 mt-3"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب کاربری</span></button>
       </div>
@@ -1348,6 +1348,51 @@ const ProfilePage = () => <div className="space-y-3">
         </div>
       </div>;
     }
+    if (page==='vehicle-dashboard') {
+      const vehicleSummary = [vehicleForm.type, vehicleForm.usage, vehicleForm.feature]
+        .filter(Boolean)
+        .map((value, index) => index > 0 ? value.replace(/^طول\s+/, '') : value)
+        .join(' ');
+      return <div className="space-y-4">
+        <div className="px-1"><h2 className="font-black text-lg">خودروی من</h2></div>
+
+        <button type="button" onClick={()=>go('vehicle-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+          <span className="block text-xs font-bold text-gray-400">خودروی من</span>
+          <span className="mt-1 flex items-center justify-between gap-3">
+            <span className="text-lg font-black">{vehicleSummary || 'خودرو ثبت نشده'}</span>
+            <ChevronLeft className="w-5 h-5 text-gray-500 shrink-0"/>
+          </span>
+        </button>
+
+        <div className="rounded-2xl border-2 border-black bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+          <span className="block text-xs font-bold text-gray-400 mb-3">شماره پلاک</span>
+          <div className="mx-auto flex h-16 max-w-[280px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white" dir="ltr">
+            <div className="flex w-10 items-center justify-center bg-blue-700 text-white">
+              <span className="text-[9px] font-black leading-3 text-center">IR<br/>IRAN</span>
+            </div>
+            <div className="flex-1 flex items-center justify-center gap-3 px-3">
+              <b className="text-xl font-black">12</b>
+              <b className="text-2xl font-black">345</b>
+              <b className="text-xl font-black">الف</b>
+              <b className="text-xl font-black">67</b>
+            </div>
+          </div>
+          <p className="mt-2 text-center text-[10px] font-bold text-gray-400">نمونه موقت — طراحی نهایی پلاک بعداً اصلاح می‌شود</p>
+        </div>
+
+        <div className="rounded-2xl border-2 border-black bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <span className="block text-xs font-bold text-gray-400">شماره هوشمند ناوگان</span>
+              <b className="block mt-1 text-base font-black">ثبت نشده</b>
+            </div>
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-50 border border-gray-200">
+              <CarFront className="w-5 h-5 text-primary-600"/>
+            </span>
+          </div>
+        </div>
+      </div>;
+    }
     if (page==='vehicle') return <div className="space-y-4">
       <div className="px-1"><h2 className="font-black text-lg">خودروی من</h2><p className="text-xs text-gray-400 mt-1">مشخصات خودرو را بررسی یا ویرایش کنید.</p></div>
       <div className="space-y-3">
@@ -1452,7 +1497,7 @@ const ProfilePage = () => <div className="space-y-3">
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='search'){goHome();}else{window.history.back();}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
