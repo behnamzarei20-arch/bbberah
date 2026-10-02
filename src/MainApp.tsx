@@ -321,7 +321,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     setShowMenu(false);
     window.scrollTo({top:0,behavior:'smooth'});
   };
-  const openSearchPage = () => {\n    setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');\n    setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');\n    setFrequentRoute(null);\n    setSearchSubmitted(false);\n    go('search');\n  };
+  const resetSearchFields = () => {\n    setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');\n    setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');\n    setFrequentRoute(null);\n    setSearchSubmitted(false);\n  };\n  const openSearchPage = () => {\n    resetSearchFields();\n    go('search');\n  };
   const findCityLocation = (city:string) => {
     for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return { provinceId:String(province.id), countyId:String(county.id) };
     return null;
@@ -1176,7 +1176,7 @@ const ProfilePage = () => <div className="space-y-3">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
-      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='cargo-detail'){resetSearchFields();go('search');} else if(page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route'){go('search');} else if(page==='contact-report'){go('cargo-detail');} else if(page==='report'){go('calls');} else {go('home');}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
