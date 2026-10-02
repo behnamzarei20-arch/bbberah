@@ -321,12 +321,24 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
           setOriginCounty('');
           setSearchSubmitted(false);
         }
-        if (next === 'destination-select') {
+        if (next === 'destination-select' || next === 'destination-all' || next === 'frequent-route') {
           setDestination('');
           setDestinationText('');
           setDestinationProvince('');
           setDestinationCounty('');
           setSearchSubmitted(false);
+        }
+        if (next === 'nearby-destination-select') {
+          setNearbyDestination('');
+          setNearbyDestinationText('');
+          setNearbyDestinationProvince('');
+          setNearbyDestinationCounty('');
+        }
+        if (next === 'nearby-results') {
+          setNearbyDestination('');
+          setNearbyDestinationText('');
+          setNearbyDestinationProvince('');
+          setNearbyDestinationCounty('');
         }
         setPage(next);
         setShowMenu(false);
@@ -798,7 +810,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-3 mb-4">
-          <button type="button" onClick={()=>{ if (isOrigin) { go('search'); } else { setNearbyDestination(''); setNearbyDestinationText(''); setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); go('home'); } }} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <button type="button" onClick={()=>{ if (isOrigin) { go('search'); } else if (isNearby) { setNearbyDestination(''); setNearbyDestinationText(''); setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); go('home'); } else { setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty(''); go('home'); } }} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
           <div><h2 className="font-black text-lg">{isOrigin ? 'مبدأ را انتخاب کنید' : 'مقصد را انتخاب کنید'}</h2></div>
         </div>
         <div className="relative">
