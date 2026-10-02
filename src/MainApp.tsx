@@ -23,6 +23,7 @@ type Load = {
 };
 
 type GeoPoint = { lat:number; lon:number };
+type VehicleForm = { type:string; usage:string; feature:string; plate:string; model:string; year:string };
 
 const seedLoads: Load[] = [
   { id:'l1', title:'بار خشک تهران به مشهد', from:'تهران', to:'مشهد', type:'بار خشک', vehicle:'تریلی', weight:18000, price:24500000, pickup:'امروز، ۱۴:۳۰', delivery:'فردا، ۱۰:۰۰', status:'open', distance:18, routeDistance:897, description:'بار خشک بسته‌بندی‌شده؛ بارگیری در محل اعلام‌شده و تحویل طبق زمان‌بندی.', phone:'09120000001' },
@@ -311,7 +312,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
       document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
     };
   }, [offerOpen]);
-  const [vehicleForm, setVehicleForm] = useState(() => {
+  const [vehicleForm, setVehicleForm] = useState<VehicleForm>(() => {
     try {
       const saved = window.localStorage.getItem('bbberah_vehicle_v1');
       return saved ? JSON.parse(saved) : {type:'تریلی',usage:'',feature:'',plate:'',model:'',year:''};
