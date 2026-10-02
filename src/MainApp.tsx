@@ -751,9 +751,12 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     };
     const chooseNearby = () => {
       if (!isOrigin) return;
-      setProvince(''); setCounty(''); setCity('__nearby__'); setText('اطراف من');
-      setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); setNearbyDestination(''); setNearbyDestinationText('');
-      setSearchSubmitted(false); go('nearby-destination-select');
+      setOriginProvince('');
+      setOriginCounty('');
+      setOrigin('__nearby__');
+      setOriginText('اطراف من');
+      setSearchSubmitted(false);
+      go('destination-select');
     };
 
     return <div className="space-y-4">
