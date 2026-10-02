@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -163,6 +163,10 @@ export function MainApp() {
   const [destinationCounty, setDestinationCounty] = useState('');
   const [frequentRoute, setFrequentRoute] = useState<{from:string;to:string}|null>(null);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
+  const [nearbyDestination, setNearbyDestination] = useState('');
+  const [nearbyDestinationText, setNearbyDestinationText] = useState('');
+  const [nearbyDestinationProvince, setNearbyDestinationProvince] = useState('');
+  const [nearbyDestinationCounty, setNearbyDestinationCounty] = useState('');
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
   const [showMenu, setShowMenu] = useState(false);
@@ -535,7 +539,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 10s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span></span></span></div>
       </button>
-      <button onClick={()=>animateHomeCard('nearby',()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('destination-select')})} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('nearby-destination-select')})} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 8s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span></span></span></div>
       </button>
@@ -548,6 +552,25 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-marquee 7s linear infinite"}}><span dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span><span aria-hidden="true" className="mx-10" dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></span></span></div>
       </button>
     </div></>;
+  };
+
+  const NearbyResultsPage = () => {
+    const nearbyFiltered = loads.filter(l => {
+      if (l.status === 'delivered' || l.distance > 50) return false;
+      if (nearbyDestination === '__all__') return true;
+      const dl = findCityLocation(l.to);
+      if (nearbyDestination === '__province__') return !!dl && dl.provinceId === nearbyDestinationProvince;
+      if (nearbyDestination) return l.to === nearbyDestination;
+      if (!nearbyDestinationProvince) return true;
+      return !!dl && dl.provinceId === nearbyDestinationProvince && (!nearbyDestinationCounty || dl.countyId === nearbyDestinationCounty);
+    });
+    return nearbyFiltered.length ? (
+      <div className="space-y-3">
+        {nearbyFiltered.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
+      </div>
+    ) : (
+      <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای اطراف این مقصد هنوز باری ثبت نشده است."/></CardBody></Card>
+    );
   };
 
   const SearchPage = () => {
@@ -613,13 +636,14 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     );
   };
 
-  const LocationSelectPage = ({ mode }: { mode:'origin'|'destination' }) => {
+  const LocationSelectPage = ({ mode }: { mode:'origin'|'destination'|'nearby-destination' }) => {
     const isOrigin = mode === 'origin';
-    const provinceId = isOrigin ? originProvince : destinationProvince;
-    const setProvince = isOrigin ? setOriginProvince : setDestinationProvince;
-    const setCounty = isOrigin ? setOriginCounty : setDestinationCounty;
-    const setCity = isOrigin ? setOrigin : setDestination;
-    const setText = isOrigin ? setOriginText : setDestinationText;
+    const isNearby = mode === 'nearby-destination';
+    const provinceId = isOrigin ? originProvince : isNearby ? nearbyDestinationProvince : destinationProvince;
+    const setProvince = isOrigin ? setOriginProvince : isNearby ? setNearbyDestinationProvince : setDestinationProvince;
+    const setCounty = isOrigin ? setOriginCounty : isNearby ? setNearbyDestinationCounty : setDestinationCounty;
+    const setCity = isOrigin ? setOrigin : isNearby ? setNearbyDestination : setDestination;
+    const setText = isOrigin ? setOriginText : isNearby ? setNearbyDestinationText : setDestinationText;
     const provinceData = iranLocations.find(p => String(p.id) === provinceId);
     const [query, setQuery] = useState('');
     const normalizeSearch = (value:string) => value
@@ -640,7 +664,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       .sort((a,b) => a.name.localeCompare(b.name, 'fa'));
     const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name }))));
     const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(provinceData.id), provinceName:provinceData.name }))) : [];
-    const selectedCountyId = isOrigin ? originCounty : destinationCounty;
+    const selectedCountyId = isOrigin ? originCounty : isNearby ? nearbyDestinationCounty : destinationCounty;
     const selectedCounty = provinceData?.counties.find(c => String(c.id) === selectedCountyId);
     const selectedCountyCities = selectedCounty ? selectedCounty.cities.map(city => ({ city, countyId:String(selectedCounty.id), countyName:selectedCounty.name, provinceId:String(provinceData!.id), provinceName:provinceData!.name })) : [];
     const sourceCities = allDestinationCities;
@@ -659,8 +683,13 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     const visibleCities = filteredCities.slice(0, cityLimit);
 
     const openAllDestinationCities = () => {
-      setDestinationProvince(''); setDestinationCounty(''); setDestination('__all__'); setDestinationText('همه شهرها');
-      setQuery(''); setCityLimit(120); setSearchSubmitted(false); go('search', true);
+      if (isNearby) {
+        setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); setNearbyDestination('__all__'); setNearbyDestinationText('همه شهرها');
+        setQuery(''); setCityLimit(120); go('nearby-results');
+      } else {
+        setDestinationProvince(''); setDestinationCounty(''); setDestination('__all__'); setDestinationText('همه شهرها');
+        setQuery(''); setCityLimit(120); setSearchSubmitted(false); go('search', true);
+      }
     };
     const chooseProvince = (id:string) => {
       const province = iranLocations.find(p => String(p.id) === id);
@@ -672,6 +701,12 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setOriginText(province?.name || '');
         setSearchSubmitted(false);
         go('destination-select');
+      } else if (isNearby) {
+        setNearbyDestinationProvince(id);
+        setNearbyDestinationCounty('');
+        setNearbyDestination('__province__');
+        setNearbyDestinationText(province?.name || '');
+        go('nearby-results');
       } else {
         setDestinationProvince(id);
         setDestinationCounty('');
@@ -695,6 +730,14 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setOriginText(city);
         setSearchSubmitted(false);
         go('destination-select');
+      } else if (isNearby) {
+        setNearbyDestinationProvince(provinceIdForCity || '');
+        setNearbyDestinationCounty(countyId);
+        setNearbyDestination(city);
+        setNearbyDestinationText(city);
+        setQuery('');
+        setCityLimit(120);
+        go('nearby-results');
       } else {
         setDestinationProvince(provinceIdForCity || '');
         setDestinationCounty(countyId);
@@ -709,8 +752,8 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     const chooseNearby = () => {
       if (!isOrigin) return;
       setProvince(''); setCounty(''); setCity('__nearby__'); setText('اطراف من');
-      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
-      setSearchSubmitted(false); go('destination-select');
+      setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); setNearbyDestination(''); setNearbyDestinationText('');
+      setSearchSubmitted(false); go('nearby-destination-select');
     };
 
     return <div className="space-y-4">
@@ -1214,8 +1257,8 @@ const ProfilePage = () => <div className="space-y-3">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
-      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='cargo-detail'){resetSearchFields();go('search');} else if(page==='origin-select'){go('search');} else if(page==='destination-select' || page==='destination-all' || page==='frequent-route'){go('search');} else if(page==='search' && searchSubmitted && origin === '__nearby__'){setDestination('');setDestinationText('');setDestinationProvince('');setDestinationCounty('');setSearchSubmitted(false);go('destination-select');} else if(page==='contact-report'){go('cargo-detail');} else if(page==='report'){go('calls');} else {go('home');}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='cargo-detail'){resetSearchFields();go('search');} else if(page==='origin-select'){go('search');} else if(page==='destination-select' || page==='destination-all' || page==='frequent-route'){go('search');} else if(page==='nearby-destination-select'){go('home');} else if(page==='nearby-results'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('nearby-destination-select');} else if(page==='contact-report'){go('cargo-detail');} else if(page==='report'){go('calls');} else {go('home');}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
