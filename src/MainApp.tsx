@@ -312,7 +312,8 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     const state = window.history.state;
     if (!state?.bbberahPage) window.history.replaceState({ bbberahPage: page }, '', window.location.href.split('#')[0]);
     const onPopState = () => {
-      const next = window.history.state?.bbberahPage as Page | undefined;
+      const historyState = window.history.state;
+      const next = historyState?.bbberahPage as Page | undefined;
       if (next) {
         if (next === 'origin-select') {
           setOrigin('');
@@ -339,6 +340,9 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
           setNearbyDestinationText('');
           setNearbyDestinationProvince('');
           setNearbyDestinationCounty('');
+        }
+        if (next === 'search') {
+          setSearchSubmitted(historyState?.bbberahSearchResults === true);
         }
         setPage(next);
         setShowMenu(false);
@@ -626,6 +630,10 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       if (!originText || (!destinationText && !allDestinationsMode)) return notify('لطفاً مبدأ/مقصد را انتخاب کن.');
       if (!origin) setOrigin(originText);
       if (!destination && destinationText && !allDestinationsMode) setDestination(destinationText);
+      // Keep a dedicated history step for the search-selection view, then for results.
+      // This makes browser/device Back return to the selection cards without losing fields.
+      window.history.replaceState({ bbberahPage: 'search', bbberahSearchSelection: true }, '', '#search');
+      window.history.pushState({ bbberahPage: 'search', bbberahSearchResults: true }, '', '#search-results');
       setSearchSubmitted(true);
     };
     const clearAll = () => {
@@ -850,7 +858,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     const matches = (value:string) => !normalized || normalizeSearch(value).includes(normalized);
     const chooseCity = (city:string, countyId:string, provinceId:string) => {
       setDestinationProvince(provinceId); setDestinationCounty(countyId);
-      setDestination(city); setDestinationText(city); setSearchSubmitted(true); go('search');
+      setDestination(city); setDestinationText(city); setSearchSubmitted(true); go('search', true);
     };
     const totalCities = iranLocations.reduce((sum,p)=>sum+p.counties.reduce((n,c)=>n+c.cities.length,0),0);
     return <div className="space-y-4">
@@ -1303,7 +1311,10 @@ const ProfilePage = () => <div className="space-y-3">
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
-      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='cargo-detail'){resetSearchFields();go('search');} else if(page==='search' && searchSubmitted){setSearchSubmitted(false);} else if(page==='origin-select'){go('search');} else if(page==='destination-select' || page==='destination-all' || page==='frequent-route'){go('home');} else if(page==='nearby-destination-select'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('home');} else if(page==='nearby-results'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('nearby-destination-select');} else if(page==='contact-report'){go('cargo-detail');} else if(page==='report'){go('calls');} else {go('home');}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='cargo-detail'){resetSearchFields();go('search');} else if(page==='search' && searchSubmitted){
+          window.history.replaceState({ bbberahPage:'search', bbberahSearchSelection:true }, '', '#search');
+          setSearchSubmitted(false);
+        } else if(page==='origin-select'){go('search');} else if(page==='destination-select' || page==='destination-all' || page==='frequent-route'){go('home');} else if(page==='nearby-destination-select'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('home');} else if(page==='nearby-results'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('nearby-destination-select');} else if(page==='contact-report'){go('cargo-detail');} else if(page==='report'){go('calls');} else {go('home');}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
