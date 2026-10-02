@@ -500,24 +500,28 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <div className="space-y-2">
+    return <div className="space-y-3">
     <Card className="w-full max-w-none"><CardBody className="py-2 px-3 text-center"><div className="flex items-center justify-center gap-3" dir="rtl"><b className="text-xs whitespace-nowrap">امتیاز شما</b><div className="text-2xl leading-none font-black text-amber-500">{fa(driverScore)}</div><div className="flex items-center gap-1" dir="ltr"><span className="text-[20px] leading-none tracking-tight" aria-label="امتیاز ۴ و ۳۵ صدم"><span className="text-amber-400">★★★★</span><span className="relative inline-block text-gray-300"><span className="absolute inset-y-0 left-0 overflow-hidden text-amber-400" style={{width:'35%'}}>★</span>★</span></span><span className="text-sm font-black text-amber-600" dir="rtl">۴/۳۵</span></div></div></CardBody></Card>
-    <button onClick={openSearchPage} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
-      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><Search className="w-5 h-5 text-primary-600"/></div>
-      <div className="min-w-0"><b className="block text-base text-white">جستجوی بار</b><span className="block mt-0.5 text-xs text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
-    </button>
-    <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
-      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-5 h-5 text-emerald-700"/></div>
-      <div className="min-w-0"><b className="block text-base text-white">اطراف من</b><span className="block mt-0.5 text-xs text-white/90">بارهای نزدیک را ببین</span></div>
-    </button>
-    <button onClick={()=>go('offers')} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
-      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
-      <div className="min-w-0"><b className="block text-base text-white">پیشنهادهای من</b><span className="block mt-0.5 text-xs text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
-    </button>
-    <button type="button" onClick={()=>go('calls')} className="w-full min-h-[78px] rounded-2xl bg-primary-500 border border-primary-600 p-3 text-right flex items-center gap-3 shadow-sm text-white">
-       <div className="w-10 h-10 rounded-xl bg-white border border-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
-       <div className="min-w-0"><b className="block text-base text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-xs text-white/90">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها را ببینید</span></div>
-     </button>
+    <div className="grid grid-cols-2 gap-3 w-full">
+      <button onClick={openSearchPage} className="aspect-square w-full rounded-2xl bg-primary-500 border border-primary-600 p-4 text-center flex flex-col items-center justify-center gap-3 shadow-sm text-white">
+        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-7 h-7 text-primary-600"/></div>
+        <div><b className="block text-base text-white">جستجوی بار</b><span className="block mt-1 text-xs text-white/90">مبدأ و مقصد را انتخاب کنید</span></div>
+      </button>
+      <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="aspect-square w-full rounded-2xl bg-primary-500 border border-primary-600 p-4 text-center flex flex-col items-center justify-center gap-3 shadow-sm text-white">
+        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0"><Navigation className="w-7 h-7 text-primary-600"/></div>
+        <div><b className="block text-base text-white">اطراف من</b><span className="block mt-1 text-xs text-white/90">بارهای نزدیک را ببین</span></div>
+      </button>
+    </div>
+    <div className="grid grid-cols-2 gap-3 w-full">
+      <button onClick={()=>go('offers')} className="w-full min-h-[92px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
+        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
+        <div><b className="block text-sm text-white">پیشنهادهای من</b><span className="block mt-0.5 text-[11px] text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
+      </button>
+      <button type="button" onClick={()=>go('calls')} className="w-full min-h-[92px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
+        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
+        <div><b className="block text-sm text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-[11px] text-white/90">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></div>
+      </button>
+    </div>
   </div>;
   };
 
