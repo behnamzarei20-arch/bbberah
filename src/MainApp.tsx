@@ -320,6 +320,24 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
       return {type:'تریلی',usage:'',feature:'',plate:'',model:'',year:''};
     }
   });
+  const [plateParts, setPlateParts] = useState<string[]>(() => {
+    const saved = window.localStorage.getItem('bbberah_vehicle_v1');
+    const plate = saved ? (() => { try { return JSON.parse(saved).plate || ''; } catch { return ''; } })() : '';
+    const parts = plate.split('-');
+    return [parts[0] || '', parts[1] || '', parts[2] || '', parts[3] || ''];
+  });
+  const plateLetters = ['الف','ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
+  const updatePlatePart = (index:number, value:string) => {
+    const next = [...plateParts];
+    next[index] = value;
+    setPlateParts(next);
+    setVehicleForm(v => ({...v, plate: next.join('-')}));
+    try {
+      const saved = window.localStorage.getItem('bbberah_vehicle_v1');
+      const current = saved ? JSON.parse(saved) : {};
+      window.localStorage.setItem('bbberah_vehicle_v1', JSON.stringify({...current, plate: next.join('-')}));
+    } catch {}
+  };
   const [accountName, setAccountName] = useState(profile?.full_name || '');
   const [settlingCallLoadId, setSettlingCallLoadId] = useState<string | null>(null);
   const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
@@ -1415,18 +1433,52 @@ const ProfilePage = () => <div className="space-y-3">
 
         <div className="rounded-2xl border-2 border-black bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
           <span className="block text-xs font-bold text-gray-400 mb-3">شماره پلاک</span>
-          <div className="mx-auto flex h-16 max-w-[280px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white" dir="ltr">
-            <div className="flex w-10 items-center justify-center bg-blue-700 text-white">
+          <div className="mx-auto flex h-16 max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white" dir="ltr">
+            <input
+              aria-label="دو رقم اول پلاک"
+              value={plateParts[0]}
+              onChange={e=>updatePlatePart(0,e.target.value.replace(/\\D/g,'').slice(0,2))}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={2}
+              placeholder="۷۹"
+              className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"
+            />
+            <input
+              aria-label="سه رقم وسط پلاک"
+              value={plateParts[1]}
+              onChange={e=>updatePlatePart(1,e.target.value.replace(/\\D/g,'').slice(0,3))}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={3}
+              placeholder="۲۳۴"
+              className="w-[72px] border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"
+            />
+            <button type="button" aria-label="انتخاب حرف پلاک" className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none" onClick={()=>document.getElementById('plate-letters')?.scrollIntoView({behavior:'smooth',block:'nearest'})}>
+              {plateParts[2] || 'ع'}
+            </button>
+            <input
+              aria-label="دو رقم آخر پلاک"
+              value={plateParts[3]}
+              onChange={e=>updatePlatePart(3,e.target.value.replace(/\\D/g,'').slice(0,2))}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={2}
+              placeholder="۵۶"
+              className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"
+            />
+            <div className="flex w-12 items-center justify-center bg-blue-700 text-white">
               <span className="text-[9px] font-black leading-3 text-center">IR<br/>IRAN</span>
             </div>
-            <div className="flex-1 flex items-center justify-center gap-3 px-3">
-              <b className="text-xl font-black">12</b>
-              <b className="text-2xl font-black">345</b>
-              <b className="text-xl font-black">الف</b>
-              <b className="text-xl font-black">67</b>
+          </div>
+          <p className="mt-2 text-center text-[10px] font-bold text-gray-400">عددها با کیبورد عددی وارد می‌شوند؛ حرف از فهرست زیر انتخاب می‌شود.</p>
+
+          <div id="plate-letters" className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
+            <span className="block text-xs font-black text-gray-500 mb-2">انتخاب حرف پلاک</span>
+            <div className="grid grid-cols-4 gap-2">
+              {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>updatePlatePart(2,letter)} className={`rounded-xl border-2 px-2 py-2.5 text-base font-black transition-colors ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-white text-gray-800'}`}>{letter}</button>)}
             </div>
           </div>
-          <p className="mt-2 text-center text-[10px] font-bold text-gray-400">نمونه موقت — طراحی نهایی پلاک بعداً اصلاح می‌شود</p>
         </div>
 
         <div className="rounded-2xl border-2 border-black bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
