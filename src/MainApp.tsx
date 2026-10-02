@@ -1283,7 +1283,7 @@ const ProfilePage = () => <div className="space-y-3">
           ['کامیونت',BusFront,'کامیونت'],
           ['نیسان و وانت',CarFront,'نیسان و وانت'],
         ].map(([label,Icon,value])=><button key={String(label)} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:String(value)}));go('vehicle-loader');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
-          <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">{createElement(Icon,{className:"w-6 h-6 text-gray-900"})}</span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
+          <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">{createElement(Icon as any,{className:"w-6 h-6 text-gray-900"})}</span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
     </div>;
