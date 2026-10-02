@@ -326,7 +326,16 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     setShowMenu(false);
     window.scrollTo({top:0,behavior:'smooth'});
   };
-  const resetSearchFields = () => {\n    setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');\n    setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');\n    setFrequentRoute(null);\n    setSearchSubmitted(false);\n  };\n  const openSearchPage = () => {\n    resetSearchFields();\n    go('search');\n  };
+  const resetSearchFields = () => {
+    setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
+    setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');
+    setFrequentRoute(null);
+    setSearchSubmitted(false);
+  };
+  const openSearchPage = () => {
+    resetSearchFields();
+    go('search');
+  };
   const findCityLocation = (city:string) => {
     for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return { provinceId:String(province.id), countyId:String(county.id) };
     return null;
