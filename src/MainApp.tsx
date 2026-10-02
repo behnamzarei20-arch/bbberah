@@ -311,7 +311,14 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
       document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
     };
   }, [offerOpen]);
-  const [vehicleForm, setVehicleForm] = useState({type:'تریلی',usage:'',feature:'',plate:'',model:'',year:''});
+  const [vehicleForm, setVehicleForm] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem('bbberah_vehicle_v1');
+      return saved ? JSON.parse(saved) : {type:'تریلی',usage:'',feature:'',plate:'',model:'',year:''};
+    } catch {
+      return {type:'تریلی',usage:'',feature:'',plate:'',model:'',year:''};
+    }
+  });
   const [accountName, setAccountName] = useState(profile?.full_name || '');
   const [settlingCallLoadId, setSettlingCallLoadId] = useState<string | null>(null);
   const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
@@ -1283,7 +1290,7 @@ const ProfilePage = () => <div className="space-y-3">
       })}
     </div>;
     if (page==='vehicle-select') return <div className="space-y-4">
-      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع خودروی خود را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">خودروی موردنظر را انتخاب کنید.</p></div></div></CardBody></Card>
+      <div className="px-1"><h2 className="font-black text-lg">نوع خودروی خود را انتخاب کنید</h2></div>
       <div className="space-y-3">
         {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label,usage:label==='تریلی'?v.usage:'',feature:''}));if(label==='تریلی'){go('trailer-select');}else{go('vehicle-loader');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><VehicleIcon type={label}/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
@@ -1291,37 +1298,53 @@ const ProfilePage = () => <div className="space-y-3">
       </div>
     </div>;
     if (page==='vehicle') return <div className="space-y-4">
-      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">خودروی من</h2><p className="text-xs text-gray-400 mt-1">هر بخش را لمس کنید تا همان بخش را ویرایش کنید.</p></div></div></CardBody></Card>
+      <div className="px-1"><h2 className="font-black text-lg">خودروی من</h2><p className="text-xs text-gray-400 mt-1">مشخصات خودرو را بررسی یا ویرایش کنید.</p></div>
       <div className="space-y-3">
         <button type="button" onClick={()=>go('vehicle-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">نوع خودرو</span>
-          <span className="block mt-1 text-lg font-black">{vehicleForm.type || 'انتخاب نشده'}</span>
+          <span className="block mt-1 text-lg font-black">{vehicleForm.type}</span>
         </button>
-        {vehicleForm.type==='تریلی' && <button type="button" onClick={()=>go('trailer-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {vehicleForm.usage && <button type="button" onClick={()=>go('trailer-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">نوع کاربری</span>
-          <span className="block mt-1 text-lg font-black">{vehicleForm.usage || 'انتخاب نشده'}</span>
+          <span className="block mt-1 text-lg font-black">{vehicleForm.usage}</span>
         </button>}
-        <button type="button" onClick={()=>go('vehicle-loader')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {vehicleForm.feature && <button type="button" onClick={()=>go(vehicleForm.usage==='کفی'||vehicleForm.usage==='بغلدار'||vehicleForm.usage==='چادری' ? 'flatbed-size' : 'trailer-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">ویژگی کاربری</span>
-          <span className="block mt-1 text-lg font-black">{vehicleForm.feature || 'انتخاب نشده'}</span>
-        </button>
+          <span className="block mt-1 text-lg font-black">{vehicleForm.feature}</span>
+        </button>}
       </div>
+      <Button size="full" className="h-14 text-base font-black mt-2" disabled={!vehicleForm.type || !vehicleForm.feature} onClick={()=>{window.localStorage.setItem('bbberah_vehicle_v1',JSON.stringify(vehicleForm));notify('خودرو با موفقیت ثبت و ذخیره شد.');goHome();}}>ثبت خودرو</Button>
     </div>;
     if (page==='trailer-select') return <div className="space-y-4">
-      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع تریلی را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">نوع بارگیر تریلی خود را انتخاب کنید.</p></div></div></CardBody></Card>
+      <div className="px-1"><h2 className="font-black text-lg">نوع کاربری</h2><p className="text-xs text-gray-400 mt-1">نوع کاربری تریلی را انتخاب کنید.</p></div>
       <div className="space-y-3">
-        {(['چادری','بغلدار','تیغه','کفی','کمپرسی','تانکر','یخچالی']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'تریلی',usage:label,feature:''}));if(label==='چادری'||label==='بغلدار'){go('vehicle-loader');}else if(label==='کفی'){go('flatbed-size');}else{go('vehicle');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {(['تیغه','کمپرسی','تانکر','یخچالی','کفی','بغلدار','چادری']).map(label=><button key={label} type="button" onClick={()=>{
+          if(label==='کفی'||label==='بغلدار'||label==='چادری'){
+            setVehicleForm(v=>({...v,type:'تریلی',usage:label,feature:''}));
+            go('flatbed-size');
+          }else{
+            setVehicleForm(v=>({...v,type:'تریلی',usage:'',feature:label}));
+            go('vehicle');
+          }
+        }} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
     </div>;
-    if (page==='flatbed-size') return <div className="space-y-4">
-      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">ابعاد بارگیر را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">ابعاد کفی خود را انتخاب کنید.</p></div></div></CardBody></Card>
-      <div className="space-y-3">
-        {(['طول ۹','طول ۱۱','طول ۱۲.۲۰','طول ۱۲.۶۰','طول ۱۳.۶۰','کفی کشویی']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
-      </div>
-    </div>;
-    if (page==='vehicle-loader') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">ویژگی کاربری</h2><p className="text-xs text-gray-400 mt-1">ویژگی‌های کاربری خودروی خود را انتخاب کنید.</p></div></div><button type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:'ثبت شد'}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right font-black shadow-[0_4px_14px_rgba(0,0,0,0.10)]">ثبت ویژگی کاربری</button></CardBody></Card>;
+    if (page==='flatbed-size') {
+      const featureOptions = vehicleForm.usage==='بغلدار'
+        ? ['طول ۹','طول ۱۱','طول ۱۲.۲۰','طول ۱۲.۶۰','طول ۱۳.۶۰']
+        : vehicleForm.usage==='چادری'
+          ? ['ارتفاع ۲.۷۰','ارتفاع ۲۹۰','ارتفاع ۳']
+          : ['طول ۹','طول ۱۱','طول ۱۲.۲۰','طول ۱۲.۶۰','طول ۱۳.۶۰','کفی کشویی'];
+      return <div className="space-y-4">
+        <div className="px-1"><h2 className="font-black text-lg">ویژگی کاربری</h2><p className="text-xs text-gray-400 mt-1">ویژگی {vehicleForm.usage || 'بارگیر'} را انتخاب کنید.</p></div>
+        <div className="space-y-3">
+          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+        </div>
+      </div>;
+    }
+    
     if (page==='account') return <Card><CardBody className="p-5 space-y-1">
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || accountName || 'ثبت نشده'}</b></div>
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
