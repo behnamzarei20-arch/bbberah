@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'vehicle-loader' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -1273,7 +1273,21 @@ const ProfilePage = () => <div className="space-y-3">
         </CardBody></Card>;
       })}
     </div>;
-    if (page==='vehicle') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><b>خودروی من</b><p className="text-xs text-gray-400 mt-1">اطلاعات خودرو در حالت آزمایشی نگهداری می‌شود.</p></div></div><select value={vehicleForm.type} onChange={e=>setVehicleForm(v=>({...v,type:e.target.value}))} className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-white"><option>تریلی</option><option>کامیون</option><option>خاور</option><option>نیسان</option></select><input value={vehicleForm.plate} onChange={e=>setVehicleForm(v=>({...v,plate:e.target.value}))} placeholder="پلاک خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input value={vehicleForm.model} onChange={e=>setVehicleForm(v=>({...v,model:e.target.value}))} placeholder="مدل خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input inputMode="numeric" value={vehicleForm.year} onChange={e=>setVehicleForm(v=>({...v,year:e.target.value.replace(/\D/g,'').slice(0,4)}))} placeholder="سال ساخت" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><Button className="w-full" onClick={()=>{if(!vehicleForm.plate.trim()||!vehicleForm.model.trim())return notify('پلاک و مدل خودرو را کامل کنید.');notify('خودرو در حالت آزمایشی ذخیره شد.')}}>ذخیره خودرو</Button></CardBody></Card>;
+    if (page==='vehicle') return <div className="space-y-4">
+      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">خودروی خود را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">نوع خودروی خود را انتخاب کنید.</p></div></div></CardBody></Card>
+      <div className="space-y-3">
+        {[
+          ['تریلی',Truck,'تریلی'],
+          ['جفت',Truck,'جفت'],
+          ['تک',Truck,'تک'],
+          ['کامیونت',Truck,'کامیونت'],
+          ['نیسان و وانت',CarFront,'نیسان و وانت'],
+        ].map(([label,Icon,value])=><button key={String(label)} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:String(value)}));go('vehicle-loader');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+          <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><Icon className="w-6 h-6 text-gray-900"/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
+        </button>)}
+      </div>
+    </div>;
+    if (page==='vehicle-loader') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع بارگیر و ویژگی بارگیر</h2><p className="text-xs text-gray-400 mt-1">اطلاعات بارگیر خود را انتخاب کنید.</p></div></div></CardBody></Card>;
     if (page==='account') return <Card><CardBody className="p-5 space-y-1">
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || accountName || 'ثبت نشده'}</b></div>
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
