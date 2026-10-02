@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'vehicle-loader' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -1285,12 +1285,20 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='vehicle') return <div className="space-y-4">
       <Card><CardBody className="p-5"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">خودروی خود را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">نوع خودروی خود را انتخاب کنید.</p></div></div></CardBody></Card>
       <div className="space-y-3">
-        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label}));go('vehicle-loader');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label}));if(label==='تریلی'){go('trailer-select');}else{go('vehicle-loader');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><VehicleIcon type={label}/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
     </div>;
-    if (page==='vehicle-loader') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع بارگیر و ویژگی بارگیر</h2><p className="text-xs text-gray-400 mt-1">اطلاعات بارگیر خود را انتخاب کنید.</p></div></div></CardBody></Card>;
+    if (page==='trailer-select') return <div className="space-y-4">
+      <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">نوع تریلی را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">نوع بارگیر تریلی خود را انتخاب کنید.</p></div></div></CardBody></Card>
+      <div className="space-y-3">
+        {(['چادری','بغلدار','تیغه','کفی','کمپرسی','تانکر','یخچالی']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'تریلی'}));if(label==='چادری'||label==='بغلدار'||label==='کفی'){go('vehicle-loader');}else{go('vehicle');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+          <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
+        </button>)}
+      </div>
+    </div>;
+    if (page==='vehicle-loader') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">ویژگی بارگیر</h2><p className="text-xs text-gray-400 mt-1">ویژگی‌های بارگیر تریلی را انتخاب کنید.</p></div></div></CardBody></Card>;
     if (page==='account') return <Card><CardBody className="p-5 space-y-1">
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || accountName || 'ثبت نشده'}</b></div>
       <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
@@ -1347,7 +1355,7 @@ const ProfilePage = () => <div className="space-y-3">
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='search'){goHome();}else{window.history.back();}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='trailer-select' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
