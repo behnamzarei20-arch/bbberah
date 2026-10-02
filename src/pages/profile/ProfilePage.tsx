@@ -6,7 +6,9 @@ type Props={onBack:()=>void}; type Section='home'|'user'|'vehicle'|'wallet'|'ide
 const VEHICLES=['تریلی','جفت','تک','کامیونت و خاور','وانت و نیسان']; const BODIES=['روباز','مسقف','یخچال','کمپرسی']; const BODY_FEATURES=['بغل بازشو','معمولی','چادری','فلزی']; const LETTERS=['الف','ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
 const en=(v:string)=>v.replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))); const fa=(v:string)=>v.replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]||d);
 function loadVehicle(id?:string){try{return JSON.parse(localStorage.getItem(`bbberah-fleet-${id}`)||'null')||{vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'',p2:'',iran:''}}catch{return{vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'',p2:'',iran:''}}}
-export function ProfilePage({onBack}:Props){
+export const en = (s: string) => s.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+
+function ProfilePage({onBack}:Props){
  const{profile,signOut}=useAuth(); const[section,setSection]=useState<Section>('home'); const[vehicleStep,setVehicleStep]=useState<VehicleStep>('type'); const[theme,setTheme]=useState<'system'|'light'|'dark'>(()=>(localStorage.getItem('bbberah-theme') as any)||'system'); const[vehicle,setVehicle]=useState(()=>loadVehicle(profile?.id)); const[saved,setSaved]=useState(''); const[letterOpen,setLetterOpen]=useState(false); const p1Ref=useRef<HTMLInputElement>(null); const letterRef=useRef<HTMLButtonElement>(null); const p2Ref=useRef<HTMLInputElement>(null); const iranRef=useRef<HTMLInputElement>(null); const saveRef=useRef<HTMLButtonElement>(null); const isDriver=profile?.role==='driver'; const roleLabel=isDriver?'راننده':profile?.role==='carrier'?'باربری':'صاحب بار';
  useEffect(()=>{document.documentElement.classList.toggle('dark',theme==='dark');localStorage.setItem('bbberah-theme',theme)},[theme]);
  const saveVehicle=()=>{localStorage.setItem(`bbberah-fleet-${profile?.id}`,JSON.stringify(vehicle));setSaved('مشخصات خودرو ذخیره شد.');setTimeout(()=>setSaved(''),2200)};
