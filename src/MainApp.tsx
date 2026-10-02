@@ -570,7 +570,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         </div>
       </div>
     </div>;
- = () => {
+  const SearchPage = () => {
     const runSearch = () => {
       const allDestinationsMode = destinationText === 'همه شهرها';
       if (!originText || (!destinationText && !allDestinationsMode)) return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
