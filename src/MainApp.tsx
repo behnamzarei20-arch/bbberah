@@ -150,8 +150,6 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
-  const [homeMenuIndex, setHomeMenuIndex] = useState(0);
-  const homeMenuWheelLock = useRef(false);
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads]);
   const [selected, setSelected] = useState<Load|null>(null);
   const [origin, setOrigin] = useState('');
@@ -502,73 +500,23 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    const homeMenuItems = [
-      { icon: Search, title:'جستجوی بار', subtitle:'مبدأ و مقصد را انتخاب کنید', action:openSearchPage },
-      { icon: Navigation, title:'اطراف من', subtitle:'بارهای نزدیک را ببین', action:()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')} },
-      { icon: ReceiptText, title:'پیشنهادهای من', subtitle:'پیشنهادهای ارسال‌شده را پیگیری کن', action:()=>go('offers') },
-      { icon: PhoneCall, title:'تماس‌ها و وضعیت‌ها', subtitle:'سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها', action:()=>go('calls') },
-    ];
-    const rotateHomeMenu = (direction:number) => {
-      setHomeMenuIndex(v => (v + direction + homeMenuItems.length) % homeMenuItems.length);
-    };
-    const rotateHomeMenuSmooth = (direction:number) => {
-      if (homeMenuWheelLock.current) return;
-      homeMenuWheelLock.current = true;
-      rotateHomeMenu(direction);
-      window.setTimeout(() => { homeMenuWheelLock.current = false; }, 520);
-    };
-    return <div className="w-full">
-      <div
-        className="relative h-[31rem] overflow-hidden touch-pan-y select-none"
-        style={{perspective:'1100px'}}
-        onWheel={(e)=>{if(Math.abs(e.deltaY)>12) rotateHomeMenuSmooth(e.deltaY>0?1:-1);}}
-        onTouchStart={e=>{(e.currentTarget as HTMLElement).dataset.startY=String(e.touches[0].clientY)}}
-        onTouchEnd={e=>{
-          const el=e.currentTarget as HTMLElement;
-          const startY=Number(el.dataset.startY||0);
-          const delta=startY-e.changedTouches[0].clientY;
-          if(Math.abs(delta)>35) rotateHomeMenuSmooth(delta>0?1:-1);
-          delete el.dataset.startY;
-        }}
-      >
-        <div className="absolute inset-x-0 top-1/2 h-[27rem] -translate-y-1/2" style={{transformStyle:'preserve-3d'}}>
-          {[-2,-1,0,1,2].map((offset)=>{
-            const index=(homeMenuIndex+offset+homeMenuItems.length*10)%homeMenuItems.length;
-            const item=homeMenuItems[index];
-            const Icon=item.icon;
-            const center=offset===0;
-            const distance=Math.abs(offset);
-            const translateY=offset*9.2;
-            const rotateX=offset===0?0:(offset<0?22:-22);
-            const scale=center?1:distance===1?0.82:0.68;
-            const opacity=center?1:distance===1?0.72:0.28;
-            const z=center?30:distance===1?20:10;
-            return <button
-              key={offset}
-              type="button"
-              onClick={center?item.action:()=>rotateHomeMenuSmooth(offset<0?-1:1)}
-              className="absolute left-1/2 top-1/2 w-[94%] -translate-x-1/2 -translate-y-1/2 transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(.22,.61,.36,1)]"
-              style={{
-                transform:`translate(-50%, calc(-50% + ${translateY}rem)) rotateX(${rotateX}deg) scale(${scale})`,
-                opacity,
-                zIndex:z,
-                filter:center?'none':'saturate(.82)',
-                transformStyle:'preserve-3d',
-                pointerEvents:distance<=1?'auto':'none'
-              }}
-              aria-hidden={!center && distance>1}
-            >
-              <div className="relative h-[7.6rem] w-full rounded-[1.6rem] bg-white border-2 border-black px-6 py-4 text-right flex items-center shadow-[0_10px_28px_rgba(0,0,0,0.16)]">
-                <Icon className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-                <div className="w-full pr-12">
-                  <b className="block text-2xl font-black text-gray-950 leading-9">{item.title}</b>
-                  <span className="block mt-1 text-sm font-bold text-gray-500">{item.subtitle}</span>
-                </div>
-              </div>
-            </button>;
-          })}
-        </div>
-      </div>
+    return <div className="grid grid-cols-2 gap-3 w-full">
+      <button onClick={openSearchPage} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">جستجوی بار</b><span className="block mt-1 text-xs font-bold text-gray-500">مبدأ و مقصد را انتخاب کنید</span></div>
+      </button>
+      <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">اطراف من</b><span className="block mt-1 text-xs font-bold text-gray-500">بارهای نزدیک را ببین</span></div>
+      </button>
+      <button onClick={()=>go('offers')} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">پیشنهادهای من</b><span className="block mt-1 text-xs font-bold text-gray-500">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
+      </button>
+      <button type="button" onClick={()=>go('calls')} className="relative aspect-square w-full rounded-2xl bg-white border border-gray-100 p-4 text-right flex flex-col items-start justify-end shadow-sm">
+        <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div><b className="block text-base font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="block mt-1 text-xs font-bold text-gray-500">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></div>
+      </button>
     </div>;
   };
 
