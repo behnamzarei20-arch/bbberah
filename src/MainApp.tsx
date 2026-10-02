@@ -22,6 +22,8 @@ type Load = {
   distance: number; routeDistance: number; description: string; phone: string;
 };
 
+type GeoPoint = { lat:number; lon:number };
+
 const seedLoads: Load[] = [
   { id:'l1', title:'بار خشک تهران به مشهد', from:'تهران', to:'مشهد', type:'بار خشک', vehicle:'تریلی', weight:18000, price:24500000, pickup:'امروز، ۱۴:۳۰', delivery:'فردا، ۱۰:۰۰', status:'open', distance:18, routeDistance:897, description:'بار خشک بسته‌بندی‌شده؛ بارگیری در محل اعلام‌شده و تحویل طبق زمان‌بندی.', phone:'09120000001' },
   { id:'l2', title:'مواد غذایی کرج به اصفهان', from:'کرج', to:'اصفهان', type:'مواد غذایی', vehicle:'کامیون', weight:9000, price:12800000, pickup:'فردا، ۰۸:۰۰', delivery:'فردا، ۲۰:۰۰', status:'open', distance:42, routeDistance:435, description:'مواد غذایی بسته‌بندی‌شده؛ نیازمند حمل مناسب و تحویل در بازه تعیین‌شده.', phone:'09120000002' },
@@ -167,6 +169,8 @@ export function MainApp() {
   const [nearbyDestinationText, setNearbyDestinationText] = useState('');
   const [nearbyDestinationProvince, setNearbyDestinationProvince] = useState('');
   const [nearbyDestinationCounty, setNearbyDestinationCounty] = useState('');
+  const [nearbyUserLocation, setNearbyUserLocation] = useState<GeoPoint | null>(null);
+  const [nearbyLocationStatus, setNearbyLocationStatus] = useState<'idle'|'locating'|'ready'|'denied'>('idle');
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
   const [showMenu, setShowMenu] = useState(false);
@@ -351,11 +355,33 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return { provinceId:String(province.id), countyId:String(county.id) };
     return null;
   };
+  const cityCoordinates:Record<string,GeoPoint> = {
+    'تهران':{lat:35.6892,lon:51.3890}, 'کرج':{lat:35.8400,lon:50.9391}, 'تبریز':{lat:38.0962,lon:46.2738},
+    'قم':{lat:34.6416,lon:50.8746}, 'رشت':{lat:37.2808,lon:49.5832}, 'مشهد':{lat:36.2605,lon:59.6168},
+    'اصفهان':{lat:32.6546,lon:51.6680}, 'شیراز':{lat:29.5918,lon:52.5837}, 'قزوین':{lat:36.2688,lon:50.0041},
+    'اهواز':{lat:31.3183,lon:48.6706}, 'ساری':{lat:36.5659,lon:53.0588}, 'بندرعباس':{lat:27.1832,lon:56.2666},
+    'قائمشهر':{lat:36.4638,lon:52.8615}, 'قائم شهر':{lat:36.4638,lon:52.8615}, 'شهر صنعتی البرز':{lat:36.2828,lon:50.0175}
+  };
+  const distanceKm = (a:GeoPoint,b:GeoPoint) => {
+    const rad = (v:number) => v * Math.PI / 180;
+    const dLat = rad(b.lat-a.lat), dLon = rad(b.lon-a.lon);
+    const h = Math.sin(dLat/2)**2 + Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;
+    return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1-h));
+  };
+  const requestNearbyLocation = () => {
+    if (!navigator.geolocation) { setNearbyLocationStatus('denied'); return; }
+    setNearbyLocationStatus('locating');
+    navigator.geolocation.getCurrentPosition(
+      pos => { setNearbyUserLocation({lat:pos.coords.latitude,lon:pos.coords.longitude}); setNearbyLocationStatus('ready'); },
+      () => { setNearbyUserLocation(null); setNearbyLocationStatus('denied'); },
+      { enableHighAccuracy:true, timeout:10000, maximumAge:30000 }
+    );
+  };
   const filtered = useMemo(() => loads.filter(l => {
     if (l.status === 'delivered') return false;
     const ol = findCityLocation(l.from), dl = findCityLocation(l.to);
     const originMatch = origin === '__nearby__'
-      ? l.distance <= 50
+      ? !!nearbyUserLocation && !!cityCoordinates[l.from] && distanceKm(nearbyUserLocation, cityCoordinates[l.from]) <= 50
       : origin
         ? l.from === origin
         : !originProvince
@@ -371,7 +397,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
           ? true
           : !!dl && dl.provinceId === destinationProvince && (!destinationCounty || dl.countyId === destinationCounty);
     return originMatch && destinationMatch;
-  }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty]);
+  }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty, nearbyUserLocation]);
   const title:Record<Page,string> = {
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
     account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
@@ -539,7 +565,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 10s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span></span></span></div>
       </button>
-      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('nearby-destination-select')})} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 8s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span></span></span></div>
       </button>
@@ -556,7 +582,9 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
 
   const NearbyResultsPage = () => {
     const nearbyFiltered = loads.filter(l => {
-      if (l.status === 'delivered' || l.distance > 50) return false;
+      if (l.status === 'delivered') return false;
+      if (nearbyLocationStatus !== 'ready' || !nearbyUserLocation || !cityCoordinates[l.from]) return false;
+      if (distanceKm(nearbyUserLocation, cityCoordinates[l.from]) > 50) return false;
       if (nearbyDestination === '__all__') return true;
       const dl = findCityLocation(l.to);
       if (nearbyDestination === '__province__') return !!dl && dl.provinceId === nearbyDestinationProvince;
@@ -755,6 +783,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       setOriginCounty('');
       setOrigin('__nearby__');
       setOriginText('اطراف من');
+      requestNearbyLocation();
       setSearchSubmitted(false);
       go('destination-select');
     };
