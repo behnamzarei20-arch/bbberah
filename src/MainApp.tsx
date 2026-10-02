@@ -342,7 +342,13 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
           setNearbyDestinationCounty('');
         }
         if (next === 'search') {
-          setSearchSubmitted(historyState?.bbberahSearchResults === true);
+          const returningToResults = historyState?.bbberahSearchResults === true;
+          setSearchSubmitted(returningToResults);
+          if (!returningToResults) {
+            setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
+            setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');
+            setFrequentRoute(null);
+          }
         }
         setPage(next);
         setShowMenu(false);
@@ -636,11 +642,8 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       if (!originText || (!destinationText && !allDestinationsMode)) return notify('لطفاً مبدأ/مقصد را انتخاب کن.');
       if (!origin) setOrigin(originText);
       if (!destination && destinationText && !allDestinationsMode) setDestination(destinationText);
-      // Keep a dedicated history step for the search-selection view, then for results.
-      // This makes browser/device Back return to the selection cards without losing fields.
-      // Keep the previous history entry as Home so device/browser Back from results
-      // never re-enters the old city-selection screen.
-      window.history.replaceState({ bbberahPage: 'home' }, '', '#home');
+      // Keep the current search-selection entry, then add one history step for results.
+      // Back from results returns to the empty search-selection page; the next Back goes Home.
       window.history.pushState({ bbberahPage: 'search', bbberahSearchResults: true }, '', '#search-results');
       setSearchSubmitted(true);
     };
