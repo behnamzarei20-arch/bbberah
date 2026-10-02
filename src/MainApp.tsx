@@ -546,7 +546,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
     <div className="max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
       <button className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" onClick={()=>setShowMenu(true)} aria-label="منو"><Menu className="w-5 h-5"/></button>
-      <button onClick={()=>go('home')} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
+      <button onClick={()=>goHome()} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
       <button onClick={()=>{setNotifications(0);go('notifications')}} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها"><Bell className="w-5 h-5"/>{notifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(notifications)}</span>}</button>
     </div>
   </header>;
@@ -882,7 +882,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-3 mb-4">
-          <button type="button" onClick={()=>{setDestination('');setDestinationText('');setDestinationProvince('');setDestinationCounty('');setSearchSubmitted(false);go('home');}} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <button type="button" onClick={()=>{setDestination('');setDestinationText('');setDestinationProvince('');setDestinationCounty('');setSearchSubmitted(false);goHome();}} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
           <div><h2 className="font-black text-lg">همه شهرها</h2><p className="text-xs text-gray-400 mt-1">{fa(iranLocations.length)} استان و {fa(totalCities)} شهر ایران</p></div>
         </div>
         <div className="relative">
@@ -1104,7 +1104,7 @@ const ProfilePage = () => <div className="space-y-3">
       if (!selectedReports.length && !reportText.trim()) return notify('لطفاً حداقل یک مورد را انتخاب یا توضیحات بیشتری وارد کنید.');
       setReportedLoadIds(prev => prev.includes(reportLoad.id) ? prev : [...prev, reportLoad.id]);
       notify('گزارش تخلف با موفقیت ثبت شد و برای بررسی ارسال گردید.');
-      go('home');
+      goHome();
     };
     return <div className="space-y-4">
       <Card><CardBody className="p-5">
@@ -1134,7 +1134,7 @@ const ProfilePage = () => <div className="space-y-3">
         saveContactResult(selected.id, 'agreed');
         setAgreedFollowupLoadId(selected.id);
         notify('توافق ثبت شد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
-        go('home');
+        goHome();
         return;
       }
       if (contactReport === 'declined') {
@@ -1144,13 +1144,13 @@ const ProfilePage = () => <div className="space-y-3">
         saveContactResult(selected.id, 'declined');
         setPendingContactLoadId(null);
         notify(nextCount >= 2 ? 'این بار دو بار بدون توافق ثبت شد؛ انتخاب دوباره این گزینه برای همین بار بسته شد.' : 'عدم توافق ثبت شد.');
-        go('home');
+        goHome();
         return;
       }
       setPendingContactLoadId(selected.id);
       saveContactResult(selected.id, 'uncertain');
       notify('این بار در وضعیت «مشخص نیست» باقی ماند و یادآوری آن در برنامه نمایش داده می‌شود.');
-      go('home');
+      goHome();
     };
     const options = [
       ['agreed','توافق کردیم','bg-emerald-50 border-emerald-200 text-emerald-800'],
@@ -1206,7 +1206,7 @@ const ProfilePage = () => <div className="space-y-3">
           {item.status==='agreed' && !shipmentResult && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
           {item.status==='agreed' && !shipmentResult && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
             <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" onClick={()=>{setSelected(load);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
-            <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);go('home');}}>از حمل بار منصرف شدم</Button>
+            <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);goHome();}}>از حمل بار منصرف شدم</Button>
           </div>}
           {item.status!=='uncertain' && <div className="grid grid-cols-1 gap-2 mt-3">
             <Button size="sm" className="w-full" variant="outline" onClick={()=>{setSelected(load);go('cargo-detail');}}>مشاهده جزئیات بار</Button>
@@ -1347,7 +1347,7 @@ const ProfilePage = () => <div className="space-y-3">
           {shipmentRewardSummary.discount > 0 && <div className="flex items-center justify-between rounded-xl bg-emerald-50 p-3"><span className="text-gray-500">تخفیف</span><b className="text-emerald-700">{money(shipmentRewardSummary.discount)} تومان</b></div>}
           <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">موجودی باقی‌مانده کیف پول</span><b>{money(shipmentRewardSummary.walletAfter)} تومان</b></div>
         </div>
-        <Button className="w-full mt-5" onClick={()=>{setShipmentRewardSummary(null);go('home');}}>باشه</Button>
+        <Button className="w-full mt-5" onClick={()=>{setShipmentRewardSummary(null);goHome();}}>باشه</Button>
       </div>
     </div>}
     {confirmAction && <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl"><h3 className="font-black text-lg">تأیید عملیات</h3><p className="text-sm text-gray-500 mt-2">{confirmAction==='cancel-offer'?'آیا می‌خواهید پیشنهاد انتخاب‌شده لغو شود؟':'آیا می‌خواهید این بار لغو شود؟ این عملیات در نسخه آزمایشی فقط وضعیت رابط را تغییر می‌دهد.'}</p><div className="grid grid-cols-2 gap-2 mt-5"><Button variant="outline" onClick={()=>setConfirmAction(null)}>انصراف</Button><Button onClick={()=>{setConfirmAction(null);setActionBusy(true);setTimeout(()=>{setActionBusy(false);notify('پیشنهاد لغو شد.');},500)}}>{actionBusy?'در حال انجام...':'تأیید'}</Button></div></div></div>}
