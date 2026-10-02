@@ -364,6 +364,12 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     setShowMenu(false);
     window.scrollTo({top:0,behavior:'smooth'});
   };
+  const replacePage = (p:Page) => {
+    window.history.replaceState({ bbberahPage: p }, '', '#' + p);
+    setPage(p);
+    setShowMenu(false);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
   const resetSearchFields = () => {
     setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
     setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');
@@ -632,7 +638,9 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       if (!destination && destinationText && !allDestinationsMode) setDestination(destinationText);
       // Keep a dedicated history step for the search-selection view, then for results.
       // This makes browser/device Back return to the selection cards without losing fields.
-      window.history.replaceState({ bbberahPage: 'search', bbberahSearchSelection: true }, '', '#search');
+      // Keep the previous history entry as Home so device/browser Back from results
+      // never re-enters the old city-selection screen.
+      window.history.replaceState({ bbberahPage: 'home' }, '', '#home');
       window.history.pushState({ bbberahPage: 'search', bbberahSearchResults: true }, '', '#search-results');
       setSearchSubmitted(true);
     };
@@ -743,7 +751,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setQuery(''); setCityLimit(120); go('nearby-results');
       } else {
         setDestinationProvince(''); setDestinationCounty(''); setDestination('__all__'); setDestinationText('همه شهرها');
-        setQuery(''); setCityLimit(120); setSearchSubmitted(false); go('search', true);
+        setQuery(''); setCityLimit(120); setSearchSubmitted(false); replacePage('search');
       }
     };
     const chooseProvince = (id:string) => {
@@ -755,7 +763,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setOrigin('');
         setOriginText(province?.name || '');
         setSearchSubmitted(false);
-        go('search', true);
+        replacePage('search');
       } else if (isNearby) {
         setNearbyDestinationProvince(id);
         setNearbyDestinationCounty('');
@@ -768,7 +776,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setDestination('__province__');
         setDestinationText(province?.name || '');
         setSearchSubmitted(false);
-        go('search', true);
+        replacePage('search');
       }
     };
     const chooseCounty = (provinceId:string, countyId:string) => {
@@ -784,7 +792,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setOrigin(city);
         setOriginText(city);
         setSearchSubmitted(false);
-        go('search', true);
+        replacePage('search');
       } else if (isNearby) {
         setNearbyDestinationProvince(provinceIdForCity || '');
         setNearbyDestinationCounty(countyId);
@@ -858,7 +866,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     const matches = (value:string) => !normalized || normalizeSearch(value).includes(normalized);
     const chooseCity = (city:string, countyId:string, provinceId:string) => {
       setDestinationProvince(provinceId); setDestinationCounty(countyId);
-      setDestination(city); setDestinationText(city); setSearchSubmitted(true); go('search', true);
+      setDestination(city); setDestinationText(city); setSearchSubmitted(false); replacePage('search');
     };
     const totalCities = iranLocations.reduce((sum,p)=>sum+p.counties.reduce((n,c)=>n+c.cities.length,0),0);
     return <div className="space-y-4">
