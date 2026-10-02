@@ -488,8 +488,8 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
 
   const animateHomeCard = (id:string, action:()=>void) => {
     if (pressedHomeCard) return;
-    setPressedHomeCard(id);
-    window.setTimeout(() => { setPressedHomeCard(null); action(); }, 150);
+    setPressedHomeCard(id); navigator.vibrate?.(18);
+    window.setTimeout(() => { setPressedHomeCard(null); action(); }, 320);
   };
 
   const HomePage = () => {
