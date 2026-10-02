@@ -809,7 +809,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         setQuery('');
         setCityLimit(120);
         setSearchSubmitted(false);
-        go('search', true);
+        replacePage('search');
       }
     };
     const chooseNearby = () => {
@@ -820,13 +820,13 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       setOriginText('اطراف من');
       requestNearbyLocation();
       setSearchSubmitted(false);
-      go('search', true);
+      replacePage('search');
     };
 
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-3 mb-4">
-          <button type="button" onClick={()=>{ if (isOrigin) { go('search'); } else if (isNearby) { setNearbyDestination(''); setNearbyDestinationText(''); setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); go('home'); } else { setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty(''); go('home'); } }} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <button type="button" onClick={()=>{ if (isOrigin) { go('search'); } else if (isNearby) { setNearbyDestination(''); setNearbyDestinationText(''); setNearbyDestinationProvince(''); setNearbyDestinationCounty(''); go('home'); } else { setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty(''); go('search'); } }} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
           <div><h2 className="font-black text-lg">{isOrigin ? 'مبدأ را انتخاب کنید' : 'مقصد را انتخاب کنید'}</h2></div>
         </div>
         <div className="relative">
@@ -1323,7 +1323,7 @@ const ProfilePage = () => <div className="space-y-3">
           // Search results Back should return directly to the home screen.
           resetSearchFields();
           go('home');
-        } else if(page==='origin-select'){go('search');} else if(page==='destination-select' || page==='destination-all' || page==='frequent-route'){go('home');} else if(page==='nearby-destination-select'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('home');} else if(page==='nearby-results'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('nearby-destination-select');} else if(page==='contact-report'){go('cargo-detail');} else if(page==='report'){go('calls');} else {go('home');}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+        } else if(page==='origin-select'){go('search');} else if(page==='destination-select'){go('search');} else if(page==='destination-all' || page==='frequent-route'){go('home');} else if(page==='nearby-destination-select'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('home');} else if(page==='nearby-results'){setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');go('nearby-destination-select');} else if(page==='contact-report'){go('cargo-detail');} else if(page==='report'){go('calls');} else {go('home');}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
