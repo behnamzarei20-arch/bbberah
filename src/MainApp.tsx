@@ -352,8 +352,10 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
           : !!ol && ol.provinceId === originProvince && (!originCounty || ol.countyId === originCounty);
     const destinationMatch = destination === '__all__'
       ? true
-      : destination
-        ? l.to === destination
+      : destination === '__province__'
+        ? !!dl && dl.provinceId === destinationProvince
+        : destination
+          ? l.to === destination
         : !destinationProvince
           ? true
           : !!dl && dl.provinceId === destinationProvince && (!destinationCounty || dl.countyId === destinationCounty);
@@ -656,10 +658,17 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     const chooseProvince = (id:string) => {
       const province = iranLocations.find(p => String(p.id) === id);
       setProvince(id); setCounty(''); setCity(''); setText(province?.name || ''); setQuery(''); setCityLimit(120);
-      setDestinationProvince(id);
-      setDestinationCounty('');
-      setDestination('__province__');
-      setDestinationText(province?.name || '');
+      if (isOrigin) {
+        setOriginProvince(id);
+        setOriginCounty('');
+        setOrigin('');
+        setOriginText(province?.name || '');
+      } else {
+        setDestinationProvince(id);
+        setDestinationCounty('');
+        setDestination('__province__');
+        setDestinationText(province?.name || '');
+      }
       setSearchSubmitted(true);
       go('search', true);
     };
