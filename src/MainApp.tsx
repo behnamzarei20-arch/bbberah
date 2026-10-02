@@ -841,7 +841,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-          <input value={query} onChange={e=>{const value=e.target.value; setQuery(value); if(isNearby){ const q=normalizeSearch(value).replace(/^شهرستان/,''); if(q){ const exactProvince=iranLocations.find(p=>normalizeSearch(p.name)===q); if(exactProvince){ chooseProvince(String(exactProvince.id)); return; } const exactCity=allDestinationCities.find(x=>normalizeSearch(x.city)===q); if(exactCity){ chooseCity(exactCity.city, exactCity.countyId); return; } } }}} placeholder={isOrigin ? 'مثال تهران' : 'مثال یزد'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
+          <input value={query} onChange={e=>{const value=e.target.value; setQuery(value); if(isNearby){ const q=normalizeSearch(value).replace(/^شهرستان/,''); if(q){ const exactProvince=iranLocations.find(p=>normalizeSearch(p.name)===q); if(exactProvince){ chooseProvince(String(exactProvince.id)); return; } const exactCity=allDestinationCities.find(x=>normalizeSearch(x.city)===q); if(exactCity){ chooseCity(exactCity.city, exactCity.countyId); return; } } }}} placeholder={isOrigin ? 'مثال تهران' : 'مثال یزد'} className="w-full rounded-2xl border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
         </div>
         {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
           <Navigation className="w-5 h-5" />
@@ -887,7 +887,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-2xl border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
         </div>
         <div className="mt-5 space-y-3 max-h-[68vh] overflow-auto">
           {iranLocations.map(province => {
