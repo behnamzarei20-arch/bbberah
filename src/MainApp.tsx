@@ -59,6 +59,15 @@ const cityProvinceName = (city:string) => {
   return '';
 };
 
+function VehicleIcon({ type }: { type: string }) {
+  const common = { width: 28, height: 28, viewBox: '0 0 64 40', fill: 'none', stroke: 'currentColor', strokeWidth: 3, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  if (type === 'تریلی') return <svg {...common} aria-hidden="true"><path d="M3 27V12h20v15M23 27h7V18h10l6 9h15v4H3v-4"/><path d="M40 18V12h10l6 9"/><circle cx="13" cy="31" r="4"/><circle cx="35" cy="31" r="4"/><circle cx="54" cy="31" r="4"/><path d="M27 27h4"/></svg>;
+  if (type === 'جفت') return <svg {...common} aria-hidden="true"><path d="M3 28V11h22v17h8V18h10l7 10h11v4H3v-4"/><circle cx="12" cy="32" r="4"/><circle cx="37" cy="32" r="4"/><circle cx="53" cy="32" r="4"/><path d="M25 28h8"/></svg>;
+  if (type === 'تک') return <svg {...common} aria-hidden="true"><path d="M3 28V11h22v17h8V18h10l7 10h8v4H3v-4"/><circle cx="12" cy="32" r="4"/><circle cx="37" cy="32" r="4"/><path d="M25 28h8"/></svg>;
+  if (type === 'کامیونت') return <svg {...common} aria-hidden="true"><path d="M5 28V10h25v18h7V17h10l7 11h5v4H5v-4"/><circle cx="15" cy="32" r="4"/><circle cx="42" cy="32" r="4"/><path d="M30 28h7"/></svg>;
+  return <svg {...common} aria-hidden="true"><path d="M5 27V15h25v12h6v-7h10l8 7h5v4H5v-4"/><path d="M37 20h8l5 7"/><circle cx="14" cy="31" r="4"/><circle cx="45" cy="31" r="4"/><path d="M30 27h6"/></svg>;
+}
+
 function Status({ status }: { status: LoadStatus }) {
   const map = {
     open: ['آماده بارگیری', 'bg-emerald-50 text-emerald-700'],
@@ -1276,14 +1285,8 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='vehicle') return <div className="space-y-4">
       <Card><CardBody className="p-5"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><h2 className="font-black text-lg">خودروی خود را انتخاب کنید</h2><p className="text-xs text-gray-400 mt-1">نوع خودروی خود را انتخاب کنید.</p></div></div></CardBody></Card>
       <div className="space-y-3">
-        {( [
-          ['تریلی',Container,'تریلی'],
-          ['جفت',Truck,'جفت'],
-          ['تک',Truck,'تک'],
-          ['کامیونت',BusFront,'کامیونت'],
-          ['نیسان و وانت',CarFront,'نیسان و وانت'],
-        ] as [string, typeof Container, string][]).map(([label,Icon,value])=><button key={String(label)} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:String(value)}));go('vehicle-loader');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
-          <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">{createElement(Icon as any,{className:"w-6 h-6 text-gray-900"})}</span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
+        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label}));go('vehicle-loader');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+          <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><VehicleIcon type={label}/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
     </div>;
