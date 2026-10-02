@@ -150,6 +150,7 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
+  const [homeMenuIndex, setHomeMenuIndex] = useState(0);
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads]);
   const [selected, setSelected] = useState<Load|null>(null);
   const [origin, setOrigin] = useState('');
@@ -500,23 +501,43 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <div className="grid grid-cols-2 gap-3 w-full">
-      <button onClick={openSearchPage} className="relative aspect-square w-full rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
-        <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="block mt-2 text-sm font-bold text-gray-500">مبدأ و مقصد را انتخاب کنید</span></div>
-      </button>
-      <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="relative aspect-square w-full rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
-        <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="block mt-2 text-sm font-bold text-gray-500">بارهای نزدیک را ببین</span></div>
-      </button>
-      <button onClick={()=>go('offers')} className="relative aspect-square w-full rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
-        <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">پیشنهادهای من</b><span className="block mt-2 text-sm font-bold text-gray-500">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
-      </button>
-      <button type="button" onClick={()=>go('calls')} className="relative aspect-square w-full rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
-        <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="block mt-2 text-sm font-bold text-gray-500">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></div>
-      </button>
+    const homeMenuItems = [
+      { icon: Search, title:'جستجوی بار', subtitle:'مبدأ و مقصد را انتخاب کنید', action:openSearchPage },
+      { icon: Navigation, title:'اطراف من', subtitle:'بارهای نزدیک را ببین', action:()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')} },
+      { icon: ReceiptText, title:'پیشنهادهای من', subtitle:'پیشنهادهای ارسال‌شده را پیگیری کن', action:()=>go('offers') },
+      { icon: PhoneCall, title:'تماس‌ها و وضعیت‌ها', subtitle:'سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها', action:()=>go('calls') },
+    ];
+    const rotateHomeMenu = (direction:number) => {
+      setHomeMenuIndex(v => (v + direction + homeMenuItems.length) % homeMenuItems.length);
+    };
+    return <div className="w-full">
+      <div className="relative h-[27rem] overflow-hidden touch-pan-y select-none" onWheel={(e)=>{if(Math.abs(e.deltaY)>18){rotateHomeMenu(e.deltaY>0?1:-1);}}} onTouchStart={e=>{(e.currentTarget as HTMLElement).dataset.startY=String(e.touches[0].clientY)}} onTouchEnd={e=>{const el=e.currentTarget as HTMLElement;const startY=Number(el.dataset.startY||0);const delta=startY-e.changedTouches[0].clientY;if(Math.abs(delta)>45) rotateHomeMenu(delta>0?1:-1);delete el.dataset.startY;}}>
+        <div className="absolute inset-x-0 top-1/2 h-[15.5rem] -translate-y-1/2">
+          {homeMenuItems.map((item,index)=>{
+            let delta=(index-homeMenuIndex+homeMenuItems.length)%homeMenuItems.length;
+            if(delta>homeMenuItems.length/2) delta-=homeMenuItems.length;
+            const Icon=item.icon;
+            const isCenter=delta===0;
+            const visible=Math.abs(delta)<=1;
+            const translate=delta*10.8;
+            const scale=isCenter?1:0.76;
+            const opacity=isCenter?1:0.52;
+            return <button key={item.title} type="button" onClick={item.action} className="absolute left-1/2 top-1/2 w-[86%] -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out" style={{transform:`translate(-50%, calc(-50% + ${translate}rem)) scale(${scale})`,opacity,zIndex:isCenter?20:10,filter:isCenter?'none':'blur(0.15px)',pointerEvents:visible?'auto':'none'}} aria-hidden={!visible}>
+              <div className="relative h-[15rem] w-full rounded-3xl bg-white border-2 border-black p-5 text-center flex flex-col items-center justify-center shadow-[0_7px_22px_rgba(0,0,0,0.13)]">
+                <Icon className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+                <div className="w-full text-center"><b className="block text-2xl font-black text-gray-950">{item.title}</b><span className="block mt-2 text-sm font-bold text-gray-500">{item.subtitle}</span></div>
+              </div>
+            </button>;
+          })}
+        </div>
+      </div>
+      <div className="flex items-center justify-center gap-3 mt-1" dir="ltr">
+        <button type="button" onClick={()=>rotateHomeMenu(-1)} aria-label="کادر قبلی" className="w-11 h-11 rounded-full border-2 border-black bg-white font-black text-xl shadow-sm">↑</button>
+        <div className="flex items-center gap-1.5" aria-label="موقعیت کادر">
+          {homeMenuItems.map((_,i)=><button key={i} type="button" onClick={()=>setHomeMenuIndex(i)} aria-label={`کادر ${i+1}`} className={`w-2.5 h-2.5 rounded-full transition-all ${i===homeMenuIndex?'bg-primary-600 scale-125':'bg-gray-300'}`}/>)}
+        </div>
+        <button type="button" onClick={()=>rotateHomeMenu(1)} aria-label="کادر بعدی" className="w-11 h-11 rounded-full border-2 border-black bg-white font-black text-xl shadow-sm">↓</button>
+      </div>
     </div>;
   };
 
