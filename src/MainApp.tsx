@@ -314,7 +314,12 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
-  const go = (p:Page) => {
+  const go = (p:Page, preserveSearch=false) => {
+    if (p === 'search' && !preserveSearch) {
+      setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
+      setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');
+      setFrequentRoute(null); setSearchSubmitted(false);
+    }
     if (p === page) { setShowMenu(false); return; }
     window.history.pushState({ bbberahPage: p }, '', '#' + p);
     setPage(p);
