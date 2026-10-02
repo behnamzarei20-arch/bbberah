@@ -512,13 +512,13 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         <div><b className="block text-base text-white">اطراف من</b><span className="block mt-1 text-xs text-white/90">بارهای نزدیک را ببین</span></div>
       </button>
     </div>
-    <div className="grid grid-cols-2 gap-3 w-full">
-      <button onClick={()=>go('offers')} className="w-full min-h-[92px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
-        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
+    <div className="grid grid-cols-2 gapx-3 py-2 w-full">
+      <button onClick={()=>go('offers')} className="w-full min-h-[76px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
+        <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
         <div><b className="block text-sm text-white">پیشنهادهای من</b><span className="block mt-0.5 text-[11px] text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
       </button>
-      <button type="button" onClick={()=>go('calls')} className="w-full min-h-[92px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
-        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
+      <button type="button" onClick={()=>go('calls')} className="w-full min-h-[76px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
+        <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
         <div><b className="block text-sm text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-[11px] text-white/90">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></div>
       </button>
     </div>
