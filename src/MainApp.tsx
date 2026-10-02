@@ -1278,7 +1278,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="space-y-3">
         {[
           ['تریلی',Container,'تریلی'],
-          ['جفت',TruckFront,'جفت'],
+          ['جفت',Truck,'جفت'],
           ['تک',Truck,'تک'],
           ['کامیونت',BusFront,'کامیونت'],
           ['نیسان و وانت',CarFront,'نیسان و وانت'],
