@@ -656,12 +656,16 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     const chooseProvince = (id:string) => {
       const province = iranLocations.find(p => String(p.id) === id);
       setProvince(id); setCounty(''); setCity(''); setText(province?.name || ''); setQuery(''); setCityLimit(120);
-      setSearchSubmitted(false);
-      go('search');
+      setDestinationProvince(id);
+      setDestinationCounty('');
+      setDestination('__province__');
+      setDestinationText(province?.name || '');
+      setSearchSubmitted(true);
+      go('search', true);
     };
     const chooseCounty = (provinceId:string, countyId:string) => {
       setProvince(provinceId); setCounty(countyId); setCity(''); setText('');
-      setQuery(''); setCityLimit(120); setSearchSubmitted(false);
+      setQuery(''); setCityLimit(120);
     };
     const chooseCity = (city:string, countyId:string) => {
       const location = allDestinationCities.find(x => x.city === city && x.countyId === countyId);
@@ -679,8 +683,8 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       }
       setQuery('');
       setCityLimit(120);
-      setSearchSubmitted(false);
-      go('search');
+      setSearchSubmitted(true);
+      go('search', true);
     };
     const chooseNearby = () => {
       if (!isOrigin) return;
