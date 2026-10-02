@@ -501,7 +501,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       }
     };
     return <div className="space-y-3">
-    <div className="flex justify-center"><div className="w-28 h-28 rounded-full bg-white border-4 border-primary-100 shadow-sm flex flex-col items-center justify-center" aria-label="امتیاز شما ۴ و ۳۵ صدم"><b className="text-2xl leading-none font-black text-primary-700">۴/۳۵</b><div className="mt-2 text-[17px] leading-none tracking-tight" dir="ltr"><span className="text-amber-400">★★★★</span><span className="relative inline-block text-gray-300"><span className="absolute inset-y-0 left-0 overflow-hidden text-amber-400" style={{width:'35%'}}>★</span>★</span></div></div></div>
+    <div className="flex flex-col items-center gap-2"><div className="w-28 h-28 rounded-full bg-white border-4 border-primary-100 shadow-sm flex items-center justify-center" aria-label="امتیاز شما ۴"><b className="text-3xl leading-none font-black text-primary-700">۴</b></div><div className="text-[20px] leading-none tracking-tight text-amber-400" dir="ltr" aria-label="۴ ستاره از ۵">★★★★<span className="text-gray-300">★</span></div></div>
     <div className="grid grid-cols-2 gap-3 w-full">
       <button onClick={openSearchPage} className="aspect-square w-full rounded-2xl bg-primary-500 border border-primary-600 p-4 text-center flex flex-col items-center justify-center gap-3 shadow-sm text-white">
         <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0"><Search className="w-7 h-7 text-primary-600"/></div>
@@ -512,12 +512,12 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         <div><b className="block text-base text-white">اطراف من</b><span className="block mt-1 text-xs text-white/90">بارهای نزدیک را ببین</span></div>
       </button>
     </div>
-    <div className="grid grid-cols-2 gapx-3 py-2 w-full">
-      <button onClick={()=>go('offers')} className="w-full min-h-[76px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
-        <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-amber-700"/></div>
+    <div className="space-y-2 w-full">
+      <button onClick={()=>go('offers')} className="w-full min-h-[58px] rounded-2xl bg-primary-500 border border-primary-600 px-4 py-2 text-right flex items-center gap-3 shadow-sm text-white">
+        <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0"><ReceiptText className="w-5 h-5 text-primary-600"/></div>
         <div><b className="block text-sm text-white">پیشنهادهای من</b><span className="block mt-0.5 text-[11px] text-white/90">پیشنهادهای ارسال‌شده را پیگیری کن</span></div>
       </button>
-      <button type="button" onClick={()=>go('calls')} className="w-full min-h-[76px] rounded-2xl bg-primary-500 border border-primary-600 px-3 py-3 text-center flex flex-col items-center justify-center gap-2 shadow-sm text-white">
+      <button type="button" onClick={()=>go('calls')} className="w-full min-h-[58px] rounded-2xl bg-primary-500 border border-primary-600 px-4 py-2 text-right flex items-center gap-3 shadow-sm text-white">
         <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0"><PhoneCall className="w-5 h-5 text-primary-600"/></div>
         <div><b className="block text-sm text-white">تماس‌ها و وضعیت‌ها</b><span className="block mt-0.5 text-[11px] text-white/90">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></div>
       </button>
