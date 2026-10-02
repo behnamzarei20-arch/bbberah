@@ -150,6 +150,7 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
+  const [pressedHomeCard, setPressedHomeCard] = useState<string | null>(null);
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads]);
   const [selected, setSelected] = useState<Load|null>(null);
   const [origin, setOrigin] = useState('');
@@ -485,6 +486,12 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
   };
   const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
 
+  const animateHomeCard = (id:string, action:()=>void) => {
+    if (pressedHomeCard) return;
+    setPressedHomeCard(id);
+    window.setTimeout(() => { setPressedHomeCard(null); action(); }, 150);
+  };
+
   const HomePage = () => {
     const resolveUncertainContact = (item: typeof contactHistory[number], status:'agreed'|'declined') => {
       const load = loads.find(l=>l.id===item.loadId);
@@ -501,19 +508,19 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
       }
     };
     return <><style>{`@keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style><div className="grid grid-cols-2 gap-3 w-full">
-      <button onClick={openSearchPage} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+      <button onClick={()=>animateHomeCard('search',openSearchPage)} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
         <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 10s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span></span></span></div>
       </button>
-      <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+      <button onClick={()=>animateHomeCard('nearby',()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')})} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
         <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 8s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span></span></span></div>
       </button>
-      <button onClick={()=>go('offers')} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+      <button onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
         <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">پیشنهادهای من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-marquee 7s linear infinite"}}><span dir="rtl">پیشنهادهای ارسال‌شده را پیگیری کن</span><span aria-hidden="true" className="mx-10" dir="rtl">پیشنهادهای ارسال‌شده را پیگیری کن</span></span></span></div>
       </button>
-      <button type="button" onClick={()=>go('calls')} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+      <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
         <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-marquee 7s linear infinite"}}><span dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span><span aria-hidden="true" className="mx-10" dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></span></span></div>
       </button>
