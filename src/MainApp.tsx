@@ -13,7 +13,7 @@ import { iranLocations } from '@/data/iranLocations';
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle' | 'vehicle-select'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'flatbed-size' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'jooft-usage' | 'jooft-feature' | 'flatbed-size' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -1293,11 +1293,36 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='vehicle-select') return <div className="space-y-4">
       <div className="px-1"><h2 className="font-black text-lg">نوع خودروی خود را انتخاب کنید</h2></div>
       <div className="space-y-3">
-        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label,usage:label==='تریلی'?v.usage:'',feature:''}));if(label==='تریلی'){go('trailer-select');}else{go('vehicle-loader');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label,usage:label==='تریلی'?v.usage:'',feature:''}));if(label==='تریلی'){go('trailer-select');}else if(label==='جفت'){go('jooft-usage');}else{go('vehicle-loader');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><VehicleIcon type={label}/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
     </div>;
+    if (page==='jooft-usage') return <div className="space-y-4">
+      <div className="px-1"><h2 className="font-black text-lg">نوع کاربری خودرو خود را انتخاب کنید</h2></div>
+      <div className="space-y-3">
+        {(['روباز','مسقف','کمپرسی','یخچالی']).map(label=><button key={label} type="button" onClick={()=>{
+          if(label==='روباز'||label==='مسقف'){
+            setVehicleForm(v=>({...v,type:'جفت',usage:label,feature:''}));
+            go('jooft-feature');
+          }else{
+            setVehicleForm(v=>({...v,type:'جفت',usage:'',feature:label}));
+            go('vehicle');
+          }
+        }} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+          <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
+        </button>)}
+      </div>
+    </div>;
+    if (page==='jooft-feature') {
+      const featureOptions = vehicleForm.usage==='مسقف' ? ['چادری','فلزی'] : ['معمولی','بغل بازشو'];
+      return <div className="space-y-4">
+        <div className="px-1"><h2 className="font-black text-lg">ویژگی کاربری</h2><p className="text-xs text-gray-400 mt-1">ویژگی {vehicleForm.usage || 'خودرو'} را انتخاب کنید.</p></div>
+        <div className="space-y-3">
+          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'جفت',feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+        </div>
+      </div>;
+    }
     if (page==='vehicle') return <div className="space-y-4">
       <div className="px-1"><h2 className="font-black text-lg">خودروی من</h2><p className="text-xs text-gray-400 mt-1">مشخصات خودرو را بررسی یا ویرایش کنید.</p></div>
       <div className="space-y-3">
@@ -1309,7 +1334,7 @@ const ProfilePage = () => <div className="space-y-3">
           <span className="block text-xs font-bold text-gray-400">نوع کاربری</span>
           <span className="block mt-1 text-lg font-black">{vehicleForm.usage}</span>
         </button>}
-        {vehicleForm.feature && <button type="button" onClick={()=>go(vehicleForm.usage==='کفی'||vehicleForm.usage==='بغلدار'||vehicleForm.usage==='چادری' ? 'flatbed-size' : 'trailer-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {vehicleForm.feature && <button type="button" onClick={()=>go(vehicleForm.type==='جفت' ? 'jooft-feature' : vehicleForm.usage==='کفی'||vehicleForm.usage==='بغلدار'||vehicleForm.usage==='چادری' ? 'flatbed-size' : 'trailer-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">ویژگی کاربری</span>
           <span className="block mt-1 text-lg font-black">{vehicleForm.feature}</span>
         </button>}
