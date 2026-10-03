@@ -13,7 +13,9 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
+
+# Deployment trigger: 2026-10-03
 
 jobs:
   build:
