@@ -4,18 +4,18 @@
 
 @layer base {
   :root {
-    --brah-primary: 19 88 237;
-    --brah-primary-dark: 12 63 170;
-    --brah-primary-light: 59 124 245;
-    --brah-accent: 96 150 250;
+    --brah-primary: 234 88 12;
+    --brah-primary-dark: 194 65 12;
+    --brah-primary-light: 249 115 22;
+    --brah-accent: 251 146 60;
   }
   * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-  html { background: #f8faff; }
-  body { margin: 0; font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif; background: #f8faff; color: #172033; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html { background: #fff8f3; }
+  body { margin: 0; font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif; background: #fff8f3; color: #241a15; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   input, textarea, select, button { font-family: inherit; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb { background: #fed7aa; border-radius: 999px; }
 }
 
 @layer components {
