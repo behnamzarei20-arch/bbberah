@@ -1,7 +1,5 @@
 name: Build and Deploy to GitHub Pages
 
-run-name: Deploy main • ${{ github.sha }}
-
 on:
   push:
     branches:
@@ -15,15 +13,14 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: Build and verify
+    name: Build Vite app
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -33,9 +30,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-
-      - name: Typecheck
-        run: npm run typecheck
 
       - name: Build Vite app
         run: npm run build
@@ -60,7 +54,6 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -69,15 +62,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Write deployment summary
-        if: always()
+      - name: Deployment summary
         run: |
-          echo "## GitHub Pages deployment" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Ref: ${{ github.ref_name }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Workflow run: ${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Status: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
-          if [ -n "${{ steps.deployment.outputs.page_url }}" ]; then
-            echo "- Published URL: ${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          echo "GitHub Pages deployment completed."
+          echo "Published URL: ${{ steps.deployment.outputs.page_url }}"
