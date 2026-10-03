@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 type Props={onBack:()=>void; initialSection?:Section}; type Section='home'|'user'|'vehicle'|'wallet'|'identity'|'road'|'settings'|'support'|'rules'; type VehicleStep='type'|'body'|'feature';
 const VEHICLES=['تریلی','جفت','تک','کامیونت و خاور','وانت و نیسان']; const BODIES=['روباز','مسقف','یخچال','کمپرسی']; const BODY_FEATURES=['بغل بازشو','معمولی','چادری','فلزی']; const LETTERS=['الف','ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
 const fa=(v:string)=>v.replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]||d);
-function loadVehicle(id?:string){try{return JSON.parse(localStorage.getItem(`bbberah-fleet-${id}`)||'null')||{vehicleType:'',bodyType:'',bodyFeature:''}}catch{return{vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'',p2:'',iran:''}}}
+function loadVehicle(id?:string){try{return JSON.parse(localStorage.getItem(`bbberah-fleet-${id}`)||'null')||{vehicleType:'',bodyType:'',bodyFeature:''}}catch{return{vehicleType:'',bodyType:'',bodyFeature:''}}}
 export const en = (s: string) => s.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
 export function ProfilePage({onBack}:Props){
