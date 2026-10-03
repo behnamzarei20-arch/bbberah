@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from 'node:url';
 // Use relative asset URLs so the built app works correctly on GitHub Pages
 // regardless of whether it is opened at /bbberah/ or from a deployment path.
 export default defineConfig({
-  base: './',
+  base: '/bbberah/',  
   plugins: [react()],
   resolve: {
     alias: {
