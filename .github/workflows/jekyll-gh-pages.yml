@@ -1,9 +1,10 @@
-name: Build and Deploy to GitHub Pages
+name: Build and Deploy Vite App to GitHub Pages
 
 on:
   push:
     branches:
       - main
+      - frontend-phase1
   workflow_dispatch:
 
 permissions:
@@ -14,8 +15,6 @@ permissions:
 concurrency:
   group: github-pages
   cancel-in-progress: false
-
-# Deployment trigger: 2026-10-03
 
 jobs:
   build:
@@ -31,24 +30,19 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Build Vite app
         run: npm run build
-        env:
-          CI: true
-
-      - name: Verify build output
-        run: |
-          test -f dist/index.html
-          test -s dist/index.html
-          echo "Build output verified: dist/index.html exists."
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
@@ -56,15 +50,10 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy Pages artifact
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Deployment summary
-        run: |
-          echo "GitHub Pages deployment completed."
-          echo "Published URL: ${{ steps.deployment.outputs.page_url }}"
