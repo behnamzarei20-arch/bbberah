@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: github-pages
@@ -36,7 +37,7 @@ jobs:
           cache-dependency-path: package.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-package-lock
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -44,8 +45,11 @@ jobs:
       - name: Build Vite app
         run: npm run build
 
+      - name: Verify build output
+        run: test -f dist/index.html
+
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
 
