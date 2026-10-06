@@ -16,16 +16,6 @@ const LETTERS = ['ا', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د', 'ذ
 const fa = (v: string) => v.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] || d);
 export const en = (s: string) => s.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
-const EMPTY_VEHICLE: VehicleData = {
-    vehicleType: '',
-    bodyType: '',
-    bodyFeature: '',
-    platePart1: '',
-    plateLetter: '',
-    platePart3: '',
-    plateIranCode: ''
-};
-
 // اضافه شدن اطلاعات پلاک به مدل خودرو
 type VehicleData = {
     vehicleType: string;
@@ -39,12 +29,25 @@ type VehicleData = {
 
 function loadVehicle(id?: string): VehicleData {
     try {
-        const raw = localStorage.getItem(`bbberah-fleet-${id}`);
-        if (!raw) return { ...EMPTY_VEHICLE };
-        const parsed = JSON.parse(raw);
-        return { ...EMPTY_VEHICLE, ...parsed };
+        return JSON.parse(localStorage.getItem(`bbberah-fleet-${id}`) || 'null') || {
+            vehicleType: '',
+            bodyType: '',
+            bodyFeature: '',
+            platePart1: '',
+            plateLetter: '',
+            platePart3: '',
+            plateIranCode: ''
+        };
     } catch {
-        return { ...EMPTY_VEHICLE };
+        return {
+            vehicleType: '',
+            bodyType: '',
+            bodyFeature: '',
+            platePart1: '',
+            plateLetter: '',
+            platePart3: '',
+            plateIranCode: ''
+        };
     }
 }
 
@@ -57,24 +60,6 @@ export function ProfilePage({ onBack }: Props) {
     const [saved, setSaved] = useState('');
     const isDriver = profile?.role === 'driver';
     const roleLabel = isDriver ? 'راننده' : profile?.role === 'carrier' ? 'باربری' : 'صاحب بار';
-
-    const enterVehicleSection = () => {
-        const id = profile?.id;
-        if (id) {
-            const currentKey = `bbberah-fleet-${id}`;
-            const backupKey = `bbberah-fleet-backup-${id}`;
-            const current = localStorage.getItem(currentKey);
-
-            // اطلاعات قبلی را جدا نگه می‌داریم تا قبل از ورود به فرم از داده قدیمی استفاده نشود.
-            if (current) localStorage.setItem(backupKey, current);
-            localStorage.removeItem(currentKey);
-        }
-
-        setVehicle({ ...EMPTY_VEHICLE });
-        setSaved('');
-        setVehicleStep('type');
-        setSection('vehicle');
-    };
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -123,7 +108,7 @@ export function ProfilePage({ onBack }: Props) {
                 </div>
                 <div className="grid gap-3">
                     {cards.map(({ key, icon: Icon, title, text }) =>
-                        <button key={key} onClick={() => key === 'vehicle' ? enterVehicleSection() : setSection(key)} className="w-full text-right rounded-[24px] bg-white border border-orange-100 p-5 shadow-sm hover:shadow-md transition-all">
+                        <button key={key} onClick={() => { setSection(key); if (key === 'vehicle') setVehicleStep('type') }} className="w-full text-right rounded-[24px] bg-white border border-orange-100 p-5 shadow-sm hover:shadow-md transition-all">
                             <div className="flex items-center gap-4">
                                 <span className="w-14 h-14 rounded-2xl bg-orange-100 text-primary-600 flex items-center justify-center">
                                     <Icon className="w-7 h-7" />
