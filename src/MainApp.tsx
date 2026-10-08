@@ -18,6 +18,7 @@ import SearchPage from '@/pages/SearchPage';
 import LocationSelectPage from '@/pages/LocationSelectPage';
 import DetailPage from '@/pages/DetailPage';
 import ProfilePage from '@/pages/ProfilePage';
+import VehiclePage from '@/pages/VehiclePage';
 import OffersPage from '@/pages/OffersPage';
 import ShipmentPage from '@/pages/ShipmentPage';
 import WalletPage from '@/pages/WalletPage';
@@ -469,6 +470,15 @@ export function MainApp() {
       return <ProfilePage profile={profile} onGo={go} />;
     }
 
+    if (page === 'vehicle') {
+      return (
+        <VehiclePage
+          profile={profile}
+          onBack={() => go('profile')}
+        />
+      );
+    }
+
     if (page === 'cargo-detail') {
       return (
         <DetailPage
@@ -568,10 +578,6 @@ export function MainApp() {
 
     if (page === 'transactions') {
       return <TransactionsPage onRetry={handleRetryTransactions} />;
-    }
-
-    if (page === 'vehicle') {
-      return <ProfilePage profile={profile} onGo={go} />;
     }
 
     if (page === 'account') {
@@ -803,4 +809,4 @@ export function MainApp() {
       )}
     </div>
   );
-  }
+}
