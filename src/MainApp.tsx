@@ -1,812 +1,1206 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CircleDollarSign, Coins, X } from 'lucide-react';
-
+import { createElement, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ArrowLeft, Bell, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
+  FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
+  Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
+  Truck, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { iranLocations } from '@/data/iranLocations';
-import { seedLoads } from '@/data/seed';
-import { money } from '@/lib/format';
-import type { Load, Page } from '@/types';
 
-import Toast from '@/components/Toast';
-import Header from '@/layouts/Header';
-import BottomNav from '@/layouts/BottomNav';
-import Drawer from '@/layouts/Drawer';
+type Page =
+  | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle'
+  | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
+  | 'cargo-detail' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'destination-all' | 'frequent-route' | 'contact-report';
 
-import HomePage from '@/pages/HomePage';
-import SearchPage from '@/pages/SearchPage';
-import LocationSelectPage from '@/pages/LocationSelectPage';
-import DetailPage from '@/pages/DetailPage';
-import ProfilePage from '@/pages/ProfilePage';
-import VehiclePage from '@/pages/VehiclePage';
-import OffersPage from '@/pages/OffersPage';
-import ShipmentPage from '@/pages/ShipmentPage';
-import WalletPage from '@/pages/WalletPage';
-import SupportPage from '@/pages/SupportPage';
-import RulesPage from '@/pages/RulesPage';
-import DisplayPage from '@/pages/DisplayPage';
-import NotificationsPage from '@/pages/NotificationsPage';
-import CallsPage from '@/pages/CallsPage';
-import TransactionsPage from '@/pages/TransactionsPage';
-import NearbyPage from '@/pages/NearbyPage';
-import AccountPage from '@/pages/AccountPage';
+type LoadStatus = 'open' | 'reserved' | 'delivered';
+type Load = {
+  id: string; title: string; from: string; to: string; type: string; vehicle: string;
+  weight: number; price: number; pickup: string; delivery: string; status: LoadStatus;
+  distance: number; routeDistance: number; description: string; phone: string;
+};
+
+const seedLoads: Load[] = [
+  { id:'l1', title:'بار خشک تهران به مشهد', from:'تهران', to:'مشهد', type:'بار خشک', vehicle:'تریلی', weight:18000, price:24500000, pickup:'امروز، ۱۴:۳۰', delivery:'فردا، ۱۰:۰۰', status:'open', distance:18, routeDistance:897, description:'بار خشک بسته‌بندی‌شده؛ بارگیری در محل اعلام‌شده و تحویل طبق زمان‌بندی.', phone:'09120000001' },
+  { id:'l2', title:'مواد غذایی کرج به اصفهان', from:'کرج', to:'اصفهان', type:'مواد غذایی', vehicle:'کامیون', weight:9000, price:12800000, pickup:'فردا، ۰۸:۰۰', delivery:'فردا، ۲۰:۰۰', status:'open', distance:42, routeDistance:435, description:'مواد غذایی بسته‌بندی‌شده؛ نیازمند حمل مناسب و تحویل در بازه تعیین‌شده.', phone:'09120000002' },
+  { id:'l3', title:'کالای تجاری تبریز به تهران', from:'تبریز', to:'تهران', type:'کالای تجاری', vehicle:'خاور', weight:4500, price:8600000, pickup:'فردا، ۱۱:۳۰', delivery:'پس‌فردا، ۰۹:۰۰', status:'open', distance:76, routeDistance:630, description:'کالای تجاری بسته‌بندی‌شده؛ جزئیات محموله هنگام هماهنگی حمل اعلام می‌شود.', phone:'09120000003' },
+  { id:'l4', title:'مصالح ساختمانی قم به تهران', from:'قم', to:'تهران', type:'ساختمانی', vehicle:'تریلی', weight:22000, price:16400000, pickup:'شنبه، ۰۷:۰۰', delivery:'شنبه، ۱۳:۰۰', status:'reserved', distance:96, routeDistance:140, description:'مصالح ساختمانی بسته‌بندی‌شده؛ هماهنگی بارگیری و تحویل طبق برنامه حمل.', phone:'09120000004' },
+  { id:'l5', title:'بار کشاورزی رشت به قزوین', from:'رشت', to:'قزوین', type:'کشاورزی', vehicle:'کامیون', weight:7500, price:9700000, pickup:'شنبه، ۰۹:۰۰', delivery:'شنبه، ۱۶:۰۰', status:'open', distance:118, routeDistance:178, description:'بار کشاورزی بسته‌بندی‌شده؛ شرایط حمل و زمان تحویل هنگام هماهنگی اعلام می‌شود.', phone:'09120000005' },
+  { id:'l6', title:'تره بار شهر صنعتی البرز به قائمشهر', from:'شهر صنعتی البرز', to:'قائمشهر', type:'تره بار', vehicle:'کامیون', weight:2000, price:10000000, pickup:'امروز، ۱۰:۰۰', delivery:'امروز، ۱۸:۰۰', status:'open', distance:240, routeDistance:330, description:'نمونه بار برای نمایش ساختار کارت؛ مبدأ شهر صنعتی البرز از استان قزوین و مقصد قائمشهر از استان مازندران.', phone:'09120000006' },
+];
+const searchOnlyLoads: Load[] = [
+  { id:'s1', title:'بار خشک تهران به شیراز', from:'تهران', to:'شیراز', type:'بار خشک', vehicle:'تریلی', weight:17000, price:19800000, pickup:'امروز، ۱۵:۰۰', delivery:'فردا، ۱۱:۰۰', status:'open', distance:35, routeDistance:845, description:'بار خشک بسته‌بندی‌شده؛ بارگیری و تحویل طبق زمان‌بندی.', phone:'09121110001' },
+  { id:'s2', title:'مواد غذایی مشهد به تهران', from:'مشهد', to:'تهران', type:'مواد غذایی', vehicle:'کامیون', weight:10000, price:14200000, pickup:'فردا، ۰۷:۳۰', delivery:'فردا، ۲۱:۰۰', status:'open', distance:48, routeDistance:900, description:'مواد غذایی بسته‌بندی‌شده؛ نیازمند حمل مناسب.', phone:'09121110002' },
+  { id:'s3', title:'بار تجاری اصفهان به تبریز', from:'اصفهان', to:'تبریز', type:'کالای تجاری', vehicle:'خاور', weight:5200, price:9200000, pickup:'فردا، ۱۰:۰۰', delivery:'پس‌فردا، ۰۸:۳۰', status:'open', distance:62, routeDistance:820, description:'کالای تجاری بسته‌بندی‌شده.', phone:'09121110003' },
+  { id:'s4', title:'مصالح ساختمانی کرج به قم', from:'کرج', to:'قم', type:'ساختمانی', vehicle:'تریلی', weight:21000, price:15100000, pickup:'شنبه، ۰۶:۳۰', delivery:'شنبه، ۱۳:۳۰', status:'open', distance:74, routeDistance:230, description:'مصالح ساختمانی بسته‌بندی‌شده.', phone:'09121110004' },
+  { id:'s5', title:'بار کشاورزی رشت به تهران', from:'رشت', to:'تهران', type:'کشاورزی', vehicle:'کامیون', weight:7800, price:10800000, pickup:'شنبه، ۰۹:۳۰', delivery:'شنبه، ۱۷:۰۰', status:'open', distance:88, routeDistance:325, description:'بار کشاورزی بسته‌بندی‌شده.', phone:'09121110005' },
+  { id:'s6', title:'تره بار اهواز به اصفهان', from:'اهواز', to:'اصفهان', type:'تره بار', vehicle:'کامیون', weight:12000, price:17600000, pickup:'یکشنبه، ۰۸:۰۰', delivery:'یکشنبه، ۲۰:۰۰', status:'open', distance:102, routeDistance:740, description:'تره بار با نیاز به حمل مناسب.', phone:'09121110006' },
+  { id:'s7', title:'بار صنعتی قزوین به مشهد', from:'قزوین', to:'مشهد', type:'بار صنعتی', vehicle:'تریلی', weight:19500, price:22400000, pickup:'یکشنبه، ۰۷:۰۰', delivery:'دوشنبه، ۱۰:۰۰', status:'open', distance:116, routeDistance:1050, description:'بار صنعتی بسته‌بندی‌شده.', phone:'09121110007' },
+  { id:'s8', title:'لوازم خانگی تهران به رشت', from:'تهران', to:'رشت', type:'لوازم خانگی', vehicle:'کامیون', weight:6800, price:11900000, pickup:'دوشنبه، ۰۹:۰۰', delivery:'دوشنبه، ۱۷:۳۰', status:'open', distance:128, routeDistance:320, description:'لوازم خانگی بسته‌بندی‌شده.', phone:'09121110008' },
+  { id:'s9', title:'بار بسته‌بندی شیراز به بندرعباس', from:'شیراز', to:'بندرعباس', type:'بار بسته‌بندی', vehicle:'تریلی', weight:16000, price:18700000, pickup:'دوشنبه، ۱۳:۰۰', delivery:'سه‌شنبه، ۰۹:۰۰', status:'open', distance:140, routeDistance:570, description:'بار بسته‌بندی‌شده برای حمل جاده‌ای.', phone:'09121110009' },
+  { id:'s10', title:'محصولات کشاورزی ساری به تهران', from:'ساری', to:'تهران', type:'کشاورزی', vehicle:'کامیون', weight:7300, price:10100000, pickup:'سه‌شنبه، ۰۸:۳۰', delivery:'سه‌شنبه، ۱۵:۳۰', status:'open', distance:155, routeDistance:280, description:'محصولات کشاورزی بسته‌بندی‌شده.', phone:'09121110010' },
+];
+
+const frequentRoutes = [
+  { from:'تهران', to:'مشهد' },
+  { from:'کرج', to:'اصفهان' },
+  { from:'تبریز', to:'تهران' },
+];
+
+
+const money = (v:number) => new Intl.NumberFormat('fa-IR').format(v);
+const fa = (v:string|number) => String(v).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+const cityProvinceName = (city:string) => {
+  for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return province.name;
+  return '';
+};
+
+function Status({ status }: { status: LoadStatus }) {
+  const map = {
+    open: ['آماده بارگیری', 'bg-emerald-50 text-emerald-700'],
+    reserved: ['رزرو شده', 'bg-amber-50 text-amber-700'],
+    delivered: ['تحویل شده', 'bg-slate-100 text-slate-600'],
+  } as const;
+  const [label, cls] = map[status];
+  return <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${cls}`}>{label}</span>;
+}
+
+function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
+  if (!message) return null;
+  return <div className="fixed inset-x-4 bottom-5 z-50 mx-auto max-w-lg rounded-2xl bg-gray-900 px-4 py-3 text-sm font-bold text-white shadow-2xl flex items-center gap-3">
+    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+    <span className="flex-1">{message}</span>
+    <button onClick={onClose} aria-label="بستن"><X className="w-4 h-4" /></button>
+  </div>;
+}
+
+function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }: { load:Load; onOpen:()=>void; onOffer:()=>void; interactionLabel?:string; interactionClass?:string }) {
+  const commission = Math.round(load.price * 0.05);
+  return <Card hoverable>
+    <CardBody className="p-4">
+      <div className="text-center pb-2">
+        <b className="block text-2xl font-black text-gray-950 leading-9">{money(load.price)} تومان</b>
+      </div>
+
+      {interactionLabel && (
+        <div className={`mt-1 mb-3 rounded-xl border px-3 py-2 text-center text-sm font-black ${interactionClass || 'border-gray-200 bg-gray-50 text-gray-700'}`}>
+          {interactionLabel}
+        </div>
+      )}
+
+      <div className="px-1 pt-2 pb-6">
+        <div className="relative mx-auto w-[12.5rem] h-8" dir="ltr">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center" aria-label="قیمت کم">
+            <CircleDollarSign className="w-5 h-5 text-primary-200" strokeWidth={2.2} aria-hidden="true"/>
+          </div>
+          <div className="absolute left-7 right-7 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700">
+            <span className="absolute top-1/2 left-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
+          </div>
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6" aria-label="قیمت زیاد">
+            <CircleDollarSign className="absolute inset-0 w-6 h-6 text-primary-700" strokeWidth={2.4} aria-hidden="true"/>
+            <Coins className="absolute left-0.5 top-2.5 w-3.5 h-3.5 text-primary-500" strokeWidth={2.2} aria-hidden="true"/>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2 py-7 mt-4 mb-16 border-y border-gray-100" dir="rtl">
+        <div className="flex-1 min-w-0 text-center">
+          <div className="flex justify-center mb-2 w-full"><Target className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/></div>
+          <b className="block min-w-0 text-xl font-black leading-8 truncate">{load.from}</b>
+          <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
+        </div>
+        <div className="w-28 relative flex items-center justify-center self-center">
+          <div className="w-full border-t-2 border-dashed border-primary-300"/>
+          <div className="absolute flex flex-col items-center bg-white px-1 -top-4">
+            <Route className="w-5 h-5 text-primary-600" aria-hidden="true"/>
+            <span className="text-xs font-black text-primary-800 mt-0.5">{fa(load.routeDistance)} کیلومتر</span>
+          </div>
+        </div>
+        <div className="flex-1 min-w-0 text-center">
+          <div className="flex justify-center mb-2 w-full"><MapPin className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/></div>
+          <b className="block min-w-0 text-xl font-black leading-8 truncate">{load.to}</b>
+          <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 mt-0">
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><Package className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">{load.type}</b></div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><WeightIcon className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">{fa(load.weight)} kg</b></div>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><CircleDollarSign className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">کمیسیون براه</b><span className="block text-base font-bold text-gray-500 mt-0.5">{money(commission)} تومان</span></div>
+      </div>
+
+      <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
+        <div className="flex items-center gap-2 mb-1.5"><FileText className="w-5 h-5 text-primary-600" aria-hidden="true"/><span className="text-xl font-black text-gray-700">توضیحات بار</span></div>
+        <p className="text-xl leading-8 font-bold text-gray-700 text-right">{load.description}</p>
+      </div>
+      <div className="mt-3">
+        <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
+          <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> {interactionLabel ? 'تماس گرفته‌اید' : 'درخواست برای حمل بار'}
+        </Button>
+      </div>
+    </CardBody>
+  </Card>;
+}
+function Empty({ title, text, action }: {title:string;text:string;action?:()=>void}) {
+  return <div className="py-14 text-center"><Package className="w-10 h-10 mx-auto text-gray-300"/><h3 className="font-black mt-3">{title}</h3><p className="text-sm text-gray-400 mt-2">{text}</p>{action && <Button size="sm" variant="outline" className="mt-5" onClick={action}>تلاش دوباره</Button>}</div>;
+}
 
 export function MainApp() {
-  const { profile, signOut } = useAuth();
-
+  const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
-  const [loads] = useState<Load[]>(seedLoads);
-  const [selected, setSelected] = useState<Load | null>(null);
-
+  const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads]);
+  const [selected, setSelected] = useState<Load|null>(null);
   const [origin, setOrigin] = useState('');
   const [originText, setOriginText] = useState('');
   const [originProvince, setOriginProvince] = useState('');
   const [originCounty, setOriginCounty] = useState('');
-
   const [destination, setDestination] = useState('');
   const [destinationText, setDestinationText] = useState('');
   const [destinationProvince, setDestinationProvince] = useState('');
   const [destinationCounty, setDestinationCounty] = useState('');
-
+  const [frequentRoute, setFrequentRoute] = useState<{from:string;to:string}|null>(null);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
   const [showMenu, setShowMenu] = useState(false);
-
   const [offerPrice, setOfferPrice] = useState('');
-  const [shipmentStage] = useState<
-    'accepted' | 'loading' | 'in_transit' | 'delivered'
-  >('accepted');
-
+  const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
+  const [ownerDriverRating, setOwnerDriverRating] = useState<number>(() => { const version = window.localStorage.getItem('bbberah_owner_driver_rating_seed_v2'); if (version !== '1') { window.localStorage.setItem('bbberah_owner_driver_rating_v1', '4.35'); window.localStorage.setItem('bbberah_owner_driver_rating_seed_v2', '1'); return 4.35; } const saved = window.localStorage.getItem('bbberah_owner_driver_rating_v1'); return saved === null ? 4.35 : Number(saved); });
+  const [contactReport, setContactReport] = useState<null | 'agreed' | 'declined' | 'uncertain'>(null);
+  const [pendingContactLoadId, setPendingContactLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_pending_contact_load_v1'));
+  const [declinedContactCounts, setDeclinedContactCounts] = useState<Record<string, number>>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_declined_contact_counts_v1') || '{}'); return v && typeof v==='object' ? v : {}; } catch { return {}; } });
+  const contactCallStartedAt = useRef<number | null>(null);
+  const [pendingContactReturn, setPendingContactReturn] = useState(false);
+  const [agreedFollowupLoadId, setAgreedFollowupLoadId] = useState<string | null>(() => window.localStorage.getItem('bbberah_agreed_followup_load_v1'));
+  const [driverScore, setDriverScore] = useState<number>(() => {
+  const seededVersion = window.localStorage.getItem('bbberah_driver_score_seed_version_v1');
+  if (seededVersion !== '2') {
+    window.localStorage.setItem('bbberah_driver_score_v1', '200');
+    window.localStorage.setItem('bbberah_driver_score_seed_version_v1', '2');
+    return 200;
+  }
+  const saved = window.localStorage.getItem('bbberah_driver_score_v1');
+  return saved === null ? 200 : Number(saved);
+});
+  const [walletBalance, setWalletBalance] = useState<number>(() => {
+  const seededVersion = window.localStorage.getItem('bbberah_wallet_seed_version_v1');
+  if (seededVersion !== '2') {
+    window.localStorage.setItem('bbberah_wallet_balance_v1', '5000000');
+    window.localStorage.setItem('bbberah_wallet_seed_version_v1', '2');
+    return 5000000;
+  }
+  const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
+  return saved === null ? 5000000 : Number(saved);
+});
+const [identityVerified, setIdentityVerified] = useState<boolean>(false);
+const [identityPending, setIdentityPending] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_pending_v1') === 'true');
+const [identityRejected, setIdentityRejected] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_rejected_v1') === 'true');
+const [reportedLoadIds, setReportedLoadIds] = useState<string[]>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_reported_load_ids_v1') || '[]'); return Array.isArray(v) ? v.filter((x:any)=>typeof x==='string') : []; } catch { return []; } });
+const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; outcome:'carried'|'withdrawn'; commission:number; scoreChange:number; at:number}>>(() => {
+  try {
+    const v = JSON.parse(window.localStorage.getItem('bbberah_shipment_history_v1') || '[]');
+    return Array.isArray(v) ? v.filter((x:any) => x && typeof x.loadId === 'string' && (x.outcome === 'carried' || x.outcome === 'withdrawn')) : [];
+  } catch { return []; }
+});
+const [contactHistory, setContactHistory] = useState<Array<{loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>>(() => {
+    window.localStorage.removeItem('bbberah_contact_history_v1');
+    try {
+      const v=JSON.parse(window.localStorage.getItem('bbberah_contact_history_v2') || '[]');
+      if (!Array.isArray(v)) return [];
+      const byLoad = new Map<string, {loadId:string; status:'agreed'|'declined'|'uncertain'|'carried'; at:number}>();
+      v.filter((x:any) => x && typeof x.loadId === 'string').forEach((x:any) => {
+        const prev = byLoad.get(x.loadId);
+        if (!prev || Number(x.at) >= Number(prev.at)) byLoad.set(x.loadId, {loadId:x.loadId, status:x.status, at:Number(x.at)});
+      });
+      return Array.from(byLoad.values());
+    } catch { return []; }
+  });
   const [actionBusy, setActionBusy] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<
-    null | 'cancel-offer'
-  >(null);
-
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<null | 'cancel-offer'>(null);
+  const [termsAccepted, setTermsAccepted] = useState(() => window.localStorage.getItem('bbberah_terms_accepted_v1') === '1');
   const [offerSuccess, setOfferSuccess] = useState(false);
-  const [offerOpen, setOfferOpen] = useState(false);
-
-  const [accountName, setAccountName] = useState('');
-
+  const [myOffers, setMyOffers] = useState<Array<{loadId:string; price:number; at:number; status:'pending'|'accepted'|'rejected'}>>(() => {
+    try {
+      const v=JSON.parse(window.localStorage.getItem('bbberah_my_offers_v1') || '[]');
+      return Array.isArray(v) ? v.map((x:any) => ({...x, status:x?.status==='accepted'||x?.status==='rejected' ? x.status : 'pending'})) : [];
+    } catch { return []; }
+  });
+  useEffect(() => { window.localStorage.setItem('bbberah_my_offers_v1', JSON.stringify(myOffers)); }, [myOffers]);
   useEffect(() => {
-    if (profile?.full_name) setAccountName(profile.full_name);
-  }, [profile?.full_name]);
+    window.localStorage.setItem('bbberah_terms_accepted_v1', termsAccepted ? '1' : '0');
+  }, [termsAccepted]);
+  useEffect(() => {
+    if (agreedFollowupLoadId) window.localStorage.setItem('bbberah_agreed_followup_load_v1', agreedFollowupLoadId);
+    else window.localStorage.removeItem('bbberah_agreed_followup_load_v1');
+  }, [agreedFollowupLoadId]);
+  useEffect(() => { window.localStorage.setItem('bbberah_driver_score_v1', String(driverScore)); }, [driverScore]);
+  useEffect(() => { window.localStorage.setItem('bbberah_wallet_balance_v1', String(walletBalance)); }, [walletBalance]);
+  useEffect(() => { window.localStorage.setItem('bbberah_shipment_history_v1', JSON.stringify(shipmentHistory)); }, [shipmentHistory]);
+  useEffect(() => { window.localStorage.setItem('bbberah_owner_driver_rating_v1', String(ownerDriverRating)); }, [ownerDriverRating]);
+useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON.stringify(contactHistory)); }, [contactHistory]);
+  useEffect(() => { window.localStorage.setItem('bbberah_reported_load_ids_v1', JSON.stringify(reportedLoadIds)); }, [reportedLoadIds]);
+  useEffect(() => {
+    if (pendingContactLoadId) window.localStorage.setItem('bbberah_pending_contact_load_v1', pendingContactLoadId);
+    else window.localStorage.removeItem('bbberah_pending_contact_load_v1');
+  }, [pendingContactLoadId]);
+  useEffect(() => {
+    window.localStorage.setItem('bbberah_declined_contact_counts_v1', JSON.stringify(declinedContactCounts));
+  }, [declinedContactCounts]);
+  useEffect(() => {
+    if (!pendingContactReturn) return;
+    const returnFromCall = () => {
+      const started = contactCallStartedAt.current;
+      if (started && Date.now() - started < 800) return;
+      if (document.visibilityState !== 'visible') return;
+      setPendingContactReturn(false);
+      contactCallStartedAt.current = null;
+      go('calls');
+    };
+    window.addEventListener('pageshow', returnFromCall);
+    document.addEventListener('visibilitychange', returnFromCall);
+    window.addEventListener('focus', returnFromCall);
+    return () => {
+      window.removeEventListener('pageshow', returnFromCall);
+      document.removeEventListener('visibilitychange', returnFromCall);
+      window.removeEventListener('focus', returnFromCall);
+    };
+  }, [pendingContactReturn]);
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [offerDetailLoadId, setOfferDetailLoadId] = useState<string | null>(null);
+  const [offerDetailDragY, setOfferDetailDragY] = useState(0);
+  const offerDetailTouchStartY = useRef<number | null>(null);
+  const [offerSlider, setOfferSlider] = useState(50);
+  const [offerPercent, setOfferPercent] = useState(0);
+  const offerTouchStartY = useRef<number | null>(null);
+  const [offerDragY, setOfferDragY] = useState(0);
+  useEffect(() => {
+    if (!offerOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overscrollBehavior = 'none';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.overscrollBehavior = prevOverscroll;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
+    };
+  }, [offerOpen]);
+  const [vehicleForm, setVehicleForm] = useState({type:'تریلی',plate:'',model:'',year:''});
+  const [accountName, setAccountName] = useState(profile?.full_name || '');
+  const [settlingCallLoadId, setSettlingCallLoadId] = useState<string | null>(null);
+  const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
 
-  const notify = (m: string) => {
-    setToast(m);
-    window.setTimeout(() => setToast(''), 2600);
-  };
-
+  const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
   useEffect(() => {
     const state = window.history.state;
-
-    if (!state?.bbberahPage) {
-      window.history.replaceState(
-        { bbberahPage: 'home' },
-        '',
-        window.location.href.split('#')[0],
-      );
-    }
-
+    if (!state?.bbberahPage) window.history.replaceState({ bbberahPage: page }, '', window.location.href.split('#')[0]);
     const onPopState = () => {
       const next = window.history.state?.bbberahPage as Page | undefined;
-
       if (next) {
         setPage(next);
         setShowMenu(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({top:0,behavior:'smooth'});
       }
     };
-
     window.addEventListener('popstate', onPopState);
-
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
-
-  const go = (p: Page) => {
-    if (p === page) {
-      setShowMenu(false);
-      return;
-    }
-
+  const go = (p:Page) => {
+    if (p === page) { setShowMenu(false); return; }
     window.history.pushState({ bbberahPage: p }, '', '#' + p);
-
     setPage(p);
     setShowMenu(false);
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({top:0,behavior:'smooth'});
   };
-
-  const openSearchPage = () => {
-    setSearchSubmitted(false);
-    go('search');
-  };
-
-  const findCityLocation = (city: string) => {
-    for (const province of iranLocations) {
-      for (const county of province.counties) {
-        if (county.cities.includes(city)) {
-          return {
-            provinceId: String(province.id),
-            countyId: String(county.id),
-          };
-        }
-      }
-    }
-
+  const openSearchPage = () => { setSearchSubmitted(false); go('search'); };
+  const findCityLocation = (city:string) => {
+    for (const province of iranLocations) for (const county of province.counties) if (county.cities.includes(city)) return { provinceId:String(province.id), countyId:String(county.id) };
     return null;
   };
+  const filtered = useMemo(() => loads.filter(l => {
+    if (l.status === 'delivered') return false;
+    const ol = findCityLocation(l.from), dl = findCityLocation(l.to);
+    const originMatch = origin === '__nearby__'
+      ? l.distance <= 50
+      : origin
+        ? l.from === origin
+        : !originProvince
+          ? true
+          : !!ol && ol.provinceId === originProvince && (!originCounty || ol.countyId === originCounty);
+    const destinationMatch = destination === '__all__'
+      ? true
+      : destination
+        ? l.to === destination
+        : !destinationProvince
+          ? true
+          : !!dl && dl.provinceId === destinationProvince && (!destinationCounty || dl.countyId === destinationCounty);
+    return originMatch && destinationMatch;
+  }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty]);
+  const title:Record<Page,string> = {
+    home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
+    account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', wallet:'کیف پول', transactions:'تراکنش‌ها',
+    support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
+offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس'
+  };
 
-  const filtered = useMemo(
-    () =>
-      loads.filter(load => {
-        if (load.status === 'delivered') return false;
+  const openOfferDetail = (loadId:string) => {
+    setOfferDetailLoadId(loadId);
+    setOfferDetailDragY(0);
+    window.history.pushState({ bbberahPage: page, bbberahOfferDetail: true }, '', window.location.href);
+  };
+  const closeOfferDetail = () => {
+    if (window.history.state?.bbberahOfferDetail) {
+      window.history.back();
+    } else {
+      setOfferDetailLoadId(null);
+      setOfferDetailDragY(0);
+    }
+  };
+  useEffect(() => {
+    if (!offerDetailLoadId) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overscrollBehavior = 'none';
+    const onOfferDetailBack = () => {
+      setOfferDetailLoadId(null);
+      setOfferDetailDragY(0);
+    };
+    window.addEventListener('popstate', onOfferDetailBack);
+    return () => {
+      window.removeEventListener('popstate', onOfferDetailBack);
+      document.body.style.overflow = prevOverflow;
+      document.body.style.overscrollBehavior = prevOverscroll;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
+    };
+  }, [offerDetailLoadId]);
 
-        const originLocation = findCityLocation(load.from);
-        const destinationLocation = findCityLocation(load.to);
-
-        const originMatch =
-          !origin && !originProvince
-            ? true
-            : origin === '__nearby__'
-              ? load.distance <= 50
-              : !!originLocation &&
-                (!originProvince ||
-                  originLocation.provinceId === originProvince) &&
-                (!originCounty ||
-                  originLocation.countyId === originCounty) &&
-                (!origin || load.from === origin);
-
-        const destinationMatch =
-          !destination && !destinationProvince
-            ? true
-            : !!destinationLocation &&
-              (!destinationProvince ||
-                destinationLocation.provinceId === destinationProvince) &&
-              (!destinationCounty ||
-                destinationLocation.countyId === destinationCounty) &&
-              (!destination || load.to === destination);
-
-        return originMatch && destinationMatch;
-      }),
-    [
-      loads,
-      origin,
-      originProvince,
-      originCounty,
-      destination,
-      destinationProvince,
-      destinationCounty,
-    ],
-  );
-
-  const requestOffer = (load: Load) => {
-    setSelected(load);
-    setOfferPrice(String(load.price));
-    setOfferOpen(true);
+  const requestOffer = (load:Load) => {
+    if (myOffers.some(o => o.loadId === load.id)) {
+      notify('برای این بار قبلاً پیشنهاد ارسال شده است. امکان ارسال یا ویرایش دوباره وجود ندارد.');
+      go('offers');
+      return;
+    }
+    setSelected(load); setOfferPrice(String(load.price)); setOfferSlider(50); setOfferPercent(0); setOfferDragY(0); setOfferOpen(true); window.history.pushState({ bbberahPage: page, bbberahOffer: true }, '', window.location.href);
+  };
+  const updateOfferSlider = (clientX:number, element:HTMLElement) => {
+    if (!selected) return;
+    const rect = element.getBoundingClientRect();
+    const minPrice = Math.max(0, selected.price * 0.8);
+    const maxPrice = selected.price * 1.2;
+    const rawPrice = minPrice + ((clientX - rect.left) / rect.width) * (maxPrice - minPrice);
+    const steppedPrice = Math.max(0, Math.round(rawPrice / 50000) * 50000);
+    const percent = selected.price ? ((steppedPrice / selected.price) - 1) * 100 : 0;
+    const slider = maxPrice > minPrice ? ((steppedPrice - minPrice) / (maxPrice - minPrice)) * 100 : 50;
+    setOfferPercent(Math.round(percent));
+    setOfferSlider(Math.max(0, Math.min(100, slider)));
+    setOfferPrice(String(steppedPrice));
+  };
+  const adjustOfferPrice = (delta:number) => {
+    if (!selected) return;
+    const current = Number(offerPrice.replace(/,/g,'')) || selected.price;
+    const nextPrice = Math.max(0, Math.round((current + delta) / 50000) * 50000);
+    const minPrice = Math.max(0, selected.price * 0.8);
+    const maxPrice = selected.price * 1.2;
+    const percent = selected.price ? ((nextPrice / selected.price) - 1) * 100 : 0;
+    const slider = maxPrice > minPrice ? ((nextPrice - minPrice) / (maxPrice - minPrice)) * 100 : 50;
+    setOfferPercent(Math.round(percent));
+    setOfferSlider(Math.max(0, Math.min(100, slider)));
+    setOfferPrice(String(nextPrice));
   };
 
   const submitOffer = () => {
     if (actionBusy) return;
-
-    const n = Number(offerPrice.replace(/,/g, ''));
-
-    if (!termsAccepted) {
-      return notify('ابتدا قوانین و مقررات براه را مطالعه و تأیید کنید.');
-    }
-
-    if (!n || n < 1000000) {
-      return notify('مبلغ پیشنهاد را به‌صورت معتبر وارد کنید.');
-    }
-
+    const n = Number(offerPrice.replace(/,/g,''));
+    if (!termsAccepted) return notify('ابتدا قوانین و مقررات براه را مطالعه و تأیید کنید.');
+    if (!session) return notify('برای ثبت پیشنهاد ابتدا به براه متصل شوید.');
+    if (!Number.isFinite(n) || n < 0) return notify('مبلغ پیشنهاد نامعتبر است.');
     setActionBusy(true);
+    setTimeout(()=>setActionBusy(false),500);
+    if (selected && myOffers.some(o => o.loadId === selected.id)) {
+      setOfferOpen(false); setOfferDragY(0);
+      return notify('برای این بار قبلاً پیشنهاد ارسال شده است. امکان ارسال یا ویرایش دوباره وجود ندارد.');
+    }
+    if (selected) setMyOffers(prev => [...prev, { loadId: selected.id, price: n, at: Date.now(), status:'pending' }]);
+    setOfferOpen(false); setOfferDragY(0); setOfferSuccess(true); notify('پیشنهاد شما با موفقیت ارسال شد.');
+  };
+  useEffect(() => {
+    if (!offerOpen) return;
+    const onOfferBack = () => {
+      if (window.history.state?.bbberahOffer) return;
+      setOfferOpen(false);
+      setOfferDragY(0);
+    };
+    window.addEventListener('popstate', onOfferBack);
+    return () => window.removeEventListener('popstate', onOfferBack);
+  }, [offerOpen]);
 
-    window.setTimeout(() => {
-      setActionBusy(false);
-    }, 500);
+  const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
+    <div className="max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
+      <button className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" onClick={()=>setShowMenu(true)} aria-label="منو"><Menu className="w-5 h-5"/></button>
+      <button onClick={()=>go('home')} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
+      <button onClick={()=>{setNotifications(0);go('notifications')}} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها"><Bell className="w-5 h-5"/>{notifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(notifications)}</span>}</button>
+    </div>
+  </header>;
 
-    setOfferOpen(false);
-    setOfferSuccess(true);
-    go('offers');
-    notify('پیشنهاد شما با موفقیت ارسال شد.');
+  const BottomNav = () => <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-gray-100 bg-white/95 backdrop-blur">
+    <div className="max-w-lg mx-auto grid grid-cols-4 h-[72px]">
+      {[
+        ['home','خانه',Home],['search','جستجو',Search],['calls','تماس‌ها',PhoneCall],['profile','حساب',User]
+      ].map(([p,l,I])=><button key={p as string} onClick={()=>p==='search' ? openSearchPage() : go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${page===p?'text-primary-900 font-black':'text-gray-900 font-bold'}`}>{createElement(I as any,{className:"w-5 h-5"})}{String(l)}</button>)}
+    </div>
+  </nav>;
+
+  const Drawer = () => showMenu ? <div className="fixed inset-0 z-50 bg-black/30" onClick={()=>setShowMenu(false)}>
+    <aside className="absolute right-0 top-0 bottom-0 w-[82%] max-w-sm bg-white p-5 shadow-2xl" onClick={e=>e.stopPropagation()}>
+      <div className="flex items-center justify-between mb-6"><div><b className="text-xl">{profile?.full_name || 'کاربر براه'}</b><span className="block text-xs text-gray-400 mt-1">{profile?.phone}</span></div><button onClick={()=>setShowMenu(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div>
+      <div className="space-y-1">
+        {[
+          ['account','حساب کاربری',User],['vehicle','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText],['display','تنظیمات برنامه',Settings]
+        ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-primary-50">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{String(l)}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
+        <button onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right text-red-600 mt-3"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب کاربری</span></button>
+      </div>
+    </aside>
+  </div> : null;
+
+  const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
+  const getLoadInteraction = (loadId:string) => {
+    const contact = contactHistory.some(item => item.loadId === loadId);
+    const offer = myOffers.some(item => item.loadId === loadId);
+    if (contact || offer) return { label:'تماس گرفته‌اید', cls:'border-primary-200 bg-primary-50 text-primary-700' };
+    return null;
+  };
+  const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
+
+  const HomePage = () => {
+    const resolveUncertainContact = (item: typeof contactHistory[number], status:'agreed'|'declined') => {
+      const load = loads.find(l=>l.id===item.loadId);
+      if (!load) return;
+      setContactHistory(prev=>prev.map(entry=>entry.loadId===item.loadId && entry.at===item.at ? {...entry,status,at:Date.now()} : entry));
+      if (status==='agreed') {
+        setPendingContactLoadId(null);
+        setAgreedFollowupLoadId(load.id);
+        notify('وضعیت تماس به «توافق کردیم» تغییر کرد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
+      } else {
+        setPendingContactLoadId(null);
+        setDeclinedContactCounts(prev=>({...prev,[load.id]:(prev[load.id]||0)+1}));
+        notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
+      }
+    };
+    return <><style>{`@keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style><div className="grid grid-cols-2 gap-3 w-full">
+      <button onClick={openSearchPage} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+        <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 10s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span></span></span></div>
+      </button>
+      <button onClick={()=>{setOriginProvince('');setOriginCounty('');setOrigin('__nearby__');setOriginText('اطراف من');setDestinationProvince('');setDestinationCounty('');setDestination('');setDestinationText('');setSearchSubmitted(false);go('nearby')}} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+        <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 8s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span></span></span></div>
+      </button>
+      <button onClick={()=>go('offers')} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+        <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">پیشنهادهای من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-marquee 7s linear infinite"}}><span dir="rtl">پیشنهادهای ارسال‌شده را پیگیری کن</span><span aria-hidden="true" className="mx-10" dir="rtl">پیشنهادهای ارسال‌شده را پیگیری کن</span></span></span></div>
+      </button>
+      <button type="button" onClick={()=>go('calls')} className="relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+        <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-marquee 7s linear infinite"}}><span dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span><span aria-hidden="true" className="mx-10" dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></span></span></div>
+      </button>
+    </div></>;
   };
 
-  const openNearby = () => {
-    setOriginProvince('');
-    setOriginCounty('');
-    setOrigin('__nearby__');
-    setOriginText('اطراف من');
+  const SearchPage = () => {
+    const runSearch = () => {
+      const allDestinationsMode = destinationText === 'همه شهرها';
+      if (!originText || (!destinationText && !allDestinationsMode)) return notify('لطفاً مبدأ/مقصد را انتخاب کن.');
+      if (!origin) setOrigin(originText);
+      if (!destination && destinationText && !allDestinationsMode) setDestination(destinationText);
+      setSearchSubmitted(true);
+    };
+    const clearAll = () => {
+      setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
+      setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');
+      setSearchSubmitted(false);
+    };
 
-    setDestinationProvince('');
-    setDestinationCounty('');
-    setDestination('');
-    setDestinationText('');
+    if (searchSubmitted) {
+      return filtered.length ? (
+        <div className="space-y-3">
+          {filtered.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
+        </div>
+      ) : (
+        <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است." action={clearAll}/></CardBody></Card>
+      );
+    }
 
-    setSearchSubmitted(true);
-    go('search');
+    return <div className="space-y-4">
+      <Card><CardBody className="p-4">
+        <div className="flex items-center gap-2 px-1"><Search className="w-5 h-5 text-primary-700" aria-hidden="true"/><h2 className="font-black text-lg text-gray-900">جستجوی بار</h2></div>
+        <button onClick={()=>go('origin-select')} className="w-full mt-5 mb-3 rounded-2xl border border-black bg-white p-4 text-right active:bg-gray-50">
+          <span className="block text-xs font-bold text-gray-400 mb-1">مبدأ</span>
+          <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={originText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{originText || 'مبدأ را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
+        </button>
+        <div className="border-t border-gray-100 my-6"/>
+        <button onClick={()=>go('destination-select')} className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
+          <span className="block text-xs font-bold text-gray-400 mb-1">مقصد</span>
+          <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={destinationText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{destinationText || 'مقصد را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
+        </button>
+      </CardBody></Card>
+      <Button size="full" className="mt-6 h-14 text-base font-black shadow-lg shadow-primary-100" onClick={runSearch}><Search className="w-5 h-5 ml-2"/> جستجوی بار</Button>
+      <Card><CardBody className="p-4">
+        <div className="flex items-center justify-between mb-3"><h3 className="font-black">سه مسیر پرتکرار</h3><span className="text-[11px] text-gray-400">انتخاب سریع</span></div>
+        <div className="space-y-2">{frequentRoutes.map(route=><button type="button" key={route.from+'-'+route.to} onClick={()=>{
+          const fromLocation=findCityLocation(route.from); const toLocation=findCityLocation(route.to);
+          setOrigin(route.from); setOriginText(route.from); setOriginProvince(fromLocation?.provinceId || ''); setOriginCounty(fromLocation?.countyId || '');
+          setDestination(route.to); setDestinationText(route.to); setDestinationProvince(toLocation?.provinceId || ''); setDestinationCounty(toLocation?.countyId || '');
+          setFrequentRoute({from:route.from,to:route.to}); go('frequent-route');
+        }} className="w-full rounded-xl border border-gray-100 bg-gray-50 p-3 flex items-center justify-between text-right"><span className="font-bold text-sm">{route.from} <span className="text-gray-400 mx-1">←</span> {route.to}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
+      </CardBody></Card>
+    </div>;
   };
 
-  const runSearch = () => {
-    const nearbyMode =
-      origin === '__nearby__' || originText === 'اطراف من';
-
-    const allDestinationsMode = destinationText === 'همه شهرها';
-
-    if (
-      (!originText && !nearbyMode) ||
-      (!destinationText && !nearbyMode && !allDestinationsMode)
-    ) {
-      return notify('لطفاً مبدأ و مقصد را انتخاب کنید.');
-    }
-
-    if (!origin && originText && originText !== 'اطراف من') {
-      setOrigin(originText);
-    }
-
-    if (
-      !destination &&
-      destinationText &&
-      destinationText !== 'همه شهرها'
-    ) {
-      setDestination(destinationText);
-    }
-
-    setSearchSubmitted(true);
-
-    notify(
-      nearbyMode
-        ? 'بارهای اطراف من نمایش داده شد.'
-        : 'بارهای مطابق مسیر نمایش داده شد.',
+  const FrequentRoutePage = () => {
+    const routeLoads = frequentRoute
+      ? loads.filter(l => !l.id.startsWith('s') && l.status !== 'delivered' && l.from === frequentRoute.from && l.to === frequentRoute.to)
+      : [];
+    return routeLoads.length ? (
+      <div className="space-y-3">
+        {routeLoads.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
+      </div>
+    ) : (
+      <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است."/></CardBody></Card>
     );
   };
 
-  const clearAll = () => {
-    setOrigin('');
-    setOriginText('');
-    setOriginProvince('');
-    setOriginCounty('');
+  const LocationSelectPage = ({ mode }: { mode:'origin'|'destination' }) => {
+    const isOrigin = mode === 'origin';
+    const provinceId = isOrigin ? originProvince : destinationProvince;
+    const setProvince = isOrigin ? setOriginProvince : setDestinationProvince;
+    const setCounty = isOrigin ? setOriginCounty : setDestinationCounty;
+    const setCity = isOrigin ? setOrigin : setDestination;
+    const setText = isOrigin ? setOriginText : setDestinationText;
+    const provinceData = iranLocations.find(p => String(p.id) === provinceId);
+    const [query, setQuery] = useState('');
+    const normalizeSearch = (value:string) => value
+      .normalize('NFKC')
+      .trim()
+      .toLocaleLowerCase('fa-IR')
+      .replace(/[يى]/g,'ی')
+      .replace(/ك/g,'ک')
+      .replace(/[ةۀ]/g,'ه')
+      .replace(/[إأآ]/g,'ا')
+      .replace(/ؤ/g,'و')
+      .replace(/[\u200c\u200f\u202a-\u202e]/g,'')
+      .replace(/[ًٌٍَُِّْـ]/g,'')
+      .replace(/\s+/g,'');
+    const normalized = normalizeSearch(query).replace(/^شهرستان/, '');
+    const visibleProvinces = iranLocations.filter(p => !normalized || normalizeSearch(p.name).includes(normalized));
+    const allDestinationCities = iranLocations.flatMap(p => p.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name }))));
+    const provinceCities = provinceData ? provinceData.counties.flatMap(c => c.cities.map(city => ({ city, countyId:String(c.id), countyName:c.name, provinceId:String(provinceData.id), provinceName:provinceData.name }))) : [];
+    const selectedCountyId = isOrigin ? originCounty : destinationCounty;
+    const selectedCounty = provinceData?.counties.find(c => String(c.id) === selectedCountyId);
+    const selectedCountyCities = selectedCounty ? selectedCounty.cities.map(city => ({ city, countyId:String(selectedCounty.id), countyName:selectedCounty.name, provinceId:String(provinceData!.id), provinceName:provinceData!.name })) : [];
+    const sourceCities = allDestinationCities;
+    const filteredCities = sourceCities
+      .filter(x => !normalized || normalizeSearch(x.city).slice(0, normalized.length) === normalized)
+      .sort((a,b) => {
+        const aExact = normalizeSearch(a.city) === normalized ? 0 : 1;
+        const bExact = normalizeSearch(b.city) === normalized ? 0 : 1;
+        return aExact - bExact;
+      });
+    const filteredCounties = iranLocations.flatMap(p => p.counties
+      .filter(c => (!normalized || !provinceId || String(p.id) === provinceId) && (!normalized || normalizeSearch(c.name).startsWith(normalized)))
+      .map(c => ({ countyId:String(c.id), countyName:c.name, provinceId:String(p.id), provinceName:p.name, cities:c.cities }))
+    );
+    const [cityLimit, setCityLimit] = useState(120);
+    const visibleCities = filteredCities.slice(0, cityLimit);
 
-    setDestination('');
-    setDestinationText('');
-    setDestinationProvince('');
-    setDestinationCounty('');
-
-    setSearchSubmitted(false);
-  };
-
-  const onSelectRoute = (from: string, to: string) => {
-    setOrigin(from);
-    setOriginText(from);
-
-    setDestination(to);
-    setDestinationText(to);
-
-    setSearchSubmitted(true);
-    go('search');
-  };
-
-  const handleChooseProvince = (
-    mode: 'origin' | 'destination',
-    id: string,
-  ) => {
-    if (mode === 'origin') {
-      setOriginProvince(id);
-      setOriginCounty('');
-      setOrigin('');
-      setOriginText('');
-      return;
-    }
-
-    setDestinationProvince(id);
-    setDestinationCounty('');
-    setDestination('');
-    setDestinationText('');
-  };
-
-  const handleChooseCity = (
-    mode: 'origin' | 'destination',
-    city: string,
-    countyId: string,
-  ) => {
-    if (mode === 'origin') {
-      setOriginCounty(countyId);
-      setOrigin(city);
-      setOriginText(city);
+    const openAllDestinationCities = () => {
+      setDestinationProvince(''); setDestinationCounty(''); setDestination('__all__'); setDestinationText('همه شهرها');
+      setQuery(''); setCityLimit(120); setSearchSubmitted(false); go('search');
+    };
+    const chooseProvince = (id:string) => {
+      const province = iranLocations.find(p => String(p.id) === id);
+      setProvince(id); setCounty(''); setCity(''); setText(province?.name || ''); setQuery(''); setCityLimit(120);
       setSearchSubmitted(false);
       go('search');
-      return;
-    }
+    };
+    const chooseCounty = (provinceId:string, countyId:string) => {
+      setProvince(provinceId); setCounty(countyId); setCity(''); setText('');
+      setQuery(''); setCityLimit(120); setSearchSubmitted(false);
+    };
+    const chooseCity = (city:string, countyId:string) => {
+      const location = allDestinationCities.find(x => x.city === city && x.countyId === countyId);
+      const provinceIdForCity = location?.provinceId || provinceId;
+      if (isOrigin) {
+        setOriginProvince(provinceIdForCity || '');
+        setOriginCounty(countyId);
+        setOrigin(city);
+        setOriginText(city);
+      } else {
+        setDestinationProvince(provinceIdForCity || '');
+        setDestinationCounty(countyId);
+        setDestination(city);
+        setDestinationText(city);
+      }
+      setQuery('');
+      setCityLimit(120);
+      setSearchSubmitted(false);
+      go('search');
+    };
+    const chooseNearby = () => {
+      if (!isOrigin) return;
+      setProvince(''); setCounty(''); setCity('__nearby__'); setText('اطراف من');
+      setDestinationProvince(''); setDestinationCounty(''); setDestination(''); setDestinationText('');
+      setSearchSubmitted(false); go('search');
+    };
 
-    setDestinationCounty(countyId);
-    setDestination(city);
-    setDestinationText(city);
-    setSearchSubmitted(false);
-
-    setDestinationProvince('');
-
-    go('search');
+    return <div className="space-y-4">
+      <Card><CardBody className="p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <button type="button" onClick={()=>go('search')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <div><h2 className="font-black text-lg">{isOrigin ? 'انتخاب مبدأ' : 'انتخاب مقصد'}</h2><p className="text-xs text-gray-400 mt-1">{isOrigin ? 'مبدأ را انتخاب کنید' : 'مقصد را انتخاب کنید'}</p></div>
+        </div>
+        <div className="relative">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={isOrigin ? 'مثال تهران' : 'استان مقصد را انتخاب کنید'} className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
+        </div>
+        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
+          <Globe2 className="w-5 h-5" />
+          همه شهرها
+        </button>}
+        {!provinceData && !normalized && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><b className="text-sm">{isOrigin ? 'لیست استان‌ها' : 'استان‌ها'}</b><span className="text-[11px] text-gray-400">{fa(visibleProvinces.length)} استان</span></div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleProvinces.map(p=><button type="button" key={p.id} onClick={()=>chooseProvince(String(p.id))} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span className="font-bold">{p.name}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}</div>
+        </div>}
+        {normalized && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><b className="text-sm">نتایج جستجو</b><span className="text-[11px] text-gray-400">{fa(filteredCities.length)} شهر</span></div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">
+            {filteredCities.map(x=><button type="button" key={'city-' + x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">شهرستان {x.countyName}</span><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {x.provinceName}</span></span><span className="text-[11px] text-gray-400">انتخاب شهر</span></button>)}
+            {filteredCounties.map(x=><button type="button" key={'county-' + x.provinceId + '-' + x.countyId} onClick={()=>chooseCounty(x.provinceId,x.countyId)} className="w-full rounded-xl bg-primary-50 border border-primary-100 p-3.5 flex items-center justify-between text-right">
+              <span><b className="block text-base font-black leading-7">شهرستان {x.countyName}</b><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {x.provinceName}</span><span className="block text-[11px] font-bold text-primary-700 mt-1">{fa(x.cities.length)} شهر — انتخاب شهرستان</span></span><ChevronLeft className="w-4 h-4 text-primary-400"/>
+            </button>)}
+            {!filteredCounties.length && !filteredCities.length && <Empty title="نتیجه‌ای پیدا نشد" text="نام شهر یا شهرستان را تغییر دهید."/>}
+          </div>
+        </div>}
+        {!normalized && provinceData && <div className="mt-5">
+          <div className="flex items-center justify-between mb-2"><div><b className="text-sm">{provinceData.name}</b><span className="block text-[11px] text-gray-400 mt-1">شهرهای استان</span></div><button type="button" onClick={()=>{setProvince('');setCounty('');setCity('');setText('');setQuery('');}} className="text-xs font-bold text-primary-700">تغییر استان</button></div>
+          <div className="space-y-2 max-h-[52vh] overflow-auto">{visibleCities.length ? visibleCities.map(x=><button type="button" key={x.countyId + '-' + x.city} onClick={()=>chooseCity(x.city,x.countyId)} className="w-full rounded-xl bg-gray-50 hover:bg-primary-50 p-3.5 flex items-center justify-between text-right"><span><b className="block text-base font-black leading-7">{x.city}</b><span className="block text-xs font-bold text-gray-400 mt-0.5">شهرستان {x.countyName}</span><span className="block text-[11px] font-bold text-gray-400 mt-0.5">استان {provinceData.name}</span></span><span className="text-[11px] text-gray-400">انتخاب</span></button>) : <Empty title="شهری پیدا نشد" text="نام شهر را تغییر دهید."/>}</div>
+          {provinceCities.length > visibleCities.length && <button type="button" onClick={()=>setCityLimit(v=>Math.min(v+120, provinceCities.length))} className="w-full mt-3 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 py-3 text-sm font-black">نمایش شهرهای بیشتر ({fa(Math.min(120, provinceCities.length-visibleCities.length))})</button>}
+        </div>}
+      </CardBody></Card>
+    </div>;
+  };
+  const AllDestinationCitiesPage = () => {
+    const [query, setQuery] = useState('');
+    const normalizeSearch = (value:string) => value.normalize('NFKC').trim().toLocaleLowerCase('fa-IR')
+      .replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[ةۀ]/g,'ه').replace(/[إأآ]/g,'ا').replace(/ؤ/g,'و')
+      .replace(/[\u200c\u200f\u202a-\u202e]/g,'').replace(/[ًٌٍَُِّْـ]/g,'').replace(/\s+/g,'');
+    const normalized = normalizeSearch(query).replace(/^شهرستان/,'');
+    const matches = (value:string) => !normalized || normalizeSearch(value).includes(normalized);
+    const chooseCity = (city:string, countyId:string, provinceId:string) => {
+      setDestinationProvince(provinceId); setDestinationCounty(countyId);
+      setDestination(city); setDestinationText(city); setSearchSubmitted(true); go('search');
+    };
+    const totalCities = iranLocations.reduce((sum,p)=>sum+p.counties.reduce((n,c)=>n+c.cities.length,0),0);
+    return <div className="space-y-4">
+      <Card><CardBody className="p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <button type="button" onClick={()=>go('destination-select')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button>
+          <div><h2 className="font-black text-lg">همه شهرها</h2><p className="text-xs text-gray-400 mt-1">{fa(iranLocations.length)} استان و {fa(totalCities)} شهر ایران</p></div>
+        </div>
+        <div className="relative">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-2xl border border-gray-200 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-400"/>
+        </div>
+        <div className="mt-5 space-y-3 max-h-[68vh] overflow-auto">
+          {iranLocations.map(province => {
+            const provinceMatches = matches(province.name);
+            const counties = province.counties.map(county => ({...county,cities:county.cities.filter(city => provinceMatches || matches(county.name) || matches(city))})).filter(county => provinceMatches || matches(county.name) || county.cities.length);
+            if (normalized && !provinceMatches && !counties.length) return null;
+            return <div key={province.id} className="rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden">
+              <div className="px-4 py-3 bg-primary-50 border-b border-primary-100"><b className="block text-base font-black">{province.name}</b><span className="text-[11px] text-gray-500">{fa(province.counties.length)} شهرستان</span></div>
+              <div className="p-2 space-y-2">{counties.map(county => <div key={county.id} className="rounded-xl bg-white border border-gray-100">
+                <div className="px-3 py-2 border-b border-gray-50"><b className="text-sm">شهرستان {county.name}</b></div>
+                <div className="p-2 grid grid-cols-1 gap-1.5">{county.cities.map(city => <button type="button" key={String(county.id)+'-'+city} onClick={()=>chooseCity(city,String(county.id),String(province.id))} className="w-full rounded-lg bg-gray-50 hover:bg-primary-50 px-3 py-2.5 flex items-center justify-between text-right"><span className="font-bold text-sm">{city}</span><span className="text-[10px] text-gray-400">انتخاب</span></button>)}</div>
+              </div>)}</div>
+            </div>;
+          })}
+          {normalized && !iranLocations.some(p => matches(p.name) || p.counties.some(c => matches(c.name) || c.cities.some(city=>matches(city)))) && <Empty title="نتیجه‌ای پیدا نشد" text="نام استان، شهرستان یا شهر را تغییر دهید."/>}
+        </div>
+      </CardBody></Card>
+    </div>;
   };
 
-  const handleChooseNearby = () => {
-    setOriginProvince('');
-    setOriginCounty('');
-    setOrigin('__nearby__');
-    setOriginText('اطراف من');
+const ProfilePage = () => <div className="space-y-3">
+    <Card><CardBody className="p-5 space-y-4">
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-2 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
+      <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-2 border-b border-gray-100 text-right">
+        <span className="text-sm font-bold text-gray-500">احراز هویت</span>
+        <span className={identityVerified ? 'text-sm font-black text-emerald-600' : identityRejected ? 'text-sm font-black text-red-600' : identityPending ? 'text-sm font-black text-orange-600' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : identityRejected ? 'عدم تایید' : identityPending ? 'در انتظار تایید' : 'ارسال مدارک'}</span>
+      </button>
+      <div className="flex items-center justify-between py-2"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
+    </CardBody></Card>
+  </div>;
 
-    setDestinationProvince('');
-    setDestinationCounty('');
-    setDestination('');
-    setDestinationText('');
+  const normalizeNationalId = (value:string) => value.split('').map(ch => { const i='۰۱۲۳۴۵۶۷۸۹'.indexOf(ch); return i>=0 ? String(i) : ch; }).filter(ch => ch>='0' && ch<='9').join('').slice(0,10);
 
-    setSearchSubmitted(true);
-    go('search');
-  };
+  const VerificationPage = () => {
+    const [verificationStep, setVerificationStep] = useState<1 | 2 | 3>(1);
+    const [nationalId, setNationalId] = useState('');
+    const [licensePhoto, setLicensePhoto] = useState<File | null>(null);
+    const [licenseFacePhoto, setLicenseFacePhoto] = useState<File | null>(null);
+    const [picker, setPicker] = useState<'license' | 'face' | null>(null);
 
-  const handleOpenAllDestinationCities = () => {
-    setOriginProvince('');
-    setOriginCounty('');
-    setOrigin('__nearby__');
-    setOriginText('اطراف من');
+    const chooseSource = (source: 'gallery' | 'camera') => {
+      const input = document.getElementById(`verification-${picker}-${source}`) as HTMLInputElement | null;
+      setPicker(null);
+      input?.click();
+    };
 
-    setDestinationProvince('');
-    setDestinationCounty('');
-    setDestination('');
-    setDestinationText('همه شهرها');
+    const submitNationalId = () => {
+      if (nationalId.length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      setVerificationStep(2);
+    };
 
-    setSearchSubmitted(true);
-    go('search');
-  };
+    const submitLicense = () => {
+      if (!licensePhoto) return notify('لطفاً تصویر گواهینامه را انتخاب کنید.');
+      setVerificationStep(3);
+    };
 
-  const handleChangeProvince = (mode: 'origin' | 'destination') => {
-    if (mode === 'origin') {
-      setOriginProvince('');
-      setOriginCounty('');
-      setOrigin('');
-      setOriginText('');
-      return;
-    }
+    const submitVerification = () => {
+      if (!licenseFacePhoto) return notify('لطفاً تصویر چهره همراه با گواهینامه را انتخاب کنید.');
+      setIdentityPending(true);
+      setIdentityRejected(false);
+      window.localStorage.setItem('bbberah_identity_pending_v1', 'true');
+      window.localStorage.removeItem('bbberah_identity_rejected_v1');
+      notify('مدارک با موفقیت ارسال شد و منتظر تایید است.');
+      go('account');
+    };
 
-    setDestinationProvince('');
-    setDestinationCounty('');
-    setDestination('');
-    setDestinationText('');
-
-    go('destination-select');
-  };
-
-  const handleToggleTerms = () => {
-    setTermsAccepted(value => !value);
-
-    notify(
-      !termsAccepted
-        ? 'پذیرش قوانین ثبت شد.'
-        : 'پذیرش قوانین لغو شد.',
+    const sourceInputs = (type: 'license' | 'face') => (
+      <>
+        <input id={`verification-${type}-gallery`} type="file" accept="image/*" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+        <input id={`verification-${type}-camera`} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+      </>
     );
-  };
 
-  const handleSignOut = () => {
-    setShowMenu(false);
-    void signOut();
-  };
-
-  const handleOpenCargo = (load: Load) => {
-    setSelected(load);
-    go('cargo-detail');
-  };
-
-  const handleCancelOffer = () => {
-    setConfirmAction(null);
-    setActionBusy(true);
-
-    window.setTimeout(() => {
-      setActionBusy(false);
-      notify('پیشنهاد لغو شد.');
-    }, 500);
-  };
-
-  const handleSaveAccount = () => {
-    notify('تغییرات به‌صورت آزمایشی ذخیره شد.');
-  };
-
-  const handleUpdateNearby = () => {
-    notify('موقعیت مکانی آزمایشی به‌روزرسانی شد.');
-  };
-
-  const handleRetryTransactions = () => {
-    notify('داده آزمایشی جدیدی وجود ندارد.');
-  };
-
-  const handleTopUp = () => {
-    notify('درگاه پرداخت در فاز دوم متصل می‌شود.');
-  };
-
-  const handleSupportChat = () => {
-    notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.');
-  };
-
-  const handleToggleDarkMode = () => {
-    notify('حالت کم‌نور فعلاً در حالت آزمایشی است.');
-  };
-
-  const handleDisableNotifications = () => {
-    setNotifications(0);
-    notify('اعلان‌ها در حالت آزمایشی خاموش شدند.');
-  };
-
-  const renderPage = () => {
-    if (page === 'home') {
-      return (
-        <HomePage
-          onOpenSearch={openSearchPage}
-          onNearby={openNearby}
-          onOpenOffers={() => go('offers')}
-        />
-      );
-    }
-
-    if (page === 'search') {
-      return (
-        <SearchPage
-          origin={origin}
-          originText={originText}
-          destination={destination}
-          destinationText={destinationText}
-          searchSubmitted={searchSubmitted}
-          filtered={filtered}
-          onRunSearch={runSearch}
-          onClearAll={clearAll}
-          onGoOriginSelect={() => go('origin-select')}
-          onGoDestinationSelect={() => go('destination-select')}
-          onSelectRoute={onSelectRoute}
-          onOpenCargo={handleOpenCargo}
-          onOffer={requestOffer}
-        />
-      );
-    }
-
-    if (page === 'profile') {
-      return <ProfilePage profile={profile} onGo={go} />;
-    }
-
-    if (page === 'vehicle') {
-      return (
-        <VehiclePage
-          profile={profile}
-          onBack={() => go('profile')}
-        />
-      );
-    }
-
-    if (page === 'cargo-detail') {
-      return (
-        <DetailPage
-          selected={selected}
-          onOffer={requestOffer}
-          onGoSearch={openSearchPage}
-        />
-      );
-    }
-
-    if (page === 'origin-select') {
-      return (
-        <LocationSelectPage
-          mode="origin"
-          allCities={false}
-          originProvince={originProvince}
-          destinationProvince={destinationProvince}
-          onChooseProvince={handleChooseProvince}
-          onChooseCity={handleChooseCity}
-          onChooseNearby={handleChooseNearby}
-          onOpenAllDestinationCities={handleOpenAllDestinationCities}
-          onChangeProvince={handleChangeProvince}
-          onBack={() => go('search')}
-        />
-      );
-    }
-
-    if (page === 'destination-select') {
-      return (
-        <LocationSelectPage
-          mode="destination"
-          allCities={false}
-          originProvince={originProvince}
-          destinationProvince={destinationProvince}
-          onChooseProvince={handleChooseProvince}
-          onChooseCity={handleChooseCity}
-          onChooseNearby={handleChooseNearby}
-          onOpenAllDestinationCities={handleOpenAllDestinationCities}
-          onChangeProvince={handleChangeProvince}
-          onBack={() => go('search')}
-        />
-      );
-    }
-
-    if (page === 'destination-all') {
-      return (
-        <LocationSelectPage
-          mode="destination"
-          allCities
-          originProvince={originProvince}
-          destinationProvince={destinationProvince}
-          onChooseProvince={handleChooseProvince}
-          onChooseCity={handleChooseCity}
-          onChooseNearby={handleChooseNearby}
-          onOpenAllDestinationCities={handleOpenAllDestinationCities}
-          onChangeProvince={handleChangeProvince}
-          onBack={() => go('search')}
-        />
-      );
-    }
-
-    if (page === 'nearby') {
-      return (
-        <NearbyPage
-          loads={loads}
-          onUpdateLocation={handleUpdateNearby}
-          onOpenCargo={handleOpenCargo}
-          onOffer={requestOffer}
-        />
-      );
-    }
-
-    if (page === 'calls') {
-      return <CallsPage loads={loads} />;
-    }
-
-    if (page === 'notifications') {
-      return <NotificationsPage />;
-    }
-
-    if (page === 'offers') {
-      return (
-        <OffersPage
-          offerSuccess={offerSuccess}
-          onCancelOffer={() => setConfirmAction('cancel-offer')}
-        />
-      );
-    }
-
-    if (page === 'shipment') {
-      return <ShipmentPage />;
-    }
-
-    if (page === 'wallet') {
-      return <WalletPage onTopUp={handleTopUp} />;
-    }
-
-    if (page === 'transactions') {
-      return <TransactionsPage onRetry={handleRetryTransactions} />;
-    }
-
-    if (page === 'account') {
-      return (
-        <AccountPage
-          profile={profile}
-          accountName={accountName}
-          onChangeName={setAccountName}
-          onSave={handleSaveAccount}
-        />
-      );
-    }
-
-    if (page === 'support') {
-      return <SupportPage onOpenChat={handleSupportChat} />;
-    }
-
-    if (page === 'display') {
-      return (
-        <DisplayPage
-          onToggleDarkMode={handleToggleDarkMode}
-          onDisableNotifications={handleDisableNotifications}
-        />
-      );
-    }
-
-    if (page === 'rules') {
-      return (
-        <RulesPage
-          termsAccepted={termsAccepted}
-          onToggleTerms={handleToggleTerms}
-        />
-      );
-    }
-
-    return <ProfilePage profile={profile} onGo={go} />;
-  };
-
-  return (
-    <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
-      <Header
-        notifications={notifications}
-        onOpenMenu={() => setShowMenu(true)}
-        onGoHome={() => go('home')}
-        onOpenNotifications={() => {
-          setNotifications(0);
-          go('notifications');
-        }}
-      />
-
-      <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
-        {page !== 'home' && page !== 'profile' && (
-          <button
-            onClick={() =>
-              go(
-                page === 'cargo-detail' ||
-                  page === 'origin-select' ||
-                  page === 'destination-select' ||
-                  page === 'destination-all'
-                  ? 'search'
-                  : 'home',
-              )
-            }
-            className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            بازگشت
-          </button>
-        )}
-
-        {renderPage()}
-      </main>
-
-      <BottomNav page={page} onGo={go} onOpenSearch={openSearchPage} />
-
-      <Drawer
-        isOpen={showMenu}
-        profile={profile}
-        onClose={() => setShowMenu(false)}
-        onGo={go}
-        onSignOut={handleSignOut}
-      />
-
-      <Toast message={toast} onClose={() => setToast('')} />
-
-      {confirmAction && (
-        <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-5">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
-            <h3 className="font-black text-lg">تأیید عملیات</h3>
-
-            <p className="text-sm text-gray-500 mt-2">
-              {confirmAction === 'cancel-offer'
-                ? 'آیا می‌خواهید پیشنهاد انتخاب‌شده لغو شود؟'
-                : 'آیا می‌خواهید این بار لغو شود؟ این عملیات در نسخه آزمایشی فقط وضعیت رابط را تغییر می‌دهد.'}
-            </p>
-
-            <div className="grid grid-cols-2 gap-2 mt-5">
-              <Button
-                variant="outline"
-                onClick={() => setConfirmAction(null)}
-              >
-                انصراف
-              </Button>
-
-              <Button onClick={handleCancelOffer}>
-                {actionBusy ? 'در حال انجام...' : 'تأیید'}
-              </Button>
-            </div>
-          </div>
+    const pickerMenu = picker && <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center" onClick={() => setPicker(null)}>
+      <div className="w-full max-w-lg rounded-t-3xl bg-white p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <h3 className="font-black text-lg mb-4">انتخاب تصویر</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('gallery')}>از گالری</button>
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('camera')}>از دوربین</button>
         </div>
-      )}
+      </div>
+    </div>;
 
-      {page === 'shipment' && shipmentStage === 'delivered' && (
-        <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4">
-          <div className="rounded-2xl bg-white border shadow-xl p-4">
-            <b>سفر با موفقیت تحویل شد</b>
+    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
 
-            <div className="flex gap-2 mt-3">
-              {[1, 2, 3, 4, 5].map(n => (
-                <button
-                  key={n}
-                  onClick={() => setRating(n)}
-                  className={`text-2xl ${
-                    n <= rating ? '' : 'opacity-30'
-                  }`}
-                >
-                  ★
-                </button>
-              ))}
-            </div>
 
-            <Button
-              className="w-full mt-3"
-              onClick={() =>
-                notify(
-                  rating
-                    ? 'امتیاز شما در حالت آزمایشی ثبت شد.'
-                    : 'لطفاً امتیاز را انتخاب کنید.',
-                )
-              }
-            >
-              ثبت امتیاز
-            </Button>
-          </div>
+    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
+
+    if (identityRejected) return <Card><CardBody className="p-5 text-center space-y-4"><div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center"><XCircle className="w-8 h-8 text-red-500"/></div><h3 className="font-black text-lg text-red-600">احراز هویت تأیید نشد</h3><p className="text-sm text-gray-500 leading-7">مدارک ارسالی شما نیاز به اصلاح دارد. پس از اصلاح می‌توانید دوباره مدارک را ارسال کنید.</p><div className="rounded-2xl bg-red-50 border border-red-100 p-4 text-right space-y-2"><div className="text-sm font-black text-red-700">دلیل عدم تأیید</div><div className="text-sm text-gray-600 leading-7">تصویر مدارک واضح نیست یا نیاز به بررسی و اصلاح دارد.</div></div><Button size="full" onClick={() => { setIdentityRejected(false); setIdentityPending(false); setVerificationStep(1); window.localStorage.removeItem('bbberah_identity_rejected_v1'); window.localStorage.removeItem('bbberah_identity_pending_v1'); }} className="!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600">اصلاح و ارسال مجدد</Button></CardBody></Card>;
+
+    if (identityPending) return <Card><CardBody className="p-5 text-center space-y-3"><Clock3 className="w-12 h-12 mx-auto text-orange-500"/><h3 className="font-black text-lg text-orange-600">در انتظار تایید احراز هویت</h3><p className="text-sm text-gray-500 leading-7">مدارک شما ارسال شده و تا زمان بررسی نهایی قابل ویرایش یا ارسال مجدد نیست.</p><div className="rounded-2xl bg-orange-50 border border-orange-100 p-4 text-sm font-bold text-orange-700">لطفاً منتظر نتیجه بررسی بمانید.</div></CardBody></Card>;
+
+    if (verificationStep === 1) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go("account")} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div>
+          <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
         </div>
-      )}
-
-      {offerOpen && selected && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center">
-          <div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7">
-            <div className="flex items-center justify-between">
-              <h3 className="font-black text-lg">ثبت پیشنهاد</h3>
-
-              <button
-                onClick={() => setOfferOpen(false)}
-                className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="text-sm text-gray-500 mt-2">{selected.title}</p>
-
-            <div className="mt-4 rounded-2xl bg-gray-50 p-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">کرایه اعلامی</span>
-
-                <b>{money(selected.price)} تومان</b>
-              </div>
-
-              <div className="mt-3 rounded-xl bg-primary-50 p-3 text-xs text-primary-800">
-                <div className="flex items-center gap-2 font-bold">
-                  <CircleDollarSign className="w-4 h-4" />
-                  شاخص میانگین قیمت مسیر
-                </div>
-
-                <div className="mt-4" dir="ltr">
-                  <div className="relative h-7 overflow-visible rounded-full bg-gradient-to-r from-lime-200 via-lime-300 to-lime-500">
-                    <div className="absolute top-1/2 left-[68%] -translate-x-1/2 -translate-y-1/2">
-                      <span className="block w-4 h-4 rounded-full bg-white border-[3px] border-lime-700 shadow" />
-
-                      <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[7px] border-l-transparent border-r-transparent border-t-lime-700" />
-                    </div>
-                  </div>
-
-                  <div
-                    className="mt-3 flex items-center justify-between text-[10px] text-gray-500"
-                    dir="rtl"
-                  >
-                    <span className="flex items-center gap-1">
-                      <Coins className="w-4 h-4 text-lime-500" />
-                      کم
-                    </span>
-
-                    <span className="flex items-center gap-1">
-                      <Coins className="w-5 h-5 text-lime-700" />
-                      زیاد
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <label className="block text-sm font-bold mt-5">
-              مبلغ پیشنهادی (تومان)
-            </label>
-
-            <input
-              autoFocus
-              inputMode="numeric"
-              value={offerPrice}
-              onChange={e =>
-                setOfferPrice(e.target.value.replace(/[^0-9]/g, ''))
-              }
-              className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-left outline-none focus:border-primary-400"
-              dir="ltr"
-            />
-
-            <Button
-              size="full"
-              className="mt-4"
-              disabled={actionBusy}
-              onClick={submitOffer}
-            >
-              {actionBusy ? 'در حال ثبت...' : 'ارسال پیشنهاد'}
-            </Button>
-          </div>
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
+          مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
         </div>
-      )}
+        <Button size="full" onClick={submitNationalId} disabled={nationalId.length !== 10} className={nationalId.length === 10 ? '!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600' : '!bg-gray-300 !text-gray-500 !border-gray-300'}>ارسال</Button>
+      </CardBody></Card>
+    </div>;
+
+    if (verificationStep === 2) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">ارسال عکس گواهینامه</h2><button type="button" onClick={()=>setVerificationStep(1)} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
+        </div>
+        <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licensePhoto ? <img src={URL.createObjectURL(licensePhoto)} alt="تصویر گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
+        </button>
+        {sourceInputs('license')}
+        {licensePhoto && <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        <Button size="full" onClick={submitLicense}>بعدی</Button>
+      </CardBody></Card>
+      {pickerMenu}
+    </div>;
+
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2><button type="button" onClick={()=>setVerificationStep(2)} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
+        </div>
+        <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licenseFacePhoto ? <img src={URL.createObjectURL(licenseFacePhoto)} alt="چهره همراه گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
+        </button>
+        {sourceInputs('face')}
+        {licenseFacePhoto && <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        <Button size="full" onClick={submitVerification}>ارسال و منتظر تایید</Button>
+      </CardBody></Card>
+      {pickerMenu}
+    </div>;
+  };
+
+  const DetailPage = () => selected ? (() => { const commission = Math.round(selected.price * 0.05); return <div className="space-y-4">
+    <Card><CardBody className="p-5"><h2 className="text-xl font-black">{selected.title}</h2><div className="flex items-center gap-4 mt-5" dir="rtl"><div className="flex-1 text-center"><b className="block text-lg">{selected.from}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.from)}</span></div><div className="w-24 relative flex items-center justify-center"><div className="w-full border-t-2 border-dashed border-primary-300"/><div className="absolute flex flex-col items-center bg-white px-1"><Route className="w-5 h-5 text-primary-500 rotate-180"/><span className="text-xs font-black text-primary-700 mt-0.5">{fa(selected.routeDistance)} کیلومتر</span></div></div><div className="flex-1 text-center"><b className="block text-lg">{selected.to}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.to)}</span></div></div></CardBody></Card>
+    <Card><CardBody className="p-5 space-y-4"><h3 className="font-black">جزئیات بار</h3><div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center"><Package className="w-5 h-5 text-primary-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">نوع بار</span><b className="block mt-1 text-base font-black">{selected.type}</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-8 h-8 rounded-xl bg-primary-50 flex items-center justify-center"><Percent className="w-4 h-4 text-primary-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کمیسیون براه</span><b className="block mt-1 text-base font-black">{money(commission)} تومان</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><WeightIcon className="w-5 h-5 text-amber-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">وزن بار</span><b className="block mt-1 text-base font-black">{fa(selected.weight)} کیلو</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
+    </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
+    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p></CardBody></Card>
+  </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
+
+  const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
+    const at = Date.now();
+    setContactHistory(prev => {
+      const next = [...prev.filter(item => item.loadId !== loadId), {loadId, status, at}];
+      return next;
+    });
+    if (status === 'agreed' || status === 'carried') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'accepted'} : offer));
+    } else if (status === 'declined') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'rejected'} : offer));
+    }
+  };
+
+  const settleShipment = (load:Load, outcome:'carried'|'withdrawn') => {
+    const existing = shipmentHistory.find(item => item.loadId === load.id);
+    if (existing) {
+      notify('این بار قبلاً تعیین تکلیف شده و امکان ثبت دوباره ندارد.');
+      setAgreedFollowupLoadId(null);
+      return;
+    }
+    const commission = Math.round(load.price * 0.05);
+    const discount = Number((load as Load & {discount?:number}).discount || 0);
+    const payableCommission = Math.max(0, commission - discount);
+    const scoreChange = Math.max(1, Math.round(payableCommission / 50000));
+    const at = Date.now();
+    if (outcome === 'carried') {
+      const walletBefore = walletBalance;
+      const walletAfter = walletBefore - payableCommission;
+      setWalletBalance(walletAfter);
+      setDriverScore(prev => prev + scoreChange);
+      setContactHistory(prev => [...prev, {loadId:load.id, status:'carried', at}]);
+      setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:payableCommission, scoreChange, at}]);
+      setAgreedFollowupLoadId(null);
+      setShipmentRewardSummary({scoreChange, commission:payableCommission, discount, walletBefore, walletAfter});
+      return;
+    }
+    setDriverScore(prev => prev - scoreChange);
+    setContactHistory(prev => [...prev, {loadId:load.id, status:'declined', at}]);
+    setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:0, scoreChange:-scoreChange, at}]);
+    setAgreedFollowupLoadId(null);
+  };
+
+  const ViolationReportPage = () => {
+    const reportLoad = selected;
+    const reportOptions = [
+      'اطلاعات بار با واقعیت مطابقت ندارد',
+      'مبلغ یا شرایط بار متفاوت است',
+      'رفتار نامناسب یا توهین‌آمیز',
+      'مشکل در زمان یا محل بارگیری یا تحویل',
+    ];
+    const [selectedReports, setSelectedReports] = useState<string[]>([]);
+    const [reportText, setReportText] = useState('');
+    if (!reportLoad) return <Empty title="بار انتخاب نشده" text="ابتدا بار موردنظر را انتخاب کنید." action={()=>go('calls')}/>;
+    const submitReport = () => {
+      if (!selectedReports.length && !reportText.trim()) return notify('لطفاً حداقل یک مورد را انتخاب یا توضیحات بیشتری وارد کنید.');
+      setReportedLoadIds(prev => prev.includes(reportLoad.id) ? prev : [...prev, reportLoad.id]);
+      notify('گزارش تخلف با موفقیت ثبت شد و برای بررسی ارسال گردید.');
+      go('home');
+    };
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="mt-4 space-y-2">
+          {reportOptions.map(option => {
+            const checked = selectedReports.includes(option);
+            return <button key={option} type="button" onClick={()=>setSelectedReports(prev=>checked ? prev.filter(item=>item!==option) : [...prev, option])} className={`w-full rounded-2xl border p-3 text-right flex items-center gap-3 transition ${checked ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700'}`}>
+              <span className={`w-5 h-5 rounded-md border-2 shrink-0 flex items-center justify-center ${checked ? 'border-red-600 bg-red-600 text-white' : 'border-gray-300 bg-white'}`}>{checked ? '✓' : ''}</span>
+              <span className="text-sm font-bold">{option}</span>
+            </button>;
+          })}
+        </div>
+        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="توضیحات بیشتر (اختیاری)..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
+        <Button size="full" className="mt-3 bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={submitReport}>ارسال گزارش</Button>
+      </CardBody></Card>
+    </div>;
+  };
+
+  const ContactReportPage = () => {
+    const declinedCount = selected ? (declinedContactCounts[selected.id] || 0) : 0;
+    const declinedBlocked = declinedCount >= 2;
+    const submitContactReport = () => {
+      if (!contactReport) return notify('لطفاً یکی از سه نتیجه تماس را انتخاب کنید.');
+      if (!selected) return notify('بار موردنظر پیدا نشد.');
+      if (contactReport === 'agreed') {
+        setPendingContactLoadId(null);
+        saveContactResult(selected.id, 'agreed');
+        setAgreedFollowupLoadId(selected.id);
+        notify('توافق ثبت شد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
+        go('home');
+        return;
+      }
+      if (contactReport === 'declined') {
+        if (declinedBlocked) return notify('این نتیجه برای این بار دو بار ثبت شده و دیگر قابل انتخاب نیست.');
+        const nextCount = declinedCount + 1;
+        setDeclinedContactCounts(prev => ({...prev, [selected.id]: nextCount}));
+        saveContactResult(selected.id, 'declined');
+        setPendingContactLoadId(null);
+        notify(nextCount >= 2 ? 'این بار دو بار بدون توافق ثبت شد؛ انتخاب دوباره این گزینه برای همین بار بسته شد.' : 'عدم توافق ثبت شد.');
+        go('home');
+        return;
+      }
+      setPendingContactLoadId(selected.id);
+      saveContactResult(selected.id, 'uncertain');
+      notify('این بار در وضعیت «مشخص نیست» باقی ماند و یادآوری آن در برنامه نمایش داده می‌شود.');
+      go('home');
+    };
+    const options = [
+      ['agreed','توافق کردیم','bg-emerald-50 border-emerald-200 text-emerald-800'],
+      ['declined','توافق نکردیم','bg-red-50 border-red-200 text-red-800'],
+      ['uncertain','مشخص نیست','bg-amber-50 border-amber-200 text-amber-800'],
+    ] as const;
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="flex items-start gap-3">
+          <PhoneCall className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
+          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">بعد از تماس یکی از سه گزینه را انتخاب کنید.</p></div>
+        </div>
+        {selected && <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
+      </CardBody></Card>
+      <Card><CardBody className="p-4">
+        <div className="space-y-2">
+          {options.map(([value,title,cls])=>{
+            const blocked = value==='declined' && declinedBlocked;
+            return <button key={value} type="button" disabled={blocked} onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls} ${blocked?'opacity-45 cursor-not-allowed':''}`}>
+              <span className="block font-black text-base">{title}</span>
+              {value==='declined' && <span className="block text-xs font-black mt-2">{declinedCount}/۲ ثبت برای این بار</span>}
+            </button>;
+          })}
+        </div>
+        <Button size="full" className="mt-4 h-14 text-base font-black" onClick={submitContactReport}>ثبت نتیجه تماس</Button>
+      </CardBody></Card>
+    </div>;
+  };
+
+  const SimplePage = () => {
+    if (page==='verification') return <VerificationPage/>;
+    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
+    if (page==='calls') return <div className="space-y-3">
+      {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
+        const load=loads.find(l=>l.id===item.loadId);
+        if(!load) return null;
+        const shipmentResult = shipmentHistory.find(h => h.loadId === load.id);
+        const status = item.status==='carried'
+          ? 'حمل انجام شد'
+          : shipmentResult?.outcome==='withdrawn'
+            ? 'از حمل بار منصرف شدید'
+            : contactStatusLabel[item.status];
+        const canResolve = item.status==='uncertain' && !shipmentResult;
+        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleDateString('fa-IR')}</p></div>
+            <span className={'shrink-0 rounded-full px-3 py-1 text-xs font-black '+contactStatusClass[item.status]}>{status}</span>
+          </div>
+          {canResolve && <div className="grid grid-cols-2 gap-2 mt-4">
+            <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setContactReport('agreed');go('contact-report')}}>توافق شد</Button>
+            <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setContactReport('declined');go('contact-report')}}>عدم توافق</Button>
+          </div>}
+          {item.status==='agreed' && !shipmentResult && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
+          {item.status==='agreed' && !shipmentResult && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
+            <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" onClick={()=>{setSelected(load);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
+            <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);go('home');}}>از حمل بار منصرف شدم</Button>
+          </div>}
+          {item.status!=='uncertain' && <div className="grid grid-cols-1 gap-2 mt-3">
+            <Button size="sm" className="w-full" variant="outline" onClick={()=>{setSelected(load);go('cargo-detail');}}>مشاهده جزئیات بار</Button>
+            <a href={`tel:${load.phone}`} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 flex items-center justify-center gap-2 text-sm font-black text-emerald-700"><Phone className="w-4 h-4"/> تماس</a>
+            <Button size="sm" className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-200" variant="outline" disabled={reportedLoadIds.includes(load.id)} onClick={()=>{if(reportedLoadIds.includes(load.id)) return; setSelected(load);go('report');}}>{reportedLoadIds.includes(load.id) ? 'گزارش ثبت شده' : 'گزارش تخلف'}</Button>
+          </div>}
+        </CardBody></Card>;
+      })}
+    </div>;
+    if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
+    if (page==='offers') return <div className="space-y-3">
+      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
+        [...myOffers].reverse().map((offer)=>{
+          const load=loads.find(l=>l.id===offer.loadId); if(!load) return null;
+          const offerDate=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(offer.at));
+          const offerWeekday=new Intl.DateTimeFormat('fa-IR',{weekday:'long'}).format(new Date(offer.at));
+          const statusBox=offer.status==='accepted'?'bg-emerald-50 text-emerald-700 border-emerald-200':offer.status==='rejected'?'bg-red-50 text-red-700 border-red-200':'bg-gray-100 text-gray-600 border-gray-200';
+          const statusText=offer.status==='accepted'?'پذیرفته شد':offer.status==='rejected'?'رد شد':'در انتظار';
+          return <Card key={offer.loadId}><CardBody className="p-4">
+            <div className="flex items-center gap-3" dir="rtl">
+              <div className="flex-1 min-w-0"><div className="flex items-center justify-center gap-2 text-lg font-black whitespace-nowrap"><span className="text-gray-950">⚫️{load.from}</span><span className="text-gray-400">---&gt;</span><span className="text-blue-600">🔵{load.to}</span></div><div className="mt-2 text-center text-xs font-bold text-gray-400">{offerDate} / {offerWeekday}</div></div>
+              <button type="button" onClick={()=>openOfferDetail(offer.loadId)} aria-label="دیدن جزئیات" className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><MoreVertical className="w-5 h-5 text-gray-500"/></button>
+            </div>
+            <div className="mt-4 flex justify-center"><span className={`rounded-xl border px-4 py-2 text-xs font-black ${statusBox}`}>{statusText}</span></div>
+          </CardBody></Card>;
+        })}
+      {offerDetailLoadId && (()=>{const detailOffer=myOffers.find(o=>o.loadId===offerDetailLoadId), detailLoad=loads.find(l=>l.id===offerDetailLoadId); if(!detailOffer||!detailLoad)return null; return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center overscroll-none" onClick={closeOfferDetail}><div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7 select-none overscroll-none" onClick={e=>e.stopPropagation()} onPointerDown={e=>{const target=e.target as HTMLElement;if(target.closest('button,a'))return;e.currentTarget.setPointerCapture(e.pointerId);offerDetailTouchStartY.current=e.clientY;}} onPointerMove={e=>{const start=offerDetailTouchStartY.current;if(start===null)return;setOfferDetailDragY(Math.max(0,e.clientY-start));}} onPointerUp={e=>{const start=offerDetailTouchStartY.current;offerDetailTouchStartY.current=null;if(start!==null){const delta=e.clientY-start;if(delta>70){closeOfferDetail();}else setOfferDetailDragY(0);}}} onPointerCancel={()=>{offerDetailTouchStartY.current=null;setOfferDetailDragY(0);}} style={{transform:`translateY(${offerDetailDragY}px)`,transition:offerDetailTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}} dir="rtl"><div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black">جزئیات بار</h3><button type="button" onClick={closeOfferDetail} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="text-center text-lg font-black"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div><div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><WeightIcon className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">وزن بار</span><b className="block mt-1 text-sm font-black">{fa(detailLoad.weight)} کیلو</b></div>
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Package className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">نوع بار</span><b className="block mt-1 text-sm font-black">{detailLoad.type}</b></div>
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><CircleDollarSign className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">کرایه</span><b className="block mt-1 text-sm font-black">{money(detailLoad.price)} تومان</b></div>
+              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Route className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">مسافت</span><b className="block mt-1 text-sm font-black">{fa(detailLoad.routeDistance)} کیلومتر</b></div>
+            </div><p className="mt-4 text-sm font-bold leading-7 text-gray-700">{detailLoad.description}</p></div></div></div>})()}
+    </div>;
+    if (page==='shipment') return <div className="space-y-4">
+      {agreedFollowupLoadId ? (() => {
+        const followupLoad = loads.find(l=>l.id===agreedFollowupLoadId);
+        if (!followupLoad) return null;
+        const commission = Math.round(followupLoad.price * 0.05);
+        const scoreChange = Math.max(1, Math.round(commission / 50000));
+        return <Card><CardBody className="p-5">
+          <div className="flex items-center gap-3"><CheckCircle2 className="w-7 h-7 text-emerald-600"/><div><b>تعیین تکلیف حمل</b><p className="text-xs text-gray-400 mt-1">{followupLoad.from} به {followupLoad.to}</p></div></div>
+          <div className="mt-4 rounded-2xl bg-gray-50 p-4 text-sm font-bold leading-7">برای این بار توافق ثبت شده است. پس از تعیین نتیجه، امتیاز و کمیسیون مطابق عملکرد شما ثبت می‌شود.</div>
+          <div className="grid grid-cols-1 gap-3 mt-4">
+            <Button size="full" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'carried')}>۱. بار را حمل کردم</Button>
+            <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'withdrawn')}>۲. از حمل بار منصرف شدم</Button>
+          </div>
+        </CardBody></Card>;
+      })() : <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><b>سفر جاری</b><p className="text-xs text-gray-400 mt-1">در حال حاضر حمل توافق‌شده‌ای برای تعیین تکلیف ندارید.</p></div></div></CardBody></Card>}
+    </div>;
+    if (page==='wallet') return <div className="space-y-4"><Card><CardBody className="p-6 text-center"><CircleDollarSign className="w-8 h-8 mx-auto text-primary-600"/><p className="text-sm text-gray-400 mt-3">موجودی کیف پول</p><b className={`text-3xl block mt-2 ${walletBalance < 0 ? 'text-red-600' : 'text-gray-900'}`}>{money(walletBalance)} تومان</b><Button className="w-full mt-5" onClick={()=>notify('درگاه پرداخت در فاز دوم متصل می‌شود.')}>افزایش موجودی</Button></CardBody></Card></div>;
+    if (page==='transactions') return <div className="space-y-3">
+      {shipmentHistory.length===0 ? <Card><CardBody><Empty title="سابقه‌ای وجود ندارد" text="پس از تعیین تکلیف هر بار، سابقه کمیسیون و امتیاز اینجا ثبت می‌شود."/></CardBody></Card> : [...shipmentHistory].reverse().map((item,idx)=>{
+        const load=loads.find(l=>l.id===item.loadId);
+        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0"><b className="block">{load?.title || 'بار ثبت‌شده'}</b><p className="text-xs text-gray-500 mt-1">{load ? load.from+' ← '+load.to : ''}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleString('fa-IR')}</p></div>
+            <span className={item.outcome==='carried' ? 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-emerald-700 bg-emerald-50' : 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-red-700 bg-red-50'}>{item.outcome==='carried'?'حمل انجام شد':'انصراف از حمل'}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">کمیسیون</span><b className="block mt-1">{item.commission ? money(item.commission)+' تومان' : '۰ تومان'}</b></div>
+            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">تغییر امتیاز</span><b className="block mt-1">{item.scoreChange > 0 ? '+' : ''}{fa(item.scoreChange)}</b></div>
+          </div>
+          <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3 text-xs font-bold text-gray-600">این بار یک‌بار تعیین تکلیف شده و ثبت مجدد کمیسیون یا امتیاز برای آن امکان‌پذیر نیست.</div>
+        </CardBody></Card>;
+      })}
+    </div>;
+    if (page==='vehicle') return <Card><CardBody className="p-5 space-y-4"><div className="flex items-center gap-3"><CarFront className="w-7 h-7 text-primary-600"/><div><b>خودروی من</b><p className="text-xs text-gray-400 mt-1">اطلاعات خودرو در حالت آزمایشی نگهداری می‌شود.</p></div></div><select value={vehicleForm.type} onChange={e=>setVehicleForm(v=>({...v,type:e.target.value}))} className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-white"><option>تریلی</option><option>کامیون</option><option>خاور</option><option>نیسان</option></select><input value={vehicleForm.plate} onChange={e=>setVehicleForm(v=>({...v,plate:e.target.value}))} placeholder="پلاک خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input value={vehicleForm.model} onChange={e=>setVehicleForm(v=>({...v,model:e.target.value}))} placeholder="مدل خودرو" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><input inputMode="numeric" value={vehicleForm.year} onChange={e=>setVehicleForm(v=>({...v,year:e.target.value.replace(/\D/g,'').slice(0,4)}))} placeholder="سال ساخت" className="w-full rounded-xl border border-gray-200 px-4 py-3"/><Button className="w-full" onClick={()=>{if(!vehicleForm.plate.trim()||!vehicleForm.model.trim())return notify('پلاک و مدل خودرو را کامل کنید.');notify('خودرو در حالت آزمایشی ذخیره شد.')}}>ذخیره خودرو</Button></CardBody></Card>;
+    if (page==='account') return <Card><CardBody className="p-5 space-y-1">
+      <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">نام و نام خانوادگی</span><b className="text-sm">{profile?.full_name || accountName || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">کد ملی</span><b className="text-sm">{(profile as any)?.national_id || 'ثبت نشده'}</b></div>
+      <div className="flex items-center justify-between py-4 border-b border-gray-100"><span className="text-sm font-bold text-gray-500">موبایل</span><b className="text-sm" dir="ltr">{profile?.phone || 'ثبت نشده'}</b></div>
+      <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-4 border-b border-gray-100 text-right"><span className="text-sm font-bold text-gray-500">احراز هویت</span><span className={identityVerified ? 'text-sm font-black text-emerald-600' : identityPending ? 'text-sm font-black text-orange-500' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : identityPending ? 'در انتظار تایید' : 'ارسال مدارک'}</span></button>
+      <div className="flex items-center justify-between py-4"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
+    </CardBody></Card>;
+    if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headphones className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
+    if (page==='display') return <Card><CardBody className="p-5 space-y-4"><div><h3 className="font-black text-lg">تنظیمات ظاهری</h3><p className="text-sm text-gray-500 mt-1">تنظیمات نمایشی فعلاً روی دستگاه شبیه‌سازی می‌شوند.</p></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">حالت کم‌نور</b><p className="text-xs text-gray-400 mt-1">در نسخه نهایی به تنظیمات دستگاه متصل می‌شود.</p></div><button onClick={()=>notify('حالت کم‌نور فعلاً در حالت آزمایشی است.')} className="rounded-full bg-gray-200 px-4 py-2 text-xs font-bold">خاموش</button></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">اعلان‌ها</b><p className="text-xs text-gray-400 mt-1">کنترل اعلان‌های برنامه</p></div><button onClick={()=>{setNotifications(0);notify('اعلان‌ها در حالت آزمایشی خاموش شدند.')}} className="rounded-full bg-emerald-100 text-emerald-700 px-4 py-2 text-xs font-bold">فعال</button></div></CardBody></Card>;
+    if (page==='rules') return <div className="space-y-4">
+      <Card><CardBody className="p-5 text-sm text-gray-700 leading-8">
+        <h3 className="font-black text-xl text-gray-900">قوانین و مقررات اپلیکیشن رانندگان براه</h3>
+        <p className="text-xs text-gray-400 mt-2">نسخه ۱.۰ — آخرین به‌روزرسانی: [تاریخ]</p>
+        <p className="mt-4">این قوانین و مقررات، چارچوب استفاده رانندگان از اپلیکیشن «براه» و خدمات مرتبط با جستجوی بار، ارسال پیشنهاد، پذیرش حمل، انجام سفر و تحویل بار را مشخص می‌کند. استفاده از اپلیکیشن به معنی مطالعه و پذیرش این شرایط است.</p>
+
+        {[
+          ['۱. تعاریف و اصطلاحات','«براه» به اپلیکیشن و خدمات الکترونیکی ارائه‌شده به رانندگان اطلاق می‌شود. «راننده» شخص حقیقی دارای حساب کاربری و مدارک معتبر است که از طریق براه برای دریافت و حمل بار اقدام می‌کند. «صاحب بار» شخص یا مجموعه‌ای است که اطلاعات بار را در سامانه ارائه می‌کند. «بار» محموله‌ای است که مشخصات آن از جمله مبدأ، مقصد، نوع، وزن، زمان و شرایط حمل در سامانه اعلام می‌شود.'],
+          ['۲. موارد سلب مسئولیت','براه بستر ارتباط و هماهنگی میان راننده و صاحب بار است و مسئولیت صحت اطلاعاتی که کاربران وارد می‌کنند بر عهده همان کاربر است. راننده موظف است پیش از پذیرش حمل، اطلاعات بار، نوع کالا، وزن، مبدأ، مقصد، زمان‌بندی، مبلغ و شرایط تحویل را بررسی کند. مسئولیت تصمیم نهایی برای پذیرش یا رد هر بار بر عهده راننده است، مگر در مواردی که قانون یا قرارداد معتبر ترتیب دیگری مقرر کند.'],
+          ['۳. شرایط ایجاد حساب کاربری','ثبت حساب باید با اطلاعات واقعی راننده انجام شود. هر راننده مسئول حفظ اطلاعات ورود، شماره تلفن و دسترسی به حساب خود است و نباید حساب خود را در اختیار شخص دیگری قرار دهد. ایجاد چند حساب یا استفاده از هویت شخص دیگر ممنوع است. براه می‌تواند برای حفظ امنیت، صحت اطلاعات یا اجرای مقررات، اطلاعات حساب را بررسی یا دسترسی را محدود کند.'],
+          ['۴. احراز هویت و مدارک راننده','راننده فقط پس از تکمیل فرایندهای احراز هویت و تأیید مدارک لازم می‌تواند از خدمات حمل بار استفاده کند. اطلاعات هویتی، مدارک رانندگی، مشخصات خودرو، مدارک مرتبط با خودرو و اطلاعات بانکی لازم برای تسویه باید صحیح، معتبر و به‌روز باشند. ارائه مدرک جعلی، منقضی یا متعلق به شخص دیگر ممنوع است و می‌تواند موجب توقف دسترسی به خدمات شود.'],
+          ['۵. شرایط استفاده از اپلیکیشن','راننده باید از براه مطابق قوانین جاری کشور، مقررات حمل‌ونقل و دستورالعمل‌های اعلام‌شده استفاده کند. هرگونه استفاده برای فعالیت غیرقانونی، ارائه اطلاعات خلاف واقع، ایجاد اختلال، دسترسی غیرمجاز، مهندسی معکوس یا سوءاستفاده از امکانات سامانه ممنوع است.'],
+          ['۶. دریافت و انتخاب بار','نمایش بار در براه به معنی الزام راننده به پذیرش آن نیست. راننده باید پیش از ارسال پیشنهاد یا پذیرش حمل، ظرفیت و نوع خودروی خود، مسیر، وزن، زمان بارگیری و شرایط بار را بررسی کند. ارسال پیشنهاد باید آگاهانه و با مبلغی باشد که راننده واقعاً قادر به اجرای حمل با آن است.'],
+          ['۷. کرایه و پرداخت','مبلغ کرایه و شرایط پرداخت باید پیش از شروع حمل برای راننده روشن باشد. هرگونه کارمزد یا هزینه خدمات براه، در صورت وجود، مطابق شرایط اعلام‌شده در سامانه محاسبه می‌شود. تسویه، برگشت وجه، اختلاف مالی و زمان‌بندی پرداخت تابع وضعیت حمل و مقررات اعلامی براه خواهد بود.'],
+          ['۸. بارنامه و مدارک حمل','راننده موظف است مدارک قانونی لازم برای حمل را پیش از حرکت بررسی و در طول سفر نگهداری کند. در صورت وجود مغایرت میان اطلاعات سامانه و اسناد حمل، راننده باید پیش از شروع یا ادامه حمل موضوع را از مسیرهای رسمی پیگیری کند.'],
+          ['۹. لغو بار و انصراف راننده','لغو پیشنهاد یا انصراف از حمل باید از مسیرهای رسمی براه انجام شود. لغو مکرر یا بدون دلیل موجه، عدم حضور در زمان توافق‌شده یا پذیرش بار بدون توانایی اجرای آن می‌تواند طبق مقررات عملیاتی براه موجب محدودیت دسترسی یا بررسی حساب شود.'],
+          ['۱۰. انجام سفر و تحویل بار','پس از پذیرش حمل، راننده موظف است مراحل سفر را مطابق وضعیت‌های اعلام‌شده در اپلیکیشن انجام دهد؛ از جمله مراجعه برای بارگیری، کنترل وضعیت بار، شروع حرکت، حفظ شرایط ایمن حمل و تحویل محموله در مقصد. راننده نباید بدون هماهنگی معتبر، بار را به شخص دیگری واگذار کند. ثبت وضعیت‌های سفر باید مطابق واقع انجام شود.'],
+          ['۱۱. موقعیت مکانی','برای ارائه خدماتی مانند نمایش بارهای نزدیک، ثبت مراحل سفر و بهبود ایمنی و پشتیبانی، براه ممکن است با رضایت و تنظیمات دستگاه از اطلاعات موقعیت مکانی استفاده کند. راننده نباید موقعیت جعلی یا ابزارهای غیرمجاز برای تغییر وضعیت سفر استفاده کند.'],
+          ['۱۲. ارتباط با صاحب بار','ارتباط درباره بار باید تا حد امکان از مسیرهای رسمی و اطلاعاتی که براه در اختیار طرفین قرار می‌دهد انجام شود. راننده موظف است از توهین، تهدید، مزاحمت، افشای اطلاعات خصوصی یا استفاده خارج از موضوع حمل از اطلاعات تماس خودداری کند.'],
+          ['۱۳. قوانین خودرو','خودروی معرفی‌شده در براه باید با اطلاعات ثبت‌شده در حساب مطابقت داشته و از نظر قانونی و فنی برای نوع بار و مسیر موردنظر مناسب باشد. راننده مسئول اعتبار مدارک خودرو، معاینه و الزامات قانونی مرتبط با وسیله نقلیه است.'],
+          ['۱۴. ممنوعیت ربات و روش‌های غیرمجاز','استفاده از ربات، اسکریپت، ابزار خودکار، دستکاری درخواست‌ها، دور زدن محدودیت‌های سامانه یا هر روش غیرمجاز برای دریافت بار، ثبت پیشنهاد یا تغییر وضعیت سفر ممنوع است. براه می‌تواند فعالیت‌های مشکوک را بررسی و در صورت لزوم دسترسی حساب را محدود کند.'],
+          ['۱۵. اطلاعات و محرمانگی','اطلاعات هویتی، تماس، خودرو، موقعیت مکانی، سوابق پیشنهاد و سفر و اطلاعات مالی در حدود لازم برای ارائه خدمات، امنیت، پشتیبانی و انجام تعهدات قانونی پردازش می‌شوند. براه باید اطلاعات کاربران را مطابق قوانین و سیاست‌های حریم خصوصی خود مدیریت کند. راننده نیز موظف است اطلاعاتی را که درباره صاحب بار یا سایر کاربران دریافت می‌کند محرمانه نگه دارد.'],
+          ['۱۶. تعرفه و خدمات براه','در صورت وجود هزینه یا تعرفه برای استفاده از خدمات براه، مبلغ و شرایط آن پیش از اعمال هزینه در مسیرهای رسمی اعلام می‌شود. براه می‌تواند امکانات، تعرفه‌ها و شرایط خدمات را با اعلام قبلی و مطابق قوانین اصلاح کند.'],
+          ['۱۷. قطع یا محدود شدن دسترسی','در صورت تخلف از قوانین، ارائه اطلاعات نادرست، استفاده غیرمجاز، شکایت معتبر، نقص مدارک یا ایجاد خطر برای کاربران و عملیات حمل، براه می‌تواند تا زمان بررسی موضوع دسترسی به بخشی یا تمام خدمات را محدود یا متوقف کند. در موارد لازم، رفع محدودیت منوط به تکمیل مدارک یا بررسی پشتیبانی خواهد بود.'],
+          ['۱۸. مالکیت فکری','نام، نشان تجاری، طراحی، نرم‌افزار، متن‌ها، تصاویر، ساختار و محتوای اختصاصی براه متعلق به براه یا صاحبان قانونی آن است و استفاده، کپی، انتشار یا بهره‌برداری تجاری بدون مجوز ممنوع است.'],
+          ['۱۹. توافق الکترونیکی','ثبت‌نام، ورود، ارسال پیشنهاد، پذیرش بار و استفاده از خدمات براه می‌تواند به عنوان اعلام قصد و پذیرش الکترونیکی شرایط مربوط تلقی شود. سوابق ثبت‌شده در سامانه در حدود قوانین و مقررات قابل استناد خواهند بود.'],
+          ['۲۰. ارتباط با براه','برای مشکلات حساب، احراز هویت، بار، سفر، پرداخت یا اعتراض به محدودیت حساب، راننده باید از مسیرهای رسمی پشتیبانی استفاده کند. اطلاعات تماس رسمی براه در نسخه نهایی در این بخش درج می‌شود: [شماره پشتیبانی]، [ایمیل رسمی براه]، [وب‌سایت رسمی براه].'],
+          ['۲۱. پذیرش قوانین','با استفاده از براه، راننده تأیید می‌کند که قوانین و مقررات را مطالعه کرده و متعهد به رعایت آن‌ها است. ادامه استفاده از خدمات پس از انتشار نسخه به‌روزشده قوانین، در صورت اعلام و مطابق قوانین، به منزله پذیرش شرایط جدید خواهد بود. برای استفاده از خدمات ارسال پیشنهاد، راننده باید تأیید پذیرش قوانین را در حساب خود ثبت کرده باشد.']
+        ].map(([h,p])=><section key={h} className="border-t border-gray-100 pt-4"><h4 className="font-black text-gray-900">{h}</h4><p className="mt-2">{p}</p></section>)}
+        <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 leading-7"><b>توجه حقوقی:</b> این متن برای استفاده در اپلیکیشن براه تنظیم شده و پیش از انتشار عمومی باید توسط مشاور حقوقی براه با اطلاعات ثبتی، قوانین حمل‌ونقل و سیاست حریم خصوصی نهایی تطبیق داده شود.</div>
+      </CardBody></Card>
+      <Card><CardBody className="p-5">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
+          <div className="flex-1"><b>تأیید مطالعه و پذیرش قوانین</b><p className="text-xs text-gray-500 mt-1 leading-6">برای ارسال پیشنهاد بار، مطالعه و تأیید این قوانین الزامی است.</p></div>
+        </div>
+        <button onClick={()=>{setTermsAccepted(v=>!v);notify(!termsAccepted?'پذیرش قوانین ثبت شد.':'پذیرش قوانین لغو شد.')}} className={`w-full mt-4 rounded-xl px-4 py-3 text-sm font-black ${termsAccepted?'bg-emerald-100 text-emerald-700':'bg-primary-600 text-white'}`}>{termsAccepted?'✓ قوانین پذیرفته شده است':'مطالعه کردم و می‌پذیرم'}</button>
+      </CardBody></Card>
+    </div>;
+    return <ProfilePage/>;
+  };
+
+  return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
+    <Header />
+    <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
+      {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
+      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+    </main>
+    <BottomNav />
+    <Drawer />
+    <Toast message={toast} onClose={()=>setToast('')} />
+    {shipmentRewardSummary && <div className="fixed inset-0 z-[75] bg-black/40 flex items-center justify-center p-5">
+      <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center"><Star className="w-6 h-6 text-emerald-600"/></div>
+          <div><h3 className="font-black text-lg">امتیاز حمل ثبت شد</h3><p className="text-xs text-gray-500 mt-1">جزئیات نتیجه حمل</p></div>
+        </div>
+        <div className="mt-5 space-y-2 text-sm font-bold">
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">امتیاز دریافت‌شده</span><b className="text-emerald-700">+{fa(shipmentRewardSummary.scoreChange)} امتیاز</b></div>
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">کسر از کیف پول</span><b>{money(shipmentRewardSummary.commission)} تومان</b></div>
+          {shipmentRewardSummary.discount > 0 && <div className="flex items-center justify-between rounded-xl bg-emerald-50 p-3"><span className="text-gray-500">تخفیف</span><b className="text-emerald-700">{money(shipmentRewardSummary.discount)} تومان</b></div>}
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-gray-500">موجودی باقی‌مانده کیف پول</span><b>{money(shipmentRewardSummary.walletAfter)} تومان</b></div>
+        </div>
+        <Button className="w-full mt-5" onClick={()=>{setShipmentRewardSummary(null);go('home');}}>باشه</Button>
+      </div>
+    </div>}
+    {confirmAction && <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl"><h3 className="font-black text-lg">تأیید عملیات</h3><p className="text-sm text-gray-500 mt-2">{confirmAction==='cancel-offer'?'آیا می‌خواهید پیشنهاد انتخاب‌شده لغو شود؟':'آیا می‌خواهید این بار لغو شود؟ این عملیات در نسخه آزمایشی فقط وضعیت رابط را تغییر می‌دهد.'}</p><div className="grid grid-cols-2 gap-2 mt-5"><Button variant="outline" onClick={()=>setConfirmAction(null)}>انصراف</Button><Button onClick={()=>{setConfirmAction(null);setActionBusy(true);setTimeout(()=>{setActionBusy(false);notify('پیشنهاد لغو شد.');},500)}}>{actionBusy?'در حال انجام...':'تأیید'}</Button></div></div></div>}
+    {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-2xl bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><p className="text-xs text-gray-500 mt-1">صاحب کالا امتیاز راننده را ثبت می‌کند.</p><div className="flex gap-2 mt-3" dir="ltr">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setOwnerDriverRating(n)} className={`text-3xl ${n<=ownerDriverRating?'text-amber-400':'text-gray-300'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(ownerDriverRating?'امتیاز صاحب کالا ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز راننده</Button></div></div>}
+    {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center overscroll-none" style={{touchAction:"none"}} onTouchMove={e=>e.preventDefault()} onWheel={e=>e.preventDefault()}><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7 select-none overscroll-none" onTouchStart={e=>{const target=e.target as HTMLElement;if(target.closest('button,a,[role="slider"]'))return;offerTouchStartY.current=e.touches[0].clientY;}} onTouchMove={e=>{const start=offerTouchStartY.current;if(start===null)return;e.preventDefault();setOfferDragY(Math.max(0,e.touches[0].clientY-start));}} onTouchEnd={e=>{const start=offerTouchStartY.current;offerTouchStartY.current=null;if(start!==null){const delta=e.changedTouches[0].clientY-start;if(delta>70){setOfferOpen(false);setOfferDragY(0);}else setOfferDragY(0);}}} style={{transform:`translateY(${offerDragY}px)`,transition:offerTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}}> <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex items-center justify-between"><span className="text-base font-bold text-gray-500">قیمت اعلامی</span><b className="text-xl font-black">{money(selected.price)} تومان</b></div></div><div className="mt-4"><label className="block text-base font-bold text-gray-700">قیمت پیشنهادی</label><div className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-4 text-center text-xl font-black text-gray-900" dir="ltr">{money(Number(offerPrice)||0)} تومان</div><div className="mt-4 px-1" dir="ltr">
+  <div className="flex items-center gap-3">
+    <button type="button" aria-label="کاهش ۵۰ هزار تومان" className="w-10 h-10 shrink-0 rounded-xl border border-gray-200 bg-gray-50 text-2xl font-black text-gray-700 flex items-center justify-center" onClick={()=>adjustOfferPrice(-50000)}>−</button>
+    <div className="relative flex-1 h-10 flex items-center cursor-pointer touch-none select-none" role="slider" aria-label="تغییر قیمت پیشنهاد" aria-valuemin={0} aria-valuemax={100} aria-valuenow={offerSlider} tabIndex={-1}
+      onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);updateOfferSlider(e.clientX,e.currentTarget);}}
+      onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId)) updateOfferSlider(e.clientX,e.currentTarget);}}
+      onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);}}>
+      <div className="absolute left-0 right-0 h-3 rounded-full bg-gray-200"/>
+      <div className="absolute left-0 h-3 rounded-full bg-primary-500" style={{width:`${offerSlider}%`}}/>
+      <div className="absolute top-1/2 w-7 h-7 rounded-full bg-white border-4 border-primary-600 shadow-md -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{left:`${offerSlider}%`}}/>
     </div>
-  );
+    <button type="button" aria-label="افزایش ۵۰ هزار تومان" className="w-10 h-10 shrink-0 rounded-xl border border-gray-200 bg-gray-50 text-2xl font-black text-gray-700 flex items-center justify-center" onClick={()=>adjustOfferPrice(50000)}>+</button>
+  </div>
+  
+</div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-blue-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
+  </div>;
 }
