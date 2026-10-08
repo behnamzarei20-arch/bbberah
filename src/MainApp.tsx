@@ -744,7 +744,152 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     </div>;
   };
 
-const SimplePage = () => {
+
+  const DetailPage = () => selected ? (() => { const commission = Math.round(selected.price * 0.05); return <div className="space-y-4">
+    <Card><CardBody className="p-5"><h2 className="text-xl font-black">{selected.title}</h2><div className="flex items-center gap-4 mt-5" dir="rtl"><div className="flex-1 text-center"><b className="block text-lg">{selected.from}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.from)}</span></div><div className="w-24 relative flex items-center justify-center"><div className="w-full border-t-2 border-dashed border-primary-300"/><div className="absolute flex flex-col items-center bg-white px-1"><Route className="w-5 h-5 text-primary-500 rotate-180"/><span className="text-xs font-black text-primary-700 mt-0.5">{fa(selected.routeDistance)} کیلومتر</span></div></div><div className="flex-1 text-center"><b className="block text-lg">{selected.to}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.to)}</span></div></div></CardBody></Card>
+    <Card><CardBody className="p-5 space-y-4"><h3 className="font-black">جزئیات بار</h3><div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center"><Package className="w-5 h-5 text-primary-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">نوع بار</span><b className="block mt-1 text-base font-black">{selected.type}</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-8 h-8 rounded-xl bg-primary-50 flex items-center justify-center"><Percent className="w-4 h-4 text-primary-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کمیسیون براه</span><b className="block mt-1 text-base font-black">{money(commission)} تومان</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><WeightIcon className="w-5 h-5 text-amber-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">وزن بار</span><b className="block mt-1 text-base font-black">{fa(selected.weight)} کیلو</b></div>
+      <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
+    </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
+    <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p></CardBody></Card>
+  </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
+
+  const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
+    const at = Date.now();
+    setContactHistory(prev => {
+      const next = [...prev.filter(item => item.loadId !== loadId), {loadId, status, at}];
+      return next;
+    });
+    if (status === 'agreed' || status === 'carried') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'accepted'} : offer));
+    } else if (status === 'declined') {
+      setMyOffers(prev => prev.map(offer => offer.loadId === loadId ? {...offer, status:'rejected'} : offer));
+    }
+  };
+
+  const settleShipment = (load:Load, outcome:'carried'|'withdrawn') => {
+    const existing = shipmentHistory.find(item => item.loadId === load.id);
+    if (existing) {
+      notify('این بار قبلاً تعیین تکلیف شده و امکان ثبت دوباره ندارد.');
+      setAgreedFollowupLoadId(null);
+      return;
+    }
+    const commission = Math.round(load.price * 0.05);
+    const discount = Number((load as Load & {discount?:number}).discount || 0);
+    const payableCommission = Math.max(0, commission - discount);
+    const scoreChange = Math.max(1, Math.round(payableCommission / 50000));
+    const at = Date.now();
+    if (outcome === 'carried') {
+      const walletBefore = walletBalance;
+      const walletAfter = walletBefore - payableCommission;
+      setWalletBalance(walletAfter);
+      setDriverScore(prev => prev + scoreChange);
+      setContactHistory(prev => [...prev, {loadId:load.id, status:'carried', at}]);
+      setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:payableCommission, scoreChange, at}]);
+      setAgreedFollowupLoadId(null);
+      setShipmentRewardSummary({scoreChange, commission:payableCommission, discount, walletBefore, walletAfter});
+      return;
+    }
+    setDriverScore(prev => prev - scoreChange);
+    setContactHistory(prev => [...prev, {loadId:load.id, status:'declined', at}]);
+    setShipmentHistory(prev => [...prev, {loadId:load.id, outcome, commission:0, scoreChange:-scoreChange, at}]);
+    setAgreedFollowupLoadId(null);
+  };
+
+  const ViolationReportPage = () => {
+    const reportLoad = selected;
+    const reportOptions = [
+      'اطلاعات بار با واقعیت مطابقت ندارد',
+      'مبلغ یا شرایط بار متفاوت است',
+      'رفتار نامناسب یا توهین‌آمیز',
+      'مشکل در زمان یا محل بارگیری یا تحویل',
+    ];
+    const [selectedReports, setSelectedReports] = useState<string[]>([]);
+    const [reportText, setReportText] = useState('');
+    if (!reportLoad) return <Empty title="بار انتخاب نشده" text="ابتدا بار موردنظر را انتخاب کنید." action={()=>go('calls')}/>;
+    const submitReport = () => {
+      if (!selectedReports.length && !reportText.trim()) return notify('لطفاً حداقل یک مورد را انتخاب یا توضیحات بیشتری وارد کنید.');
+      setReportedLoadIds(prev => prev.includes(reportLoad.id) ? prev : [...prev, reportLoad.id]);
+      notify('گزارش تخلف با موفقیت ثبت شد و برای بررسی ارسال گردید.');
+      go('home');
+    };
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="mt-4 space-y-2">
+          {reportOptions.map(option => {
+            const checked = selectedReports.includes(option);
+            return <button key={option} type="button" onClick={()=>setSelectedReports(prev=>checked ? prev.filter(item=>item!==option) : [...prev, option])} className={`w-full rounded-2xl border p-3 text-right flex items-center gap-3 transition ${checked ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700'}`}>
+              <span className={`w-5 h-5 rounded-md border-2 shrink-0 flex items-center justify-center ${checked ? 'border-red-600 bg-red-600 text-white' : 'border-gray-300 bg-white'}`}>{checked ? '✓' : ''}</span>
+              <span className="text-sm font-bold">{option}</span>
+            </button>;
+          })}
+        </div>
+        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="توضیحات بیشتر (اختیاری)..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
+        <Button size="full" className="mt-3 bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={submitReport}>ارسال گزارش</Button>
+      </CardBody></Card>
+    </div>;
+  };
+
+  const ContactReportPage = () => {
+    const declinedCount = selected ? (declinedContactCounts[selected.id] || 0) : 0;
+    const declinedBlocked = declinedCount >= 2;
+    const submitContactReport = () => {
+      if (!contactReport) return notify('لطفاً یکی از سه نتیجه تماس را انتخاب کنید.');
+      if (!selected) return notify('بار موردنظر پیدا نشد.');
+      if (contactReport === 'agreed') {
+        setPendingContactLoadId(null);
+        saveContactResult(selected.id, 'agreed');
+        setAgreedFollowupLoadId(selected.id);
+        notify('توافق ثبت شد. نتیجه نهایی حمل را بعد از انجام حمل ثبت کنید.');
+        go('home');
+        return;
+      }
+      if (contactReport === 'declined') {
+        if (declinedBlocked) return notify('این نتیجه برای این بار دو بار ثبت شده و دیگر قابل انتخاب نیست.');
+        const nextCount = declinedCount + 1;
+        setDeclinedContactCounts(prev => ({...prev, [selected.id]: nextCount}));
+        saveContactResult(selected.id, 'declined');
+        setPendingContactLoadId(null);
+        notify(nextCount >= 2 ? 'این بار دو بار بدون توافق ثبت شد؛ انتخاب دوباره این گزینه برای همین بار بسته شد.' : 'عدم توافق ثبت شد.');
+        go('home');
+        return;
+      }
+      setPendingContactLoadId(selected.id);
+      saveContactResult(selected.id, 'uncertain');
+      notify('این بار در وضعیت «مشخص نیست» باقی ماند و یادآوری آن در برنامه نمایش داده می‌شود.');
+      go('home');
+    };
+    const options = [
+      ['agreed','توافق کردیم','bg-emerald-50 border-emerald-200 text-emerald-800'],
+      ['declined','توافق نکردیم','bg-red-50 border-red-200 text-red-800'],
+      ['uncertain','مشخص نیست','bg-amber-50 border-amber-200 text-amber-800'],
+    ] as const;
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5">
+        <div className="flex items-start gap-3">
+          <PhoneCall className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
+          <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">بعد از تماس یکی از سه گزینه را انتخاب کنید.</p></div>
+        </div>
+        {selected && <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
+      </CardBody></Card>
+      <Card><CardBody className="p-4">
+        <div className="space-y-2">
+          {options.map(([value,title,cls])=>{
+            const blocked = value==='declined' && declinedBlocked;
+            return <button key={value} type="button" disabled={blocked} onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls} ${blocked?'opacity-45 cursor-not-allowed':''}`}>
+              <span className="block font-black text-base">{title}</span>
+              {value==='declined' && <span className="block text-xs font-black mt-2">{declinedCount}/۲ ثبت برای این بار</span>}
+            </button>;
+          })}
+        </div>
+        <Button size="full" className="mt-4 h-14 text-base font-black" onClick={submitContactReport}>ثبت نتیجه تماس</Button>
+      </CardBody></Card>
+    </div>;
+  };
+
+  const SimplePage = () => {
     if (page==='verification') return <VerificationPage/>;
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
     if (page==='calls') return <div className="space-y-3">
