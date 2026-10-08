@@ -1,48 +1,4 @@
-
-// ============================================
-// UI TYPES (Brah App)
-// ============================================
-
-export type Page =
-  | 'home'
-  | 'search'
-  | 'nearby'
-  | 'calls'
-  | 'profile'
-  | 'account'
-  | 'vehicle'
-  | 'wallet'
-  | 'transactions'
-  | 'support'
-  | 'rules'
-  | 'notifications'
-  | 'display'
-  | 'cargo-detail'
-  | 'offers'
-  | 'shipment'
-  | 'origin-select'
-  | 'destination-select'
-  | 'destination-all';
-
-export type LoadStatus = 'open' | 'reserved' | 'delivered';
-
-export type Load = {
-  id: string;
-  title: string;
-  from: string;
-  to: string;
-  type: string;
-  vehicle: string;
-  weight: number;
-  price: number;
-  pickup: string;
-  delivery: string;
-  status: LoadStatus;
-  distance: number;
-  routeDistance: number;
-  description: string;
-  phone: string;
-};export type UserRole = 'driver' | 'shipper' | 'carrier' | 'admin';
+export type UserRole = 'driver' | 'shipper' | 'carrier' | 'admin';
 
 export type UserStatus = 'active' | 'suspended' | 'pending';
 
