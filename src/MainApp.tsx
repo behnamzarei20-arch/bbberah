@@ -745,6 +745,121 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
   };
 
 
+  const normalizeNationalId = (value:string) => value.split('').map(ch => { const i='۰۱۲۳۴۵۶۷۸۹'.indexOf(ch); return i>=0 ? String(i) : ch; }).filter(ch => ch>='0' && ch<='9').join('').slice(0,10);
+
+  const VerificationPage = () => {
+    const [verificationStep, setVerificationStep] = useState<1 | 2 | 3>(1);
+    const [nationalId, setNationalId] = useState('');
+    const [licensePhoto, setLicensePhoto] = useState<File | null>(null);
+    const [licenseFacePhoto, setLicenseFacePhoto] = useState<File | null>(null);
+    const [picker, setPicker] = useState<'license' | 'face' | null>(null);
+
+    const chooseSource = (source: 'gallery' | 'camera') => {
+      const input = document.getElementById(`verification-${picker}-${source}`) as HTMLInputElement | null;
+      setPicker(null);
+      input?.click();
+    };
+
+    const submitNationalId = () => {
+      if (nationalId.length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      setVerificationStep(2);
+    };
+
+    const submitLicense = () => {
+      if (!licensePhoto) return notify('لطفاً تصویر گواهینامه را انتخاب کنید.');
+      setVerificationStep(3);
+    };
+
+    const submitVerification = () => {
+      if (!licenseFacePhoto) return notify('لطفاً تصویر چهره همراه با گواهینامه را انتخاب کنید.');
+      setIdentityPending(true);
+      setIdentityRejected(false);
+      window.localStorage.setItem('bbberah_identity_pending_v1', 'true');
+      window.localStorage.removeItem('bbberah_identity_rejected_v1');
+      notify('مدارک با موفقیت ارسال شد و منتظر تایید است.');
+      go('account');
+    };
+
+    const sourceInputs = (type: 'license' | 'face') => (
+      <>
+        <input id={`verification-${type}-gallery`} type="file" accept="image/*" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+        <input id={`verification-${type}-camera`} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+          const file = e.target.files?.[0] || null;
+          if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
+        }}/>
+      </>
+    );
+
+    const pickerMenu = picker && <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center" onClick={() => setPicker(null)}>
+      <div className="w-full max-w-lg rounded-t-3xl bg-white p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <h3 className="font-black text-lg mb-4">انتخاب تصویر</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('gallery')}>از گالری</button>
+          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('camera')}>از دوربین</button>
+        </div>
+      </div>
+    </div>;
+
+    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
+
+
+    if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
+
+    if (identityRejected) return <Card><CardBody className="p-5 text-center space-y-4"><div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center"><XCircle className="w-8 h-8 text-red-500"/></div><h3 className="font-black text-lg text-red-600">احراز هویت تأیید نشد</h3><p className="text-sm text-gray-500 leading-7">مدارک ارسالی شما نیاز به اصلاح دارد. پس از اصلاح می‌توانید دوباره مدارک را ارسال کنید.</p><div className="rounded-2xl bg-red-50 border border-red-100 p-4 text-right space-y-2"><div className="text-sm font-black text-red-700">دلیل عدم تأیید</div><div className="text-sm text-gray-600 leading-7">تصویر مدارک واضح نیست یا نیاز به بررسی و اصلاح دارد.</div></div><Button size="full" onClick={() => { setIdentityRejected(false); setIdentityPending(false); setVerificationStep(1); window.localStorage.removeItem('bbberah_identity_rejected_v1'); window.localStorage.removeItem('bbberah_identity_pending_v1'); }} className="!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600">اصلاح و ارسال مجدد</Button></CardBody></Card>;
+
+    if (identityPending) return <Card><CardBody className="p-5 text-center space-y-3"><Clock3 className="w-12 h-12 mx-auto text-orange-500"/><h3 className="font-black text-lg text-orange-600">در انتظار تایید احراز هویت</h3><p className="text-sm text-gray-500 leading-7">مدارک شما ارسال شده و تا زمان بررسی نهایی قابل ویرایش یا ارسال مجدد نیست.</p><div className="rounded-2xl bg-orange-50 border border-orange-100 p-4 text-sm font-bold text-orange-700">لطفاً منتظر نتیجه بررسی بمانید.</div></CardBody></Card>;
+
+    if (verificationStep === 1) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go("account")} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div>
+          <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+        </div>
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
+          مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
+        </div>
+        <Button size="full" onClick={submitNationalId} disabled={nationalId.length !== 10} className={nationalId.length === 10 ? '!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600' : '!bg-gray-300 !text-gray-500 !border-gray-300'}>ارسال</Button>
+      </CardBody></Card>
+    </div>;
+
+    if (verificationStep === 2) return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">ارسال عکس گواهینامه</h2><button type="button" onClick={()=>setVerificationStep(1)} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
+        </div>
+        <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licensePhoto ? <img src={URL.createObjectURL(licensePhoto)} alt="تصویر گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
+        </button>
+        {sourceInputs('license')}
+        {licensePhoto && <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        <Button size="full" onClick={submitLicense}>بعدی</Button>
+      </CardBody></Card>
+      {pickerMenu}
+    </div>;
+
+    return <div className="space-y-4">
+      <Card><CardBody className="p-5 space-y-4">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2><button type="button" onClick={()=>setVerificationStep(2)} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
+        </div>
+        <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+          {licenseFacePhoto ? <img src={URL.createObjectURL(licenseFacePhoto)} alt="چهره همراه گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
+        </button>
+        {sourceInputs('face')}
+        {licenseFacePhoto && <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        <Button size="full" onClick={submitVerification}>ارسال و منتظر تایید</Button>
+      </CardBody></Card>
+      {pickerMenu}
+    </div>;
+  };
+
   const DetailPage = () => selected ? (() => { const commission = Math.round(selected.price * 0.05); return <div className="space-y-4">
     <Card><CardBody className="p-5"><h2 className="text-xl font-black">{selected.title}</h2><div className="flex items-center gap-4 mt-5" dir="rtl"><div className="flex-1 text-center"><b className="block text-lg">{selected.from}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.from)}</span></div><div className="w-24 relative flex items-center justify-center"><div className="w-full border-t-2 border-dashed border-primary-300"/><div className="absolute flex flex-col items-center bg-white px-1"><Route className="w-5 h-5 text-primary-500 rotate-180"/><span className="text-xs font-black text-primary-700 mt-0.5">{fa(selected.routeDistance)} کیلومتر</span></div></div><div className="flex-1 text-center"><b className="block text-lg">{selected.to}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.to)}</span></div></div></CardBody></Card>
     <Card><CardBody className="p-5 space-y-4"><h3 className="font-black">جزئیات بار</h3><div className="grid grid-cols-2 gap-3 text-sm">
@@ -1031,7 +1146,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
         <button onClick={()=>{setTermsAccepted(v=>!v);notify(!termsAccepted?'پذیرش قوانین ثبت شد.':'پذیرش قوانین لغو شد.')}} className={`w-full mt-4 rounded-xl px-4 py-3 text-sm font-black ${termsAccepted?'bg-emerald-100 text-emerald-700':'bg-primary-600 text-white'}`}>{termsAccepted?'✓ قوانین پذیرفته شده است':'مطالعه کردم و می‌پذیرم'}</button>
       </CardBody></Card>
     </div>;
-    return <ProfilePage/>;
+    return <ProfilePage onBack={()=>go('home')} />;
   };
 
   return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
@@ -1039,7 +1154,7 @@ offers:'پیشنهادهای من', report:'گزارش تخلف', shipment:'سف
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>go(page==='cargo-detail' || page==='origin-select' || page==='destination-select' || page==='destination-all' || page==='frequent-route' ? 'search' : page==='contact-report' ? 'cargo-detail' : page==='report' ? 'calls' : 'home')} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage onBack={()=>go('home')} /> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Drawer />
