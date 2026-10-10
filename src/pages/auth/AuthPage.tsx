@@ -108,9 +108,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
         <button type="button" onClick={() => setTermsOpen(false)} className="mb-5 flex items-center gap-2 text-sm font-bold text-gray-500">
           <ArrowRight className="h-4 w-4" /> بازگشت به ورود
         </button>
-        <div className="rounded-3xl border border-gray-100 bg-white p-5 text-sm text-gray-700 leading-8 shadow-sm">
-          <RulesContent />
-        </div>
+        <RulesContent onAccept={() => { setAccepted(true); setTermsOpen(false); setNotice(null); }} />
       </div>
     </div>;
   }
