@@ -3,7 +3,7 @@ import {
   ArrowLeft, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
-  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor
+  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -188,6 +188,7 @@ export function MainApp() {
   const [nearbyUserLocation, setNearbyUserLocation] = useState<GeoPoint | null>(null);
   const [nearbyLocationStatus, setNearbyLocationStatus] = useState<'idle'|'locating'|'ready'|'denied'>('idle');
   const [toast, setToast] = useState('');
+  const [showPageHelp, setShowPageHelp] = useState(false);
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem('bbberah-read-notification-ids-v1') || '[]');
@@ -373,13 +374,6 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   }, []);
   useEffect(() => { window.localStorage.setItem('bbberah-sms-notifications-enabled', smsNotificationsEnabled ? 'true' : 'false'); }, [smsNotificationsEnabled]);
   useEffect(() => { window.localStorage.setItem('bbberah-read-notification-ids-v1', JSON.stringify(readNotificationIds)); }, [readNotificationIds]);
-  useEffect(() => {
-    if (page !== 'notifications') return;
-    setReadNotificationIds(current => {
-      const next = Array.from(new Set([...current, ...notificationItems.map(item => item.id)]));
-      return next.length === current.length ? current : next;
-    });
-  }, [page]);
   const startThemePress = () => {
     themeLongPressTriggered.current = false;
     if (themePressTimer.current !== null) window.clearTimeout(themePressTimer.current);
@@ -537,42 +531,8 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
 offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 'trailer-select':'نوع کاربری را انتخاب کنید', 'jooft-usage':'نوع کاربری خودرو خود را انتخاب کنید', 'jooft-feature':'ویژگی کاربری', 'tak-usage':'نوع کاربری خودرو خود را انتخاب کنید', 'tak-feature':'ویژگی کاربری', 'komionet-usage':'نوع بارگیر خود را انتخاب کنید', 'komionet-feature':'ویژگی بارگیر خود را انتخاب کنید', 'van-usage':'نوع کاربری خود را انتخاب کنید', 'van-feature':'ویژگی بارگیر خود را انتخاب کنید', 'flatbed-size':'ویژگی کاربری', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس', 'nearby-destination-select':'انتخاب مقصد', 'nearby-results':'اطراف من'
   };
 
-  const openOfferDetail = (loadId:string) => {
-    setOfferDetailLoadId(loadId);
-    setOfferDetailDragY(0);
-    window.history.pushState({ bbberahPage: page, bbberahOfferDetail: true }, '', window.location.href);
-  };
-  const closeOfferDetail = () => {
-    if (window.history.state?.bbberahOfferDetail) {
-      window.history.back();
-    } else {
-      setOfferDetailLoadId(null);
-      setOfferDetailDragY(0);
-    }
-  };
-  useEffect(() => {
-    if (!offerDetailLoadId) return;
-    const prevOverflow = document.body.style.overflow;
-    const prevOverscroll = document.body.style.overscrollBehavior;
-    const prevHtmlOverflow = document.documentElement.style.overflow;
-    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
-    document.body.style.overflow = 'hidden';
-    document.body.style.overscrollBehavior = 'none';
-    document.documentElement.style.overflow = 'hidden';
-    document.documentElement.style.overscrollBehavior = 'none';
-    const onOfferDetailBack = () => {
-      setOfferDetailLoadId(null);
-      setOfferDetailDragY(0);
-    };
-    window.addEventListener('popstate', onOfferDetailBack);
-    return () => {
-      window.removeEventListener('popstate', onOfferDetailBack);
-      document.body.style.overflow = prevOverflow;
-      document.body.style.overscrollBehavior = prevOverscroll;
-      document.documentElement.style.overflow = prevHtmlOverflow;
-      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
-    };
-  }, [offerDetailLoadId]);
+  const openOfferDetail = (loadId:string) => setOfferDetailLoadId(loadId);
+  const closeOfferDetail = () => setOfferDetailLoadId(null);
 
   const requestOffer = (load:Load) => {
     if (myOffers.some(o => o.loadId === load.id)) {
@@ -651,7 +611,6 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           title="لمس کوتاه: روز/شب؛ نگه‌داشتن: خودکار">
           {displayMode==='auto' ? <Monitor className="w-5 h-5"/> : effectiveDark ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
         </button>
-        <button type="button" onClick={()=>go('display')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="تنظیمات برنامه" title="تنظیمات برنامه"><Settings className="w-5 h-5"/></button>
         <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
       </div>
     </div>
@@ -669,7 +628,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     <Card><CardBody className="p-4">
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
-        <div className="min-w-0"><h2 className="font-black text-lg">حساب کاربری</h2><p className="text-sm text-gray-500 mt-1">{profile?.full_name || 'کاربر براه'}{profile?.phone ? ' · '+profile.phone : ''}</p></div>
+        <div className="min-w-0"><h2 className="font-black text-lg">{profile?.full_name || accountName || 'کاربر براه'}</h2><p className="text-sm text-gray-500 mt-1" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p></div>
       </div>
     </CardBody></Card>
     <Card><CardBody className="p-2">
@@ -1299,7 +1258,7 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
     if (page==='calls') return <div className="space-y-6">
       <section className="space-y-3"><h2 className="text-lg font-black">وضعیت تماس‌ها</h2>
-      {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
+      {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].sort((a,b)=>b.at-a.at).map((item,idx)=>{
         const load=loads.find(l=>l.id===item.loadId);
         if(!load) return null;
         const shipmentResult = shipmentHistory.find(h => h.loadId === load.id);
@@ -1334,7 +1293,7 @@ const ProfilePage = () => <div className="space-y-3">
       <section className="space-y-3">
         <h2 className="text-lg font-black">پیشنهادهای قیمت</h2>
         {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای قیمت شما پس از ارسال در همین صفحه نمایش داده می‌شوند."/></CardBody></Card> :
-          [...myOffers].reverse().map(offer => {
+          [...myOffers].sort((a,b)=>b.at-a.at).map(offer => {
             const load = loads.find(l => l.id === offer.loadId);
             if (!load) return null;
             const statusText = offer.status === 'accepted' ? 'پذیرفته شد' : offer.status === 'rejected' ? 'رد شد' : 'در انتظار';
@@ -1351,13 +1310,21 @@ const ProfilePage = () => <div className="space-y-3">
       </section>
     </div>;
     if (page==='notifications') return <div className="space-y-4">
-      <Card><CardBody className="p-4 flex items-center justify-between gap-3">
-        <div className="flex items-start gap-3"><Bell className="w-5 h-5 text-primary-600 mt-0.5"/><div><b className="text-sm">دریافت پیامک</b><p className="text-xs text-gray-500 mt-1 leading-5">دریافت پیامک‌های اطلاع‌رسانی را فعال یا غیرفعال کنید.</p></div></div>
-        <button type="button" role="switch" aria-checked={smsNotificationsEnabled} onClick={()=>setSmsNotificationsEnabled(v=>!v)} className={`relative w-14 h-8 shrink-0 rounded-full transition-colors ${smsNotificationsEnabled?'bg-emerald-600':'bg-gray-300'}`} aria-label="فعال یا غیرفعال‌کردن دریافت پیامک">
-          <span className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${smsNotificationsEnabled?'right-1':'right-7'}`}/>
+      <Card><CardBody className="px-3 py-2.5 flex items-center justify-between gap-3">
+        <b className="text-sm">دریافت پیامک</b>
+        <button type="button" role="switch" aria-checked={smsNotificationsEnabled} onClick={()=>setSmsNotificationsEnabled(v=>!v)} className={`relative w-11 h-6 shrink-0 rounded-full transition-colors ${smsNotificationsEnabled?'bg-emerald-600':'bg-gray-300'}`} aria-label="فعال یا غیرفعال‌کردن دریافت پیامک">
+          <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${smsNotificationsEnabled?'right-1':'right-6'}`}/>
         </button>
       </CardBody></Card>
-      <div className="space-y-3">{notificationItems.map(item=><Card key={item.id}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{item.message}</b><p className="text-[11px] text-gray-400 mt-1">{item.date}</p><p className="text-[10px] font-bold text-emerald-600 mt-1">خوانده‌شده</p></div></CardBody></Card>)}</div>
+      <div className="space-y-3">{notificationItems.map(item=>{
+        const isRead = readNotificationIds.includes(item.id);
+        return <Card key={item.id}><CardBody className={`p-0 overflow-hidden border rounded-2xl ${isRead?'border-gray-100 bg-white':'border-orange-200 bg-orange-50'}`}>
+          <button type="button" onClick={()=>setReadNotificationIds(current=>current.includes(item.id)?current:[...current,item.id])} className={`w-full p-4 flex gap-3 text-right transition-colors ${isRead?'bg-white':'bg-orange-50'}`}>
+            <Bell className={`w-5 h-5 shrink-0 mt-0.5 ${isRead?'text-gray-400':'text-orange-600'}`}/>
+            <span className="min-w-0 flex-1"><b className="block text-sm">{item.message}</b><span className="block text-[11px] text-gray-400 mt-1">{item.date}</span><span className={`block text-[10px] font-bold mt-1 ${isRead?'text-gray-500':'text-orange-700'}`}>{isRead?'خوانده‌شده':'خوانده‌نشده'}</span></span>
+          </button>
+        </CardBody></Card>;
+      })}</div>
     </div>;
     if (page==='offers') return <div className="space-y-3">
       {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
@@ -1375,12 +1342,7 @@ const ProfilePage = () => <div className="space-y-3">
             <div className="mt-4 flex justify-center"><span className={`rounded-xl border px-4 py-2 text-xs font-black ${statusBox}`}>{statusText}</span></div>
           </CardBody></Card>;
         })}
-      {offerDetailLoadId && (()=>{const detailOffer=myOffers.find(o=>o.loadId===offerDetailLoadId), detailLoad=loads.find(l=>l.id===offerDetailLoadId); if(!detailOffer||!detailLoad)return null; return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center overscroll-none" onClick={closeOfferDetail}><div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7 select-none overscroll-none" onClick={e=>e.stopPropagation()} onPointerDown={e=>{const target=e.target as HTMLElement;if(target.closest('button,a'))return;e.currentTarget.setPointerCapture(e.pointerId);offerDetailTouchStartY.current=e.clientY;}} onPointerMove={e=>{const start=offerDetailTouchStartY.current;if(start===null)return;setOfferDetailDragY(Math.max(0,e.clientY-start));}} onPointerUp={e=>{const start=offerDetailTouchStartY.current;offerDetailTouchStartY.current=null;if(start!==null){const delta=e.clientY-start;if(delta>70){closeOfferDetail();}else setOfferDetailDragY(0);}}} onPointerCancel={()=>{offerDetailTouchStartY.current=null;setOfferDetailDragY(0);}} style={{transform:`translateY(${offerDetailDragY}px)`,transition:offerDetailTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}} dir="rtl"><div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black">جزئیات بار</h3><button type="button" onClick={closeOfferDetail} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="text-center text-lg font-black"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div><div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><WeightIcon className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">وزن بار</span><b className="block mt-1 text-sm font-black">{fa(detailLoad.weight)} کیلو</b></div>
-              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Package className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">نوع بار</span><b className="block mt-1 text-sm font-black">{detailLoad.type}</b></div>
-              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><CircleDollarSign className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">کرایه</span><b className="block mt-1 text-sm font-black">{money(detailLoad.price)} تومان</b></div>
-              <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Route className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">مسافت</span><b className="block mt-1 text-sm font-black">{fa(detailLoad.routeDistance)} کیلومتر</b></div>
-            </div><p className="mt-4 text-sm font-bold leading-7 text-gray-700">{detailLoad.description}</p></div></div></div>})()}
+
     </div>;
     if (page==='shipment') return <div className="space-y-4">
       {agreedFollowupLoadId ? (() => {
@@ -1677,15 +1639,54 @@ const ProfilePage = () => <div className="space-y-3">
     return <ProfilePage/>;
   };
 
+  const currentPageTitle = title[page] || 'براه';
+  const pageHelpText:Partial<Record<Page,string>> = {
+    calls:'در این صفحه سوابق تماس‌ها و پیشنهادهای قیمت خود را یکجا می‌بینید.',
+    profile:'از این بخش می‌توانید به اطلاعات حساب و امکانات کاربری دسترسی داشته باشید.',
+    account:'در این بخش اطلاعات شخصی و وضعیت احراز هویت نمایش داده می‌شود.',
+    notifications:'اعلان‌های برنامه را ببینید و وضعیت خوانده‌شدن هر پیام را مشخص کنید.',
+    display:'از این بخش می‌توانید حالت نمایش روز، شب یا خودکار را انتخاب کنید.',
+    offers:'پیشنهادهای قیمت ثبت‌شده و وضعیت آن‌ها در این بخش نمایش داده می‌شود.',
+    support:'از این بخش می‌توانید برای پیگیری مشکلات حساب، بار یا سفر اقدام کنید.'
+  };
+  const OfferDetailModal = () => {
+    const detailOffer = myOffers.find(o=>o.loadId===offerDetailLoadId);
+    const detailLoad = loads.find(l=>l.id===offerDetailLoadId);
+    if (!offerDetailLoadId || !detailOffer || !detailLoad) return null;
+    return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center p-0" onClick={closeOfferDetail}>
+      <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7 shadow-2xl" onClick={e=>e.stopPropagation()} dir="rtl">
+        <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black text-gray-900">جزئیات پیشنهاد قیمت</h3><button type="button" onClick={closeOfferDetail} aria-label="بستن" className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center"><X className="w-5 h-5"/></button></div>
+        <div className="mt-4 rounded-2xl bg-gray-50 p-4">
+          <div className="text-center text-lg font-black text-gray-900"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><WeightIcon className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">وزن بار</span><b className="block mt-1 text-sm font-black text-gray-900">{fa(detailLoad.weight)} کیلو</b></div>
+            <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Package className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">نوع بار</span><b className="block mt-1 text-sm font-black text-gray-900">{detailLoad.type}</b></div>
+            <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><CircleDollarSign className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">کرایه اعلامی</span><b className="block mt-1 text-sm font-black text-gray-900">{money(detailLoad.price)} تومان</b></div>
+            <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Route className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">قیمت پیشنهادی</span><b className="block mt-1 text-sm font-black text-gray-900">{money(detailOffer.price)} تومان</b></div>
+          </div>
+          <p className="mt-4 text-sm font-bold leading-7 text-gray-700">{detailLoad.description}</p>
+          <div className="mt-3 rounded-xl bg-white p-3 text-sm"><span className="text-gray-500">وضعیت پیشنهاد: </span><b className="text-gray-900">{detailOffer.status==='accepted'?'پذیرفته شد':detailOffer.status==='rejected'?'رد شد':'در انتظار'}</b></div>
+        </div>
+      </div>
+    </div>;
+  };
+
   return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`min-h-screen ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
-    <Header />
+    {page==='home' ? <Header/> : <div className="max-w-lg mx-auto px-4 pt-4">
+      <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
+        <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-bold text-gray-600 bg-white border border-gray-100"><ArrowLeft className="w-4 h-4"/> بازگشت</button>
+        <h1 className="flex-1 text-center text-lg font-black">{currentPageTitle}</h1>
+        <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
+      </div>
+    </div>}
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
-      {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='search'){goHome();}else{window.history.back();}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Toast message={toast} onClose={()=>setToast('')} />
+    {showPageHelp && <div className="fixed inset-0 z-[90] bg-black/40 flex items-center justify-center p-5" onClick={()=>setShowPageHelp(false)}><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl text-gray-900" onClick={e=>e.stopPropagation()}><div className="flex items-center justify-between gap-3"><h3 className="font-black text-lg">درباره {currentPageTitle}</h3><button type="button" onClick={()=>setShowPageHelp(false)} className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center" aria-label="بستن"><X className="w-4 h-4"/></button></div><p className="mt-3 text-sm leading-7 text-gray-600">{pageHelpText[page] || `این بخش برای مشاهده و مدیریت «${currentPageTitle}» در برنامه براه استفاده می‌شود.`}</p><Button className="w-full mt-4" onClick={()=>setShowPageHelp(false)}>متوجه شدم</Button></div></div>}
+    <OfferDetailModal/>
     {shipmentRewardSummary && <div className="fixed inset-0 z-[75] bg-black/40 flex items-center justify-center p-5">
       <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
         <div className="flex items-center gap-3">
