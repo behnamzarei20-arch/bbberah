@@ -7,6 +7,20 @@ import { RulesContent } from '@/components/RulesContent';
 import { Truck, ArrowRight, Pencil } from 'lucide-react';
 
 const DEMO_OTP = '12345';
+const OTP_COOLDOWN_KEY = 'bbberah-otp-cooldown-until';
+const getCooldownRemaining = () => {
+  try {
+    const until = Number(window.localStorage.getItem(OTP_COOLDOWN_KEY) || 0);
+    return Math.max(0, Math.ceil((until - Date.now()) / 1000));
+  } catch {
+    return 0;
+  }
+};
+const startCooldown = () => {
+  const until = Date.now() + 60_000;
+  try { window.localStorage.setItem(OTP_COOLDOWN_KEY, String(until)); } catch { /* Storage may be unavailable. */ }
+  return 60;
+};
 const fa = (v: string) => v.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] || d);
 const en = (v: string) => v.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
 
@@ -19,8 +33,8 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
   const [accepted, setAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [seconds, setSeconds] = useState(0);
-  const [codeRequested, setCodeRequested] = useState(false);
+  const [seconds, setSeconds] = useState(getCooldownRemaining);
+  const [codeRequested, setCodeRequested] = useState(() => getCooldownRemaining() > 0);
   const [notice, setNotice] = useState<Notice>(null);
   const [phoneError, setPhoneError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,7 +45,11 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
   // Keep the cooldown running even if the user edits the phone number.
   useEffect(() => {
     if (!codeRequested || seconds <= 0) return;
-    const timer = window.setTimeout(() => setSeconds(value => value - 1), 1000);
+    const timer = window.setTimeout(() => {
+      const remaining = getCooldownRemaining();
+      setSeconds(remaining);
+      if (remaining <= 0) setCodeRequested(false);
+    }, 250);
     return () => window.clearTimeout(timer);
   }, [codeRequested, seconds]);
 
@@ -68,7 +86,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
     }
     setPhoneError('');
     setOtp('');
-    setSeconds(60);
+    setSeconds(startCooldown());
     setCodeRequested(true);
     setNotice(null);
     setStep('otp');
@@ -188,7 +206,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
 
           {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
           <div className="text-center text-sm font-bold text-gray-500">
-            {seconds > 0 ? <>درخواست مجدد کد تا <span className="font-black text-primary-700">{fa(String(seconds).padStart(2, '0'))}</span> ثانیه دیگر</> : <button type="button" disabled={loading} onClick={() => { setOtp(''); setSeconds(60); setNotice(null); otpRef.current?.focus(); }} className="font-bold text-primary-700 disabled:opacity-50">درخواست مجدد کد</button>}
+            {seconds > 0 ? <>درخواست مجدد کد تا <span className="font-black text-primary-700">{fa(String(seconds).padStart(2, '0'))}</span> ثانیه دیگر</> : <button type="button" disabled={loading} onClick={() => { setOtp(''); setSeconds(startCooldown()); setCodeRequested(true); setNotice(null); otpRef.current?.focus(); }} className="font-bold text-primary-700 disabled:opacity-50">درخواست مجدد کد</button>}
           </div>
           <button type="button" onClick={editPhone} className="mx-auto flex items-center gap-2 text-sm font-bold text-primary-700 underline underline-offset-4">
             <Pencil className="h-4 w-4" /> ویرایش شماره تلفن
