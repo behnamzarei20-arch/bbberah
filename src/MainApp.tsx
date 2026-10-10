@@ -593,9 +593,9 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
   }, [offerOpen]);
 
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
-    <div className="max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
+    <div className="relative max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
       <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
-      <button type="button" onClick={()=>goHome()} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
+      <button type="button" onClick={()=>goHome()} className="absolute left-1/2 -translate-x-1/2 font-black text-2xl tracking-tight text-primary-700">براه</button>
       <div className="flex items-center gap-2">
         <button type="button"
           onPointerDown={startThemePress}
@@ -630,54 +630,47 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
     const vehicleTypeLabel = vehicleForm.type === 'وانت و نیسان' ? 'نیسان' : vehicleForm.type;
     const vehicleSummary = [vehicleTypeLabel, vehicleForm.usage, vehicleForm.feature].filter(Boolean).join(' · ');
+    const cardClass = 'w-full min-h-[76px] rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden';
+    const rowClass = 'w-full min-h-[76px] flex items-center justify-center gap-3 px-4 py-4 text-center';
     return <div className="space-y-3">
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm"><div className="p-4">
-        <div className="flex items-center gap-3">
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="p-4 flex flex-col items-center justify-center text-center gap-2">
           <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
-          <div className="min-w-0"><h2 className="font-black text-lg">{profile?.full_name || accountName || 'کاربر براه'}</h2><p className="text-sm text-gray-500 mt-1" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p></div>
+          <h2 className="font-black text-2xl text-gray-900">ادمین</h2>
+          <p className="text-base font-bold text-blue-600" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
         </div>
-      </div></div>
+      </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <button type="button" onClick={()=>go('account')} className="w-full flex items-center gap-3 p-4 text-right">
-          <span className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center"><User className="w-5 h-5 text-primary-600"/></span>
-          <span className="flex-1 min-w-0"><b className="block text-sm font-black">اطلاعات حساب کاربری</b><small className="block mt-1 text-xs text-gray-400">اطلاعات شخصی و وضعیت احراز هویت</small></span>
-          <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-black ${verificationClass}`}>{verificationLabel}</span>
-          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+      <div className={cardClass}>
+        <button type="button" onClick={()=>go('account')} className={rowClass}>
+          <span className="text-lg font-black text-gray-900">اطلاعات حساب کاربری</span>
+          <span className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-black ${verificationClass}`}>{verificationLabel}</span>
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <button type="button" onClick={()=>go('vehicle-dashboard')} className="w-full flex items-center gap-3 p-4 text-right">
-          <span className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"><CarFront className="w-5 h-5 text-blue-600"/></span>
-          <span className="flex-1 min-w-0"><b className="block text-sm font-black">خودروی من</b><small className="block mt-1 text-xs text-gray-400">مشاهده یا ویرایش مشخصات خودرو</small></span>
-          <span className={`max-w-[45%] text-left text-xs font-black ${savedVehicle ? 'text-blue-600' : 'text-orange-600'}`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
-          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+      <div className={cardClass}>
+        <button type="button" onClick={()=>go('vehicle-dashboard')} className={rowClass}>
+          <span className="text-lg font-black text-gray-900">خودروی من</span>
+          <span className={`max-w-[55%] text-base font-black ${savedVehicle ? 'text-blue-600' : 'text-blue-600'}`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <button type="button" onClick={()=>go('wallet')} className="w-full flex items-center gap-3 p-4 text-right">
-          <span className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center"><WalletCards className="w-5 h-5 text-emerald-600"/></span>
-          <span className="flex-1 min-w-0"><b className="block text-sm font-black">کیف پول</b><small className="block mt-1 text-xs text-gray-400">موجودی و تراکنش‌ها</small></span>
-          <span className="shrink-0 text-xs font-black text-emerald-700">{money(walletBalance)} تومان</span>
-          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+      <div className={cardClass}>
+        <button type="button" onClick={()=>go('wallet')} className={rowClass}>
+          <span className="text-lg font-black text-gray-900">کیف پول</span>
+          <span className="text-base font-black text-blue-600">{money(walletBalance)} تومان</span>
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <button type="button" onClick={()=>go('rules')} className="w-full flex items-center gap-3 p-4 text-right">
-          <span className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><FileText className="w-5 h-5 text-gray-600"/></span>
-          <span className="flex-1 font-black text-sm">قوانین و مقررات</span>
-          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+      <div className={cardClass}>
+        <button type="button" onClick={()=>go('rules')} className={rowClass}>
+          <span className="text-lg font-black text-gray-900">قوانین و مقررات</span>
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <button type="button" onClick={()=>signOut()} className="w-full flex items-center gap-3 p-4 text-right text-red-600">
-          <span className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center"><LogOut className="w-5 h-5"/></span>
-          <span className="flex-1 font-black text-sm">خروج از حساب کاربری</span>
-          <ChevronLeft className="w-4 h-4 text-red-300"/>
+      <div className={cardClass}>
+        <button type="button" onClick={()=>signOut()} className={rowClass}>
+          <span className="text-lg font-black text-blue-600">خروج از حساب کاربری</span>
         </button>
       </div>
     </div>;
@@ -1710,7 +1703,7 @@ const ProfilePage = () => <div className="space-y-3">
     </div>;
   };
 
-  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`min-h-screen ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
+  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'h-[100dvh] overflow-hidden overscroll-none' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
     {page==='home' ? <Header/> : <div className="max-w-lg mx-auto px-4 pt-4">
       <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
         <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-gray-600 bg-white border border-gray-200" aria-label="بازگشت" title="بازگشت"><ArrowRight className="w-5 h-5"/></button>
@@ -1718,7 +1711,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
     </div>}
-    <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
+    <main className={`max-w-lg mx-auto px-4 pt-5 pb-24 ${page === 'home' ? 'h-[calc(100dvh-136px)] overflow-hidden overscroll-none' : ''}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
