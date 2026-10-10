@@ -153,8 +153,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
         {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
         <Button type="button" size="full" onClick={requestCode}>درخواست کد فعال‌سازی</Button>
       </div> : <div className="space-y-5">
-        <h2 className="text-xl font-black text-gray-900">لطفاً کد ارسال‌شده به شماره</h2>
-        <p className="text-gray-500">کد ارسال‌شده به شماره <span dir="ltr" className="font-black text-gray-800">{fa(normalizedPhone)}</span> را وارد کنید.</p>
+        <h2 className="text-xl font-black leading-8 text-gray-900">لطفاً کد ارسال‌شده به شماره <span dir="ltr" className="inline-block font-black">{fa(normalizedPhone)}</span> را وارد کنید.</h2>
         <Input
           ref={otpRef}
           label="کد ۵ رقمی"
