@@ -1,9 +1,9 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
-  FileText, Headphones, Home, LogOut, MapPin, Menu, Navigation, Package,
+  FileText, Headphones, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
-  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle
+  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -183,7 +183,14 @@ export function MainApp() {
   const [nearbyLocationStatus, setNearbyLocationStatus] = useState<'idle'|'locating'|'ready'|'denied'>('idle');
   const [toast, setToast] = useState('');
   const [notifications, setNotifications] = useState(2);
-  const [showMenu, setShowMenu] = useState(false);
+  const [displayMode, setDisplayMode] = useState<'day'|'night'|'auto'>(() => {
+    const saved = window.localStorage.getItem('bbberah-display-mode');
+    return saved === 'day' || saved === 'night' || saved === 'auto' ? saved : 'auto';
+  });
+  const [systemDark, setSystemDark] = useState<boolean>(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false);
+  const [smsNotificationsEnabled, setSmsNotificationsEnabled] = useState<boolean>(() => window.localStorage.getItem('bbberah-sms-notifications-enabled') !== 'false');
+  const themePressTimer = useRef<number | null>(null);
+  const themeLongPressTriggered = useRef(false);
   const [offerPrice, setOfferPrice] = useState('');
   const [shipmentStage, setShipmentStage] = useState<'accepted'|'loading'|'in_transit'|'delivered'>('accepted');
   const [rating, setRating] = useState(0);
@@ -343,6 +350,35 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
+  const effectiveDark = displayMode === 'night' || (displayMode === 'auto' && systemDark);
+  useEffect(() => { window.localStorage.setItem('bbberah-display-mode', displayMode); }, [displayMode]);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const update = () => setSystemDark(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+  useEffect(() => { window.localStorage.setItem('bbberah-sms-notifications-enabled', smsNotificationsEnabled ? 'true' : 'false'); }, [smsNotificationsEnabled]);
+  const startThemePress = () => {
+    themeLongPressTriggered.current = false;
+    if (themePressTimer.current !== null) window.clearTimeout(themePressTimer.current);
+    themePressTimer.current = window.setTimeout(() => {
+      themeLongPressTriggered.current = true;
+      setDisplayMode('auto');
+    }, 650);
+  };
+  const endThemePress = () => {
+    if (themePressTimer.current !== null) window.clearTimeout(themePressTimer.current);
+    themePressTimer.current = null;
+  };
+  const handleThemeClick = () => {
+    if (themeLongPressTriggered.current) {
+      themeLongPressTriggered.current = false;
+      return;
+    }
+    setDisplayMode(current => current === 'night' ? 'day' : 'night');
+  };
   useEffect(() => {
     const state = window.history.state;
     if (!state?.bbberahPage) window.history.replaceState({ bbberahPage: page }, '', window.location.href.split('#')[0]);
@@ -386,7 +422,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
           }
         }
         setPage(next);
-        setShowMenu(false);
+        
         window.scrollTo({top:0,behavior:'smooth'});
       }
     };
@@ -399,22 +435,22 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
       setDestination(''); setDestinationText(''); setDestinationProvince(''); setDestinationCounty('');
       setFrequentRoute(null); setSearchSubmitted(false);
     }
-    if (p === page) { setShowMenu(false); return; }
+    if (p === page) {  return; }
     window.history.pushState({ bbberahPage: p }, '', '#' + p);
     setPage(p);
-    setShowMenu(false);
+    
     window.scrollTo({top:0,behavior:'smooth'});
   };
   const replacePage = (p:Page) => {
     window.history.replaceState({ bbberahPage: p }, '', '#' + p);
     setPage(p);
-    setShowMenu(false);
+    
     window.scrollTo({top:0,behavior:'smooth'});
   };
   const goHome = () => {
     window.history.replaceState({ bbberahPage: 'home' }, '', '#home');
     setPage('home');
-    setShowMenu(false);
+    
     window.scrollTo({top:0,behavior:'smooth'});
   };
   const resetSearchFields = () => {
@@ -580,9 +616,23 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
     <div className="max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
-      <button className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" onClick={()=>setShowMenu(true)} aria-label="منو"><Menu className="w-5 h-5"/></button>
-      <button onClick={()=>goHome()} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
-      <button onClick={()=>{setNotifications(0);go('notifications')}} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها"><Bell className="w-5 h-5"/>{notifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(notifications)}</span>}</button>
+      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headphones className="w-5 h-5"/></button>
+      <button type="button" onClick={()=>goHome()} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
+      <div className="flex items-center gap-2">
+        <button type="button"
+          onPointerDown={startThemePress}
+          onPointerUp={endThemePress}
+          onPointerCancel={endThemePress}
+          onPointerLeave={endThemePress}
+          onContextMenu={e=>e.preventDefault()}
+          onClick={handleThemeClick}
+          className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"
+          aria-label={displayMode==='auto'?'حالت نمایش خودکار':displayMode==='night'?'حالت شب':'حالت روز'}
+          title="لمس کوتاه: روز/شب؛ نگه‌داشتن: خودکار">
+          {displayMode==='auto' ? <Monitor className="w-5 h-5"/> : effectiveDark ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
+        </button>
+        <button type="button" onClick={()=>{setNotifications(0);go('notifications')}} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{notifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(notifications)}</span>}</button>
+      </div>
     </div>
   </header>;
 
@@ -590,21 +640,33 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     <div className="max-w-lg mx-auto grid grid-cols-4 h-[72px]">
       {[
         ['home','خانه',Home],['search','جستجو',Search],['calls','تماس‌ها',PhoneCall],['profile','حساب',User]
-      ].map(([p,l,I])=><button key={p as string} onClick={()=>p==='search' ? openSearchPage() : go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${page===p?'text-primary-900 font-black':'text-gray-900 font-bold'}`}>{createElement(I as any,{className:"w-5 h-5"})}{String(l)}</button>)}
+      ].map(([p,l,I])=><button key={p as string} onClick={()=>p==='search' ? openSearchPage() : go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${(page===p || (p==='profile' && ['account','wallet','transactions','vehicle-dashboard','vehicle-select','vehicle','vehicle-loader','trailer-select','jooft-usage','jooft-feature','tak-usage','tak-feature','komionet-usage','komionet-feature','van-usage','van-feature','flatbed-size','rules','display'].includes(page)))?'text-primary-900 font-black':'text-gray-900 font-bold'}`}>{createElement(I as any,{className:"w-5 h-5"})}{String(l)}</button>)}
     </div>
   </nav>;
 
-  const Drawer = () => showMenu ? <div className="fixed inset-0 z-50 bg-black/30" onClick={()=>setShowMenu(false)}>
-    <aside className="absolute right-0 top-0 bottom-0 w-[82%] max-w-sm bg-white p-5 shadow-2xl" onClick={e=>e.stopPropagation()}>
-      <div className="flex items-center justify-between mb-6"><div><b className="text-xl">{profile?.full_name || 'کاربر براه'}</b><span className="block text-xs text-gray-400 mt-1">{profile?.phone}</span></div><button onClick={()=>setShowMenu(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div>
-      <div className="space-y-1">
-        {[
-          ['account','حساب کاربری',User],['vehicle-dashboard','خودروی من',CarFront],['wallet','کیف پول',WalletCards],['offers','پیشنهادهای من',ReceiptText],['support','پشتیبانی',Headphones],['rules','قوانین و مقررات',FileText],['display','تنظیمات برنامه',Settings]
-        ].map(([p,l,I])=><button key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right hover:bg-primary-50">{createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{String(l)}</span><ChevronLeft className="w-4 h-4 text-gray-300"/></button>)}
-        <button onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-right text-red-600 mt-3"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب کاربری</span></button>
+  const AccountHome = () => <div className="space-y-3">
+    <Card><CardBody className="p-4">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
+        <div className="min-w-0"><h2 className="font-black text-lg">حساب کاربری</h2><p className="text-sm text-gray-500 mt-1">{profile?.full_name || 'کاربر براه'}{profile?.phone ? ' · '+profile.phone : ''}</p></div>
       </div>
-    </aside>
-  </div> : null;
+    </CardBody></Card>
+    <Card><CardBody className="p-2">
+      {[
+        ['account','اطلاعات حساب کاربری',User],
+        ['vehicle-dashboard','خودروی من',CarFront],
+        ['wallet','کیف پول',WalletCards],
+        ['calls','تماس‌ها و وضعیت‌ها',PhoneCall],
+        ['offers','پیشنهادهای من',ReceiptText],
+        ['support','پشتیبانی',Headphones],
+        ['rules','قوانین و مقررات',FileText],
+        ['display','تنظیمات برنامه',Settings]
+      ].map(([p,l,I])=><button type="button" key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3.5 text-right hover:bg-primary-50 border-b border-gray-50 last:border-0">
+        {createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{String(l)}</span><ChevronLeft className="w-4 h-4 text-gray-400"/>
+      </button>)}
+      <button type="button" onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3.5 text-right text-red-600 mt-1"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب کاربری</span><ChevronLeft className="w-4 h-4 text-red-300"/></button>
+    </CardBody></Card>
+  </div>;
 
   const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
   const getLoadInteraction = (loadId:string) => {
@@ -637,21 +699,21 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       }
     };
     return <><style>{`@keyframes brah-card-press { 0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } 22% { transform: scale(1.025); box-shadow: 0 9px 22px rgba(37,99,235,0.18), 0 3px 8px rgba(0,0,0,0.08); } 48% { transform: scale(1.055); box-shadow: 0 15px 32px rgba(37,99,235,0.26), 0 4px 10px rgba(0,0,0,0.10); } 68% { transform: scale(1.035); box-shadow: 0 12px 27px rgba(37,99,235,0.22); } 84% { transform: scale(1.015); box-shadow: 0 8px 20px rgba(37,99,235,0.16); } 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style><div className="grid grid-cols-2 gap-3 w-full">
-      <button onClick={()=>animateHomeCard('search',openSearchPage)} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[1.035] active:shadow-[0_12px_28px_rgba(37,99,235,0.24),0_3px_8px_rgba(0,0,0,0.10)] transition-[transform,box-shadow] duration-100 ease-out ${pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
-        <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 10s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">مبدأ/مقصد را انتخاب کن</span></span></span></div>
-      </button>
-      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
-        <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="flex w-[200%] h-full" style={{animation:"brah-search-marquee 8s linear infinite"}}><span className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span><span aria-hidden="true" className="w-1/2 shrink-0 flex items-center justify-center" dir="rtl">بارهای نزدیک را ببین</span></span></span></div>
-      </button>
-      <button onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={`relative aspect-auto w-full min-h-[150px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">پیشنهادهای من</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-marquee 7s linear infinite"}}><span dir="rtl">پیشنهادهای ارسال‌شده را پیگیری کن</span><span aria-hidden="true" className="mx-10" dir="rtl">پیشنهادهای ارسال‌شده را پیگیری کن</span></span></span></div>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">پیشنهادهای من</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">پیشنهادهایت را پیگیری کن</span></div>
       </button>
-      <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={`relative aspect-square w-full min-h-[190px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={`relative aspect-auto w-full min-h-[150px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="absolute bottom-3 left-3 right-3 overflow-hidden whitespace-nowrap text-sm font-extrabold text-gray-900" dir="ltr"><span className="inline-flex min-w-max" style={{animation:"brah-marquee 7s linear infinite"}}><span dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span><span aria-hidden="true" className="mx-10" dir="rtl">سوابق تماس‌های ثبت‌شده و وضعیت آن‌ها</span></span></span></div>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">سوابق تماس و وضعیت بارها</span></div>
+      </button>
+      <button onClick={()=>animateHomeCard('search',openSearchPage)} className={`relative aspect-auto w-full min-h-[205px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[1.035] active:shadow-[0_12px_28px_rgba(37,99,235,0.24),0_3px_8px_rgba(0,0,0,0.10)] transition-[transform,box-shadow] duration-100 ease-out ${pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+        <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">مبدأ و مقصد را انتخاب کن</span></div>
+      </button>
+      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={`relative aspect-auto w-full min-h-[205px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+        <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
+        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">بارهای نزدیک خودت را ببین</span></div>
       </button>
     </div></>;
   };
@@ -1251,7 +1313,15 @@ const ProfilePage = () => <div className="space-y-3">
         </CardBody></Card>;
       })}
     </div>;
-    if (page==='notifications') return <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>;
+    if (page==='notifications') return <div className="space-y-4">
+      <Card><CardBody className="p-4 flex items-center justify-between gap-3">
+        <div className="flex items-start gap-3"><Bell className="w-5 h-5 text-primary-600 mt-0.5"/><div><b className="text-sm">دریافت پیامک</b><p className="text-xs text-gray-500 mt-1 leading-5">دریافت پیامک‌های اطلاع‌رسانی را فعال یا غیرفعال کنید.</p></div></div>
+        <button type="button" role="switch" aria-checked={smsNotificationsEnabled} onClick={()=>setSmsNotificationsEnabled(v=>!v)} className={`relative w-14 h-8 shrink-0 rounded-full transition-colors ${smsNotificationsEnabled?'bg-emerald-600':'bg-gray-300'}`} aria-label="فعال یا غیرفعال‌کردن دریافت پیامک">
+          <span className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${smsNotificationsEnabled?'right-1':'right-7'}`}/>
+        </button>
+      </CardBody></Card>
+      <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>
+    </div>;
     if (page==='offers') return <div className="space-y-3">
       {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
         [...myOffers].reverse().map((offer)=>{
@@ -1524,7 +1594,10 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="flex items-center justify-between py-4"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
     </CardBody></Card>;
     if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headphones className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
-    if (page==='display') return <Card><CardBody className="p-5 space-y-4"><div><h3 className="font-black text-lg">تنظیمات ظاهری</h3><p className="text-sm text-gray-500 mt-1">تنظیمات نمایشی فعلاً روی دستگاه شبیه‌سازی می‌شوند.</p></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">حالت کم‌نور</b><p className="text-xs text-gray-400 mt-1">در نسخه نهایی به تنظیمات دستگاه متصل می‌شود.</p></div><button onClick={()=>notify('حالت کم‌نور فعلاً در حالت آزمایشی است.')} className="rounded-full bg-gray-200 px-4 py-2 text-xs font-bold">خاموش</button></div><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4"><div><b className="text-sm">اعلان‌ها</b><p className="text-xs text-gray-400 mt-1">کنترل اعلان‌های برنامه</p></div><button onClick={()=>{setNotifications(0);notify('اعلان‌ها در حالت آزمایشی خاموش شدند.')}} className="rounded-full bg-emerald-100 text-emerald-700 px-4 py-2 text-xs font-bold">فعال</button></div></CardBody></Card>;
+    if (page==='display') return <Card><CardBody className="p-5 space-y-4">
+      <div><h3 className="font-black text-lg">تنظیمات برنامه</h3><p className="text-sm text-gray-500 mt-1">برای تغییر سریع، از آیکون بالای صفحه استفاده کنید. لمس کوتاه روز/شب را عوض می‌کند و نگه‌داشتن، حالت خودکار را فعال می‌کند.</p></div>
+      {([['day','حالت روز',Sun],['night','حالت شب',Moon],['auto','حالت خودکار',Monitor]] as const).map(([mode,label,Icon])=><button type="button" key={mode} onClick={()=>setDisplayMode(mode)} className={`w-full flex items-center gap-3 rounded-xl border p-4 text-right ${displayMode===mode?'border-primary-500 bg-primary-50':'border-gray-100 bg-gray-50'}`}><Icon className="w-5 h-5 text-primary-600"/><span className="flex-1 font-bold text-sm">{label}</span><span className={`text-xs font-black ${displayMode===mode?'text-primary-700':'text-gray-400'}`}>{displayMode===mode?'فعال':'انتخاب'}</span></button>)}
+    </CardBody></Card>;
     if (page==='rules') return <div className="space-y-4">
       <Card><CardBody className="p-5 text-sm text-gray-700 leading-8">
         <h3 className="font-black text-xl text-gray-900">قوانین و مقررات اپلیکیشن رانندگان براه</h3>
@@ -1567,15 +1640,14 @@ const ProfilePage = () => <div className="space-y-3">
     return <ProfilePage/>;
   };
 
-  return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] text-gray-900">
+  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`min-h-screen ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
     <Header />
     <main className="max-w-lg mx-auto px-4 pt-5 pb-24">
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page!=='home' && page!=='profile' && page!=='verification' && <button onClick={()=>{if(page==='search'){goHome();}else{window.history.back();}}} className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-gray-500"><ArrowLeft className="w-4 h-4"/> بازگشت</button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <ProfilePage/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
-    <Drawer />
     <Toast message={toast} onClose={()=>setToast('')} />
     {shipmentRewardSummary && <div className="fixed inset-0 z-[75] bg-black/40 flex items-center justify-center p-5">
       <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
