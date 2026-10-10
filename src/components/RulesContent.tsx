@@ -24,16 +24,20 @@ const sections: [string, string][] = [
   ['۲۱. پذیرش قوانین','با استفاده از براه، راننده تأیید می‌کند که قوانین و مقررات را مطالعه کرده و متعهد به رعایت آن‌ها است. ادامه استفاده از خدمات پس از انتشار نسخه به‌روزشده قوانین، در صورت اعلام و مطابق قوانین، به منزله پذیرش شرایط جدید خواهد بود. برای استفاده از خدمات ارسال پیشنهاد، راننده باید تأیید پذیرش قوانین را در حساب خود ثبت کرده باشد.'],
 ];
 
-export function RulesContent() {
-  return <>
+export function RulesContent({ onAccept }: { onAccept?: () => void }) {
+  return <div className="space-y-4"><div className="rounded-3xl border border-gray-100 bg-white p-5 text-sm text-gray-700 leading-8 shadow-sm">
     <h3 className="font-black text-xl text-gray-900">قوانین و مقررات اپلیکیشن رانندگان براه</h3>
     <p className="text-xs text-gray-400 mt-2">نسخه ۱.۰ — آخرین به‌روزرسانی: [تاریخ]</p>
     <p className="mt-4">این قوانین و مقررات، چارچوب استفاده رانندگان از اپلیکیشن «براه» و خدمات مرتبط با جستجوی بار، ارسال پیشنهاد، پذیرش حمل، انجام سفر و تحویل بار را مشخص می‌کند. استفاده از اپلیکیشن به معنی مطالعه و پذیرش این شرایط است.</p>
     {sections.map(([heading, paragraph]) => <section key={heading} className="border-t border-gray-100 pt-4 mt-4"><h4 className="font-black text-gray-900">{heading}</h4><p className="mt-2">{paragraph}</p></section>)}
     <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 leading-7"><b>توجه حقوقی:</b> این متن برای استفاده در اپلیکیشن براه تنظیم شده و پیش از انتشار عمومی باید توسط مشاور حقوقی براه با اطلاعات ثبتی، قوانین حمل‌ونقل و سیاست حریم خصوصی نهایی تطبیق داده شود.</div>
-    <div className="mt-5 border-t border-gray-100 pt-4 flex items-start gap-3 text-sm text-gray-700">
-      <ShieldCheck className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
-      <div><b>تأیید مطالعه و پذیرش قوانین</b><p className="text-xs text-gray-500 mt-1 leading-6">برای ارسال پیشنهاد بار، مطالعه و تأیید این قوانین الزامی است.</p></div>
+  </div>
+    <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="flex items-start gap-3">
+        <ShieldCheck className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
+        <div className="flex-1"><b>تأیید مطالعه و پذیرش قوانین</b><p className="text-xs text-gray-500 mt-1 leading-6">برای ارسال پیشنهاد بار، مطالعه و تأیید این قوانین الزامی است.</p></div>
+      </div>
+      {onAccept && <button type="button" onClick={onAccept} className="w-full mt-4 rounded-xl px-4 py-3 text-sm font-black bg-primary-600 text-white">مطالعه کردم و می‌پذیرم</button>}
     </div>
-  </>;
+  </div>;
 }
