@@ -37,7 +37,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
     const credentials = navigator.credentials as CredentialsContainer & {
       get: (options?: CredentialRequestOptions) => Promise<Credential | null>;
     };
-    if ('OTPCredential' in window && navigator.credentials?.get) {
+    if ('OTPCredential' in window) {
       credentials.get({
         otp: { transport: ['sms'] },
         signal: controller.signal,
