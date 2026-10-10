@@ -3,7 +3,8 @@ import { APP_NAME, APP_TAGLINE } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Truck, ArrowRight, Pencil, ShieldCheck, FileText } from 'lucide-react';
+import { RulesContent } from '@/components/RulesContent';
+import { Truck, ArrowRight, Pencil, FileText } from 'lucide-react';
 
 const DEMO_OTP = '12345';
 const fa = (v: string) => v.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] || d);
@@ -18,18 +19,21 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
   const [accepted, setAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [seconds, setSeconds] = useState(60);
+  const [seconds, setSeconds] = useState(0);
+  const [codeRequested, setCodeRequested] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [phoneError, setPhoneError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [otpFocused, setOtpFocused] = useState(false);
   const otpRef = useRef<HTMLInputElement>(null);
   const normalizedPhone = en(phone.trim()).replace(/\s/g, '');
 
+  // Keep the cooldown running even if the user edits the phone number.
   useEffect(() => {
-    if (step !== 'otp' || seconds <= 0) return;
+    if (!codeRequested || seconds <= 0) return;
     const timer = window.setTimeout(() => setSeconds(value => value - 1), 1000);
     return () => window.clearTimeout(timer);
-  }, [step, seconds]);
+  }, [codeRequested, seconds]);
 
   useEffect(() => {
     if (step !== 'otp') return;
@@ -52,6 +56,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
   }, [step]);
 
   const requestCode = () => {
+    if (codeRequested && seconds > 0) return;
     if (!accepted) {
       setNotice({ text: 'پذیرش قوانین و مقررات الزامی است', ok: false });
       return;
@@ -64,6 +69,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
     setPhoneError('');
     setOtp('');
     setSeconds(60);
+    setCodeRequested(true);
     setNotice(null);
     setStep('otp');
   };
@@ -72,6 +78,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
     setStep('phone');
     setOtp('');
     setNotice(null);
+    setPhoneError('');
   };
 
   const handleOtp = (value: string) => {
@@ -92,92 +99,104 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
         setLoading(false);
         return;
       }
-      // Auth state changes to the home screen after successful verification.
     }, 850);
   };
 
   if (termsOpen) {
-    return <div dir="rtl" className="min-h-screen bg-white px-5 py-8">
-      <div className="mx-auto max-w-md">
-        <button type="button" onClick={() => setTermsOpen(false)} className="mb-7 flex items-center gap-2 text-sm font-bold text-gray-500">
+    return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] px-4 py-6">
+      <div className="mx-auto max-w-lg">
+        <button type="button" onClick={() => setTermsOpen(false)} className="mb-5 flex items-center gap-2 text-sm font-bold text-gray-500">
           <ArrowRight className="h-4 w-4" /> بازگشت به ورود
         </button>
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
-          <FileText className="h-7 w-7" />
+        <div className="rounded-3xl border border-gray-100 bg-white p-5 text-sm text-gray-700 leading-8 shadow-sm">
+          <RulesContent />
         </div>
-        <h1 className="text-2xl font-black text-gray-900">قوانین و مقررات</h1>
-        <p className="mt-5 leading-8 text-gray-600">استفاده از براه به معنی پذیرش قوانین و مقررات استفاده از بازارگاه حمل‌ونقل است.</p>
-        <p className="mt-3 leading-8 text-gray-600">اطلاعات ثبت‌شده باید صحیح و متعلق به صاحب حساب باشد و کاربران مسئول حفظ اطلاعات حساب خود هستند.</p>
-        <p className="mt-3 leading-8 text-gray-600">کاربر موظف است از خدمات براه در چارچوب قوانین و مقررات مربوط استفاده کند و اطلاعات حساب خود را محرمانه نگه دارد.</p>
       </div>
     </div>;
   }
 
-  return <div dir="rtl" className="min-h-screen bg-white flex flex-col">
-    <div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md mx-auto w-full">
-      <div className="text-center mb-8">
-        <div className="mx-auto w-16 h-16 rounded-[22px] bg-primary-600 text-white flex items-center justify-center shadow-lg">
-          <Truck className="w-8 h-8" />
-        </div>
-        <p className="text-xl font-black text-gray-900 mt-3">{APP_NAME}</p>
-        {step === 'phone' && <h1 className="text-2xl font-black text-gray-900 mt-2">خوش آمدید</h1>}
-        <p className="text-sm font-medium text-gray-500 mt-3">{APP_TAGLINE}</p>
+  return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] flex flex-col">
+    <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
+      <div className="mb-5 flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-primary-600 text-white shadow-lg" aria-label={APP_NAME}>
+        <Truck className="h-8 w-8" />
       </div>
 
-      {step === 'phone' ? <div className="space-y-5">
-        <h2 className="text-xl font-black text-gray-900">شماره تلفن خود را وارد کنید</h2>
-        <Input
-          label="شماره تلفن"
-          value={phone}
-          onChange={event => { setPhone(en(event.target.value)); setPhoneError(''); }}
-          placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          dir="ltr"
-          error={phoneError}
-        />
-        <div className="flex items-start gap-2">
-          <input
-            id="terms-accepted"
-            type="checkbox"
-            checked={accepted}
-            onChange={event => { setAccepted(event.target.checked); if (event.target.checked && notice?.text === 'پذیرش قوانین و مقررات الزامی است') setNotice(null); }}
-            className="mt-1 h-4 w-4 shrink-0 accent-[#1358ED]"
-          />
-          <label htmlFor="terms-accepted" className="text-sm leading-7 text-gray-600">
-            با ورود به براه قوانین و مقررات را می‌پذیرم.{' '}
-            <button type="button" onClick={() => setTermsOpen(true)} className="font-bold text-primary-700 underline underline-offset-2">قوانین و مقررات</button>
-          </label>
+      <div className="w-full max-w-md rounded-[28px] border border-gray-100 bg-white p-5 shadow-xl shadow-gray-200/40">
+        <div className="mb-6 text-center">
+          <p className="text-xl font-black text-gray-900">{APP_NAME}</p>
+          {step === 'phone' && <h1 className="mt-2 text-2xl font-black text-gray-900">خوش آمدید</h1>}
+          <p className="mt-3 text-sm font-medium text-gray-500">{APP_TAGLINE}</p>
         </div>
-        {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
-        <Button type="button" size="full" onClick={requestCode}>درخواست کد فعال‌سازی</Button>
-      </div> : <div className="space-y-5">
-        <h2 className="text-xl font-black leading-8 text-gray-900">لطفاً کد ارسال‌شده به شماره <span dir="ltr" className="inline-block font-black">{fa(normalizedPhone)}</span> را وارد کنید.</h2>
-        <Input
-          ref={otpRef}
-          label="کد ۵ رقمی"
-          value={fa(otp)}
-          onChange={event => handleOtp(event.target.value)}
-          placeholder="-----"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          pattern="[0-9۰-۹]*"
-          maxLength={5}
-          dir="ltr"
-          autoFocus
-        />
-        {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
-        <div className="text-center text-sm font-bold text-gray-500">
-          {seconds > 0 ? <>درخواست مجدد کد تا <span className="font-black text-primary-700">{fa(String(seconds).padStart(2, '0'))}</span> ثانیه دیگر</> : <button type="button" disabled={loading} onClick={() => { setOtp(''); setSeconds(60); setNotice(null); otpRef.current?.focus(); }} className="font-bold text-primary-700 disabled:opacity-50">درخواست مجدد کد</button>}
-        </div>
-        <button type="button" onClick={editPhone} className="mx-auto flex items-center gap-2 text-sm font-bold text-gray-500">
-          <Pencil className="h-4 w-4" /> ویرایش شماره تلفن
-        </button>
-      </div>}
 
-      <div className="mt-8 flex items-center justify-center gap-2 text-xs text-gray-400">
-        <ShieldCheck className="w-4 h-4" /> ورود امن با شماره تلفن
+        {step === 'phone' ? <div className="space-y-5">
+          <h2 className="text-center text-xl font-black text-gray-900">شماره تلفن خود را وارد کنید</h2>
+          <Input
+            label="شماره تلفن"
+            value={phone}
+            onChange={event => { setPhone(en(event.target.value)); setPhoneError(''); }}
+            placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            dir="ltr"
+            error={phoneError}
+          />
+          <div className="flex items-start gap-2">
+            <input
+              id="terms-accepted"
+              type="checkbox"
+              checked={accepted}
+              onChange={event => { setAccepted(event.target.checked); if (event.target.checked && notice?.text === 'پذیرش قوانین و مقررات الزامی است') setNotice(null); }}
+              className="mt-1 h-4 w-4 shrink-0 accent-[#1358ED]"
+            />
+            <label htmlFor="terms-accepted" className="text-sm leading-7 text-gray-600">
+              با ورود به براه قوانین و مقررات را می‌پذیرم.{' '}
+              <button type="button" onClick={() => setTermsOpen(true)} className="font-bold text-primary-700 underline underline-offset-2">قوانین و مقررات</button>
+            </label>
+          </div>
+          {codeRequested && seconds > 0 && <p className="text-center text-xs font-bold text-gray-500">برای درخواست مجدد کد، {fa(String(seconds))} ثانیه صبر کنید.</p>}
+          {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
+          <Button type="button" size="full" disabled={codeRequested && seconds > 0} onClick={requestCode}>
+            {codeRequested && seconds > 0 ? `درخواست کد فعال‌سازی (${fa(String(seconds))})` : 'درخواست کد فعال‌سازی'}
+          </Button>
+        </div> : <div className="space-y-5">
+          <p className="text-center text-base font-bold leading-8 text-gray-800">لطفاً کد ارسال‌شده به شماره تلفن زیر را وارد کنید</p>
+          <p dir="ltr" className="text-center text-2xl font-black tracking-wide text-gray-900">{fa(normalizedPhone)}</p>
+
+          <div className="relative mx-auto w-full max-w-[310px]" dir="ltr">
+            <div className="grid grid-cols-5 gap-2" aria-hidden="true">
+              {Array.from({ length: 5 }, (_, index) => (
+                <div key={index} className={`flex aspect-square items-center justify-center rounded-xl border-2 text-2xl font-black text-gray-900 transition-colors ${otpFocused ? 'border-primary-500 bg-primary-50' : 'border-gray-200 bg-white'}`}>
+                  {fa(otp[index] || '')}
+                </div>
+              ))}
+            </div>
+            <input
+              ref={otpRef}
+              aria-label="کد تأیید پنج رقمی"
+              value={fa(otp)}
+              onChange={event => handleOtp(event.target.value)}
+              onFocus={() => setOtpFocused(true)}
+              onBlur={() => setOtpFocused(false)}
+              type="tel"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9۰-۹]*"
+              maxLength={5}
+              dir="ltr"
+              autoFocus
+              className="absolute inset-0 h-full w-full cursor-text opacity-0"
+            />
+          </div>
+
+          {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
+          <div className="text-center text-sm font-bold text-gray-500">
+            {seconds > 0 ? <>درخواست مجدد کد تا <span className="font-black text-primary-700">{fa(String(seconds).padStart(2, '0'))}</span> ثانیه دیگر</> : <button type="button" disabled={loading} onClick={() => { setOtp(''); setSeconds(60); setNotice(null); otpRef.current?.focus(); }} className="font-bold text-primary-700 disabled:opacity-50">درخواست مجدد کد</button>}
+          </div>
+          <button type="button" onClick={editPhone} className="mx-auto flex items-center gap-2 text-sm font-bold text-gray-500">
+            <Pencil className="h-4 w-4" /> ویرایش شماره تلفن
+          </button>
+        </div>}
       </div>
     </div>
   </div>;
