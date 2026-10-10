@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { RulesContent } from '@/components/RulesContent';
-import { Truck, ArrowRight, Pencil, FileText } from 'lucide-react';
+import { Truck, ArrowRight, Pencil } from 'lucide-react';
 
 const DEMO_OTP = '12345';
 const fa = (v: string) => v.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] || d);
