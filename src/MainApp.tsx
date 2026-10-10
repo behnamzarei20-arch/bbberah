@@ -1,7 +1,7 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
-  FileText, Headphones, Home, LogOut, MapPin, Navigation, Package,
+  FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, Settings, ShieldCheck,
   Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor
 } from 'lucide-react';
@@ -50,6 +50,12 @@ const frequentRoutes = [
   { from:'تهران', to:'مشهد' },
   { from:'کرج', to:'اصفهان' },
   { from:'تبریز', to:'تهران' },
+];
+
+const notificationItems = [
+  { id:'new-load-tehran-mashhad', message:'بار جدید در مسیر تهران به مشهد ثبت شد.', date:'امروز' },
+  { id:'offer-pending-review', message:'پیشنهاد آزمایشی شما در انتظار بررسی است.', date:'دیروز' },
+  { id:'account-saved', message:'اطلاعات حساب شما با موفقیت ذخیره شد.', date:'دیروز' },
 ];
 
 
@@ -182,7 +188,13 @@ export function MainApp() {
   const [nearbyUserLocation, setNearbyUserLocation] = useState<GeoPoint | null>(null);
   const [nearbyLocationStatus, setNearbyLocationStatus] = useState<'idle'|'locating'|'ready'|'denied'>('idle');
   const [toast, setToast] = useState('');
-  const [notifications, setNotifications] = useState(2);
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem('bbberah-read-notification-ids-v1') || '[]');
+      return Array.isArray(saved) ? saved.filter((id:any) => typeof id === 'string') : [];
+    } catch { return []; }
+  });
+  const unreadNotifications = notificationItems.filter(item => !readNotificationIds.includes(item.id)).length;
   const [displayMode, setDisplayMode] = useState<'day'|'night'|'auto'>(() => {
     const saved = window.localStorage.getItem('bbberah-display-mode');
     return saved === 'day' || saved === 'night' || saved === 'auto' ? saved : 'auto';
@@ -360,6 +372,14 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     return () => media.removeEventListener?.('change', update);
   }, []);
   useEffect(() => { window.localStorage.setItem('bbberah-sms-notifications-enabled', smsNotificationsEnabled ? 'true' : 'false'); }, [smsNotificationsEnabled]);
+  useEffect(() => { window.localStorage.setItem('bbberah-read-notification-ids-v1', JSON.stringify(readNotificationIds)); }, [readNotificationIds]);
+  useEffect(() => {
+    if (page !== 'notifications') return;
+    setReadNotificationIds(current => {
+      const next = Array.from(new Set([...current, ...notificationItems.map(item => item.id)]));
+      return next.length === current.length ? current : next;
+    });
+  }, [page]);
   const startThemePress = () => {
     themeLongPressTriggered.current = false;
     if (themePressTimer.current !== null) window.clearTimeout(themePressTimer.current);
@@ -616,7 +636,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
     <div className="max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
-      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headphones className="w-5 h-5"/></button>
+      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
       <button type="button" onClick={()=>goHome()} className="font-black text-2xl tracking-tight text-primary-700">براه</button>
       <div className="flex items-center gap-2">
         <button type="button"
@@ -631,7 +651,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           title="لمس کوتاه: روز/شب؛ نگه‌داشتن: خودکار">
           {displayMode==='auto' ? <Monitor className="w-5 h-5"/> : effectiveDark ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
         </button>
-        <button type="button" onClick={()=>{setNotifications(0);go('notifications')}} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{notifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(notifications)}</span>}</button>
+        <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
       </div>
     </div>
   </header>;
@@ -656,11 +676,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         ['account','اطلاعات حساب کاربری',User],
         ['vehicle-dashboard','خودروی من',CarFront],
         ['wallet','کیف پول',WalletCards],
-        ['calls','تماس‌ها و وضعیت‌ها',PhoneCall],
-        ['offers','پیشنهادهای من',ReceiptText],
-        ['support','پشتیبانی',Headphones],
-        ['rules','قوانین و مقررات',FileText],
-        ['display','تنظیمات برنامه',Settings]
+        ['rules','قوانین و مقررات',FileText]
       ].map(([p,l,I])=><button type="button" key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3.5 text-right hover:bg-primary-50 border-b border-gray-50 last:border-0">
         {createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{String(l)}</span><ChevronLeft className="w-4 h-4 text-gray-400"/>
       </button>)}
@@ -1280,7 +1296,8 @@ const ProfilePage = () => <div className="space-y-3">
   const SimplePage = () => {
     if (page==='verification') return <VerificationPage/>;
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
-    if (page==='calls') return <div className="space-y-3">
+    if (page==='calls') return <div className="space-y-6">
+      <section className="space-y-3"><h2 className="text-lg font-black">وضعیت تماس‌ها</h2>
       {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].reverse().map((item,idx)=>{
         const load=loads.find(l=>l.id===item.loadId);
         if(!load) return null;
@@ -1312,6 +1329,25 @@ const ProfilePage = () => <div className="space-y-3">
           </div>}
         </CardBody></Card>;
       })}
+      </section>
+      <section className="space-y-3">
+        <h2 className="text-lg font-black">پیشنهادهای قیمت</h2>
+        {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای قیمت شما پس از ارسال در همین صفحه نمایش داده می‌شوند."/></CardBody></Card> :
+          [...myOffers].reverse().map(offer => {
+            const load = loads.find(l => l.id === offer.loadId);
+            if (!load) return null;
+            const statusText = offer.status === 'accepted' ? 'پذیرفته شد' : offer.status === 'rejected' ? 'رد شد' : 'در انتظار';
+            const statusClass = offer.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : offer.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-gray-100 text-gray-600 border-gray-200';
+            return <Card key={offer.loadId}><CardBody className="p-4 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0"><b className="block">{load.from} ← {load.to}</b><p className="text-xs text-gray-500 mt-1">{load.title}</p></div>
+                <span className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black ${statusClass}`}>{statusText}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-sm font-bold text-gray-500">قیمت پیشنهادی</span><b className="text-base font-black">{money(offer.price)} تومان</b></div>
+              <Button size="sm" variant="outline" className="w-full" onClick={()=>openOfferDetail(offer.loadId)}>مشاهده جزئیات پیشنهاد</Button>
+            </CardBody></Card>;
+          })}
+      </section>
     </div>;
     if (page==='notifications') return <div className="space-y-4">
       <Card><CardBody className="p-4 flex items-center justify-between gap-3">
@@ -1320,7 +1356,7 @@ const ProfilePage = () => <div className="space-y-3">
           <span className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${smsNotificationsEnabled?'right-1':'right-7'}`}/>
         </button>
       </CardBody></Card>
-      <div className="space-y-3">{['بار جدید در مسیر تهران به مشهد ثبت شد.','پیشنهاد آزمایشی شما در انتظار بررسی است.','اطلاعات حساب شما با موفقیت ذخیره شد.'].map((n,i)=><Card key={i}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{n}</b><p className="text-[11px] text-gray-400 mt-1">{i===0?'امروز':'دیروز'}</p></div></CardBody></Card>)}</div>
+      <div className="space-y-3">{notificationItems.map(item=><Card key={item.id}><CardBody className="p-4 flex gap-3"><Bell className="w-5 h-5 text-primary-600"/><div><b className="text-sm">{item.message}</b><p className="text-[11px] text-gray-400 mt-1">{item.date}</p><p className="text-[10px] font-bold text-emerald-600 mt-1">خوانده‌شده</p></div></CardBody></Card>)}</div>
     </div>;
     if (page==='offers') return <div className="space-y-3">
       {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
@@ -1593,7 +1629,7 @@ const ProfilePage = () => <div className="space-y-3">
       <button type="button" onClick={()=>go('verification')} className="w-full flex items-center justify-between py-4 border-b border-gray-100 text-right"><span className="text-sm font-bold text-gray-500">احراز هویت</span><span className={identityVerified ? 'text-sm font-black text-emerald-600' : identityPending ? 'text-sm font-black text-orange-500' : 'text-sm font-black text-primary-600'}>{identityVerified ? '✓ تایید شده' : identityPending ? 'در انتظار تایید' : 'ارسال مدارک'}</span></button>
       <div className="flex items-center justify-between py-4"><span className="text-sm font-bold text-gray-500">شماره هوشمند راننده</span><b className="text-sm">{(profile as any)?.driver_smart_number || 'ثبت نشده'}</b></div>
     </CardBody></Card>;
-    if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headphones className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
+    if (page==='support') return <div className="space-y-3"><Card><CardBody className="p-5"><Headset className="w-7 h-7 text-primary-600"/><h3 className="font-black mt-3">مرکز پشتیبانی</h3><p className="text-sm text-gray-500 leading-7 mt-2">برای مشکلات حساب، بار یا سفر، موضوع خود را از مسیرهای زیر پیگیری کنید.</p><div className="grid grid-cols-2 gap-2 mt-4"><Button size="sm" variant="outline" onClick={()=>notify('چت پشتیبانی در نسخه نهایی فعال می‌شود.')}>گفتگوی آنلاین</Button><a href="tel:02100000000" className="min-h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center gap-2 text-sm font-bold"><Phone className="w-4 h-4"/> تماس</a></div></CardBody></Card><Card><CardBody><b>وضعیت سرویس</b><div className="mt-3 flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="w-4 h-4"/> همه بخش‌های آزمایشی فعال هستند</div></CardBody></Card></div>;
     if (page==='display') return <Card><CardBody className="p-5 space-y-4">
       <div><h3 className="font-black text-lg">تنظیمات برنامه</h3><p className="text-sm text-gray-500 mt-1">برای تغییر سریع، از آیکون بالای صفحه استفاده کنید. لمس کوتاه روز/شب را عوض می‌کند و نگه‌داشتن، حالت خودکار را فعال می‌کند.</p></div>
       {([['day','حالت روز',Sun],['night','حالت شب',Moon],['auto','حالت خودکار',Monitor]] as const).map(([mode,label,Icon])=><button type="button" key={mode} onClick={()=>setDisplayMode(mode)} className={`w-full flex items-center gap-3 rounded-xl border p-4 text-right ${displayMode===mode?'border-primary-500 bg-primary-50':'border-gray-100 bg-gray-50'}`}><Icon className="w-5 h-5 text-primary-600"/><span className="flex-1 font-bold text-sm">{label}</span><span className={`text-xs font-black ${displayMode===mode?'text-primary-700':'text-gray-400'}`}>{displayMode===mode?'فعال':'انتخاب'}</span></button>)}
