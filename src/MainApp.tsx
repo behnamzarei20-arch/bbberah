@@ -651,6 +651,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           title="لمس کوتاه: روز/شب؛ نگه‌داشتن: خودکار">
           {displayMode==='auto' ? <Monitor className="w-5 h-5"/> : effectiveDark ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
         </button>
+        <button type="button" onClick={()=>go('display')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="تنظیمات برنامه" title="تنظیمات برنامه"><Settings className="w-5 h-5"/></button>
         <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
       </div>
     </div>
