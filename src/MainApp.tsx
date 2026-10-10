@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowLeft, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
+  ArrowLeft, ArrowRight, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
   Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info
@@ -622,25 +622,66 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     </div>
   </nav>;
 
-  const AccountHome = () => <div className="space-y-3">
-    <Card><CardBody className="p-4">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
-        <div className="min-w-0"><h2 className="font-black text-lg">{profile?.full_name || accountName || 'کاربر براه'}</h2><p className="text-sm text-gray-500 mt-1" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p></div>
+  const AccountHome = () => {
+    const verificationLabel = identityVerified ? 'تأییدشده' : identityPending ? 'در انتظار تأیید' : 'تأییدنشده';
+    const verificationClass = identityVerified
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      : 'border-orange-200 bg-orange-50 text-orange-700';
+    const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
+    const vehicleTypeLabel = vehicleForm.type === 'وانت و نیسان' ? 'نیسان' : vehicleForm.type;
+    const vehicleSummary = [vehicleTypeLabel, vehicleForm.usage, vehicleForm.feature].filter(Boolean).join(' · ');
+    return <div className="space-y-3">
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm"><div className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
+          <div className="min-w-0"><h2 className="font-black text-lg">{profile?.full_name || accountName || 'کاربر براه'}</h2><p className="text-sm text-gray-500 mt-1" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p></div>
+        </div>
+      </div></div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <button type="button" onClick={()=>go('account')} className="w-full flex items-center gap-3 p-4 text-right">
+          <span className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center"><User className="w-5 h-5 text-primary-600"/></span>
+          <span className="flex-1 min-w-0"><b className="block text-sm font-black">اطلاعات حساب کاربری</b><small className="block mt-1 text-xs text-gray-400">اطلاعات شخصی و وضعیت احراز هویت</small></span>
+          <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-black ${verificationClass}`}>{verificationLabel}</span>
+          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+        </button>
       </div>
-    </CardBody></Card>
-    <Card><CardBody className="p-2">
-      {[
-        ['account','اطلاعات حساب کاربری',User],
-        ['vehicle-dashboard','خودروی من',CarFront],
-        ['wallet','کیف پول',WalletCards],
-        ['rules','قوانین و مقررات',FileText]
-      ].map(([p,l,I])=><button type="button" key={p as string} onClick={()=>go(p as Page)} className="w-full flex items-center gap-3 rounded-xl px-3 py-3.5 text-right hover:bg-primary-50 border-b border-gray-50 last:border-0">
-        {createElement(I as any,{className:"w-5 h-5 text-primary-600"})}<span className="flex-1 font-bold text-sm">{String(l)}</span><ChevronLeft className="w-4 h-4 text-gray-400"/>
-      </button>)}
-      <button type="button" onClick={()=>signOut()} className="w-full flex items-center gap-3 rounded-xl px-3 py-3.5 text-right text-red-600 mt-1"><LogOut className="w-5 h-5"/><span className="font-bold text-sm">خروج از حساب کاربری</span><ChevronLeft className="w-4 h-4 text-red-300"/></button>
-    </CardBody></Card>
-  </div>;
+
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <button type="button" onClick={()=>go('vehicle-dashboard')} className="w-full flex items-center gap-3 p-4 text-right">
+          <span className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"><CarFront className="w-5 h-5 text-blue-600"/></span>
+          <span className="flex-1 min-w-0"><b className="block text-sm font-black">خودروی من</b><small className="block mt-1 text-xs text-gray-400">مشاهده یا ویرایش مشخصات خودرو</small></span>
+          <span className={`max-w-[45%] text-left text-xs font-black ${savedVehicle ? 'text-blue-600' : 'text-orange-600'}`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
+          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+        </button>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <button type="button" onClick={()=>go('wallet')} className="w-full flex items-center gap-3 p-4 text-right">
+          <span className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center"><WalletCards className="w-5 h-5 text-emerald-600"/></span>
+          <span className="flex-1 min-w-0"><b className="block text-sm font-black">کیف پول</b><small className="block mt-1 text-xs text-gray-400">موجودی و تراکنش‌ها</small></span>
+          <span className="shrink-0 text-xs font-black text-emerald-700">{money(walletBalance)} تومان</span>
+          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+        </button>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <button type="button" onClick={()=>go('rules')} className="w-full flex items-center gap-3 p-4 text-right">
+          <span className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><FileText className="w-5 h-5 text-gray-600"/></span>
+          <span className="flex-1 font-black text-sm">قوانین و مقررات</span>
+          <ChevronLeft className="w-4 h-4 shrink-0 text-gray-400"/>
+        </button>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <button type="button" onClick={()=>signOut()} className="w-full flex items-center gap-3 p-4 text-right text-red-600">
+          <span className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center"><LogOut className="w-5 h-5"/></span>
+          <span className="flex-1 font-black text-sm">خروج از حساب کاربری</span>
+          <ChevronLeft className="w-4 h-4 text-red-300"/>
+        </button>
+      </div>
+    </div>;
+  };
 
   const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
   const getLoadInteraction = (loadId:string) => {
@@ -1061,7 +1102,7 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (verificationStep === 1) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go("account")} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go("account")} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
         <div>
           <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
         </div>
@@ -1074,7 +1115,7 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (verificationStep === 2) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-black">ارسال عکس گواهینامه</h2><button type="button" onClick={()=>setVerificationStep(1)} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">ارسال عکس گواهینامه</h2><button type="button" onClick={()=>setVerificationStep(1)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
         <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
@@ -1091,7 +1132,7 @@ const ProfilePage = () => <div className="space-y-3">
 
     return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2><button type="button" onClick={()=>setVerificationStep(2)} className="text-sm font-black text-gray-500">بازگشت</button></div>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2><button type="button" onClick={()=>setVerificationStep(2)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
         <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
@@ -1672,7 +1713,7 @@ const ProfilePage = () => <div className="space-y-3">
   return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`min-h-screen ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
     {page==='home' ? <Header/> : <div className="max-w-lg mx-auto px-4 pt-4">
       <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
-        <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-bold text-gray-600 bg-white border border-gray-100"><ArrowLeft className="w-4 h-4"/> بازگشت</button>
+        <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-gray-600 bg-white border border-gray-200" aria-label="بازگشت" title="بازگشت"><ArrowRight className="w-5 h-5"/></button>
         <h1 className="flex-1 text-center text-lg font-black">{currentPageTitle}</h1>
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
