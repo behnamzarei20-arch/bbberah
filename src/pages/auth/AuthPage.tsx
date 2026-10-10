@@ -115,17 +115,16 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
 
   return <div dir="rtl" className="min-h-screen bg-[#f8f8f7] flex flex-col">
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-      <div className="mb-5 flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-primary-600 text-white shadow-lg" aria-label={APP_NAME}>
+      <div className="mb-4 flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-primary-600 text-white shadow-lg" aria-label={APP_NAME}>
         <Truck className="h-8 w-8" />
       </div>
 
-      <div className="w-full max-w-md rounded-[28px] border border-gray-100 bg-white p-5 shadow-xl shadow-gray-200/40">
-        <div className="mb-6 text-center">
-          <p className="text-xl font-black text-gray-900">{APP_NAME}</p>
-          {step === 'phone' && <h1 className="mt-2 text-2xl font-black text-gray-900">خوش آمدید</h1>}
-          <p className="mt-3 text-sm font-medium text-gray-500">{APP_TAGLINE}</p>
-        </div>
+      <div className="mb-6 text-center">
+        <h1 className="text-2xl font-black text-gray-900">براه خوش آمدید</h1>
+        <p className="mt-3 text-sm font-medium text-gray-500">{APP_TAGLINE}</p>
+      </div>
 
+      <div className="w-full max-w-md rounded-[28px] border border-gray-100 bg-white p-5 shadow-xl shadow-gray-200/40">
         {step === 'phone' ? <div className="space-y-5">
           <h2 className="text-center text-xl font-black text-gray-900">شماره تلفن خود را وارد کنید</h2>
           <Input
@@ -191,7 +190,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
           <div className="text-center text-sm font-bold text-gray-500">
             {seconds > 0 ? <>درخواست مجدد کد تا <span className="font-black text-primary-700">{fa(String(seconds).padStart(2, '0'))}</span> ثانیه دیگر</> : <button type="button" disabled={loading} onClick={() => { setOtp(''); setSeconds(60); setNotice(null); otpRef.current?.focus(); }} className="font-bold text-primary-700 disabled:opacity-50">درخواست مجدد کد</button>}
           </div>
-          <button type="button" onClick={editPhone} className="mx-auto flex items-center gap-2 text-sm font-bold text-gray-500">
+          <button type="button" onClick={editPhone} className="mx-auto flex items-center gap-2 text-sm font-bold text-primary-700 underline underline-offset-4">
             <Pencil className="h-4 w-4" /> ویرایش شماره تلفن
           </button>
         </div>}
