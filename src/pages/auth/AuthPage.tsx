@@ -148,7 +148,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
             />
             <label htmlFor="terms-accepted" className="text-sm leading-7 text-gray-600">
               با ورود به براه قوانین و مقررات را می‌پذیرم.{' '}
-              <button type="button" onClick={() => setTermsOpen(true)} className="font-bold text-primary-700 underline underline-offset-2">قوانین و مقررات</button>
+              <button type="button" onClick={() => setTermsOpen(true)} className="font-bold text-primary-700 underline underline-offset-2">مطالعه قوانین و مقررات</button>
             </label>
           </div>
           {codeRequested && seconds > 0 && <p className="text-center text-xs font-bold text-gray-500">برای درخواست مجدد کد، {fa(String(seconds))} ثانیه صبر کنید.</p>}
