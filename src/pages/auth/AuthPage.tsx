@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Truck, ArrowRight, Pencil, ShieldCheck, FileText } from 'lucide-react';
 
 const DEMO_OTP = '12345';
-const fa = (v: string) => v.replace(/\\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] || d);
+const fa = (v: string) => v.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] || d);
 const en = (v: string) => v.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
 
 type Notice = { text: string; ok: boolean } | null;
@@ -23,7 +23,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
   const [phoneError, setPhoneError] = useState('');
   const [loading, setLoading] = useState(false);
   const otpRef = useRef<HTMLInputElement>(null);
-  const normalizedPhone = en(phone.trim()).replace(/\\s/g, '');
+  const normalizedPhone = en(phone.trim()).replace(/\s/g, '');
 
   useEffect(() => {
     if (step !== 'otp' || seconds <= 0) return;
@@ -56,7 +56,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
       setNotice({ text: 'پذیرش قوانین و مقررات الزامی است', ok: false });
       return;
     }
-    if (!/^09\\d{9}$/.test(normalizedPhone)) {
+    if (!/^09\d{9}$/.test(normalizedPhone)) {
       setPhoneError('شماره تلفن معتبر نیست');
       setNotice(null);
       return;
@@ -75,7 +75,7 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
   };
 
   const handleOtp = (value: string) => {
-    const code = en(value).replace(/\\D/g, '').slice(0, 5);
+    const code = en(value).replace(/\D/g, '').slice(0, 5);
     setOtp(code);
     setNotice(null);
     if (code.length !== 5) return;
@@ -119,7 +119,8 @@ export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mo
         <div className="mx-auto w-16 h-16 rounded-[22px] bg-primary-600 text-white flex items-center justify-center shadow-lg">
           <Truck className="w-8 h-8" />
         </div>
-        {step === 'phone' && <h1 className="text-3xl font-black text-gray-900 mt-4">خوش آمدید</h1>}
+        <p className="text-xl font-black text-gray-900 mt-3">{APP_NAME}</p>
+        {step === 'phone' && <h1 className="text-2xl font-black text-gray-900 mt-2">خوش آمدید</h1>}
         <p className="text-sm font-medium text-gray-500 mt-3">{APP_TAGLINE}</p>
       </div>
 
