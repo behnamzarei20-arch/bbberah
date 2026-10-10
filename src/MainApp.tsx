@@ -630,8 +630,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
     const vehicleTypeLabel = vehicleForm.type === 'وانت و نیسان' ? 'نیسان' : vehicleForm.type;
     const vehicleSummary = [vehicleTypeLabel, vehicleForm.usage, vehicleForm.feature].filter(Boolean).join(' · ');
-    const cardClass = 'w-full min-h-[76px] rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden';
-    const rowClass = 'w-full min-h-[76px] flex items-center justify-center gap-3 px-4 py-4 text-center';
+    const cardClass = 'w-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden';
+    const rowClass = 'w-full flex items-center gap-3 px-4 py-3 text-right';
     return <div className="space-y-3">
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="p-4 flex flex-col items-center justify-center text-center gap-2">
@@ -642,35 +642,35 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </div>
 
       <div className={cardClass}>
-        <button type="button" onClick={()=>go('account')} className={rowClass}>
-          <span className="text-lg font-black text-gray-900">اطلاعات حساب کاربری</span>
-          <span className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-black ${verificationClass}`}>{verificationLabel}</span>
+        <button type="button" onClick={()=>go('account')} className={rowClass} dir="rtl">
+          <span className="text-xl font-black text-gray-900">اطلاعات حساب کاربری</span>
+          <span className={`shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${verificationClass}`}>{verificationLabel}</span>
         </button>
       </div>
 
       <div className={cardClass}>
-        <button type="button" onClick={()=>go('vehicle-dashboard')} className={rowClass}>
-          <span className="text-lg font-black text-gray-900">خودروی من</span>
-          <span className={`max-w-[55%] text-base font-black ${savedVehicle ? 'text-blue-600' : 'text-blue-600'}`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
+        <button type="button" onClick={()=>go('vehicle-dashboard')} className={rowClass} dir="rtl">
+          <span className="text-xl font-black text-gray-900">خودروی من</span>
+          <span className="max-w-[55%] text-lg font-black text-blue-600 text-right">{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
         </button>
       </div>
 
       <div className={cardClass}>
-        <button type="button" onClick={()=>go('wallet')} className={rowClass}>
-          <span className="text-lg font-black text-gray-900">کیف پول</span>
-          <span className="text-base font-black text-blue-600">{money(walletBalance)} تومان</span>
+        <button type="button" onClick={()=>go('wallet')} className={rowClass} dir="rtl">
+          <span className="text-xl font-black text-gray-900">کیف پول</span>
+          <span className="text-lg font-black text-blue-600">{money(walletBalance)} تومان</span>
         </button>
       </div>
 
       <div className={cardClass}>
-        <button type="button" onClick={()=>go('rules')} className={rowClass}>
-          <span className="text-lg font-black text-gray-900">قوانین و مقررات</span>
+        <button type="button" onClick={()=>go('rules')} className={rowClass} dir="rtl">
+          <span className="text-xl font-black text-gray-900">قوانین و مقررات</span>
         </button>
       </div>
 
       <div className={cardClass}>
-        <button type="button" onClick={()=>signOut()} className={rowClass}>
-          <span className="text-lg font-black text-blue-600">خروج از حساب کاربری</span>
+        <button type="button" onClick={()=>signOut()} className={rowClass} dir="rtl">
+          <span className="text-xl font-black text-blue-600">خروج از حساب کاربری</span>
         </button>
       </div>
     </div>;
