@@ -632,6 +632,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const rowClass = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-right';
     const labelClass = 'flex min-w-0 items-center gap-3 text-right text-xl font-black text-gray-900';
     const statusClass = 'shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-base font-black text-blue-700';
+    const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-blue-200 bg-blue-50 text-blue-700'}`;
     return <div className="space-y-3">
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="p-4 flex flex-col items-start text-right gap-2" dir="rtl">
@@ -644,7 +645,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('account')} className={rowClass} dir="rtl">
           <span className={labelClass}><ShieldCheck className="h-5 w-5 shrink-0 text-black"/>احراز هویت</span>
-          <span className={`${statusClass} ${verificationClass}`}>{verificationLabel}</span>
+          <span className={verificationStatusClass}>{verificationLabel}</span>
         </button>
       </div>
 
