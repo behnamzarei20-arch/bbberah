@@ -1,4 +1,5 @@
 name: Build and Deploy Vite App to GitHub Pages
+# Keep GitHub Pages deployment retriggerable after source updates.
 
 on:
   push:
