@@ -309,8 +309,6 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   }, [pendingContactReturn]);
   const [offerOpen, setOfferOpen] = useState(false);
   const [offerDetailLoadId, setOfferDetailLoadId] = useState<string | null>(null);
-  const [offerDetailDragY, setOfferDetailDragY] = useState(0);
-  const offerDetailTouchStartY = useRef<number | null>(null);
   const [offerSlider, setOfferSlider] = useState(50);
   const [offerPercent, setOfferPercent] = useState(0);
   const offerTouchStartY = useRef<number | null>(null);
