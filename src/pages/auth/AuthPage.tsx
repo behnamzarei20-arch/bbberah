@@ -1,46 +1,184 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { APP_NAME, APP_TAGLINE } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { APP_NAME } from '@/lib/constants';
-import { Truck, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Truck, ArrowRight, Pencil, ShieldCheck, FileText } from 'lucide-react';
 
-const DEMO_OTP='123456';
-const VEHICLES=['تریلی','جفت','تک','کامیونت و خاور','وانت و نیسان'];
-const BODIES=['روباز','مسقف','یخچال','کمپرسی'];
-const BODY_FEATURES=['بغل بازشو','معمولی','چادری','فلزی'];
-const PLATE_LETTERS=['ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
-const fa=(v:string)=>v.replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]||d);
-const en=(v:string)=>v.replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
-type Step='details'|'otp'|'vehicleType'|'bodyType'|'feature'|'plate';
+const DEMO_OTP = '12345';
+const fa = (v: string) => v.replace(/\\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] || d);
+const en = (v: string) => v.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
 
-export function AuthPage({mode,onModeChange}:{mode:'login'|'register';onModeChange:(mode:'login'|'register')=>void}){
- const {signIn,signUp}=useAuth();
- const [step,setStep]=useState<Step>('details'); const [fullName,setFullName]=useState(''); const [phone,setPhone]=useState(''); const [otp,setOtp]=useState(''); const [loading,setLoading]=useState(false); const [errors,setErrors]=useState<Record<string,string>>({}); const [system,setSystem]=useState<{text:string;ok:boolean}|null>(null);
- const [vehicle,setVehicle]=useState({vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'ع',p2:'',iran:''});
- const normalizedPhone=en(phone.trim());
- useEffect(()=>{if(!system)return;const t=window.setTimeout(()=>setSystem(null),3000);return()=>window.clearTimeout(t)},[system]);
- const notify=(text:string,ok=true)=>setSystem({text,ok});
- const reset=()=>{setStep('details');setOtp('');setErrors({});setSystem(null);setLoading(false)};
- const sendOtp=()=>{const e:Record<string,string>={};if(mode==='register'&&!fullName.trim())e.fullName='نام و نام خانوادگی الزامی است';if(!/^09\d{9}$/.test(normalizedPhone))e.phone='شماره موبایل معتبر نیست';setErrors(e);if(Object.keys(e).length){notify('ارسال کد ناموفق بود.',false);return}setStep('otp');notify('کد با موفقیت ارسال شد');};
- const finishLogin=async()=>{setLoading(true);const r=await signIn(normalizedPhone);if(r.error){notify(r.error,false);setLoading(false)}else notify('ورود با موفقیت انجام شد')};
- const handleOtp=(v:string)=>{const n=en(v).replace(/\D/g,'').slice(0,6);setOtp(n);if(n.length===6){if(n===DEMO_OTP){window.setTimeout(()=>mode==='register'?setStep('vehicleType'):finishLogin(),150)}else{setErrors({otp:'کد تأیید صحیح نیست'});notify('کد تأیید نادرست است.',false)}}};
- const finishRegister=async()=>{if(!vehicle.vehicleType||!vehicle.bodyType||!vehicle.p1||!vehicle.letter||!vehicle.p2||!vehicle.iran){setErrors({vehicle:'اطلاعات خودرو و پلاک را کامل کنید'});notify('ثبت خودرو ناموفق بود؛ اطلاعات را کامل کنید.',false);return}setLoading(true);const r=await signUp(normalizedPhone,'driver',fullName.trim());if(r.error){notify(r.error,false);setLoading(false);return}const id=JSON.parse(localStorage.getItem('bbberah-demo-current')||'null');if(id)localStorage.setItem(`bbberah-fleet-${id}`,JSON.stringify({...vehicle,plateNumber:`${vehicle.p1}${vehicle.letter}${vehicle.p2} ایران ${vehicle.iran}`}));notify('ثبت‌نام با موفقیت انجام شد')};
- const back=()=>{if(step==='otp')setStep('details');else if(step==='vehicleType')setStep('otp');else if(step==='bodyType')setStep('vehicleType');else if(step==='feature')setStep('bodyType');else if(step==='plate')setStep(['روباز','مسقف'].includes(vehicle.bodyType)?'feature':'bodyType')};
- const selectBody=(x:string)=>{setVehicle(v=>({...v,bodyType:x,bodyFeature:['روباز','مسقف'].includes(x)?v.bodyFeature:''}));setStep(['روباز','مسقف'].includes(x)?'feature':'plate')};
- return <div dir="rtl" className="min-h-screen bg-white flex flex-col"><div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md mx-auto w-full">
-  <div className="text-center mb-8"><div className="mx-auto w-16 h-16 rounded-[22px] bg-primary-600 text-white flex items-center justify-center shadow-lg"><Truck className="w-8 h-8"/></div><h1 className="text-3xl font-black text-gray-900 mt-4">{APP_NAME}</h1>{step==='details'&&<h2 className="text-lg font-bold text-gray-500 mt-2">خوش آمدید</h2>}</div>
-  {system&&<div className={`mb-4 rounded-xl px-4 py-3 text-sm font-bold text-center border ${system.ok?'bg-emerald-50 text-emerald-700 border-emerald-100':'bg-red-50 text-red-700 border-red-100'}`}>{system.text}</div>}
-  {step!=='details'&&<button onClick={back} className="flex items-center gap-2 text-sm text-gray-500 font-bold mb-4"><ArrowRight className="w-4 h-4"/> برگشت</button>}
-  {mode==='login'&&step==='details'?<div className="space-y-5"><h2 className="text-xl font-black">شماره تلفن خود را وارد کنید</h2><Input label="شماره تلفن" value={phone} onChange={e=>setPhone(en(e.target.value))} placeholder="۰۹۱۲۳۴۵۶۷۸۹" type="tel" dir="ltr" error={errors.phone}/><Button type="button" size="full" onClick={sendOtp}>ادامه</Button><button className="w-full text-sm text-primary-700 font-bold" onClick={()=>{onModeChange('register');reset()}}>عضویت راننده</button></div>:
-  <div className="space-y-5">
-   {step==='details'&&<><h2 className="text-xl font-black">شماره تلفن خود را وارد کنید</h2><Input label="نام و نام خانوادگی" value={fullName} onChange={e=>setFullName(e.target.value)} placeholder="نام و نام خانوادگی" error={errors.fullName}/><Input label="شماره تلفن" value={phone} onChange={e=>setPhone(en(e.target.value))} placeholder="۰۹۱۲۳۴۵۶۷۸۹" type="tel" dir="ltr" error={errors.phone}/><Button type="button" size="full" onClick={sendOtp}>ادامه</Button><button className="w-full text-sm text-primary-700 font-bold" onClick={()=>{onModeChange('login');reset()}}>قبلاً عضو شده‌ام</button></>}
-   {step==='otp'&&<><h2 className="text-xl font-black">کد ارسال شد</h2><p className="text-gray-500">کد ارسال شد به <span dir="ltr" className="font-black text-gray-800">{fa(normalizedPhone)}</span> را وارد کنید</p><Input label="کد ۶ رقمی" value={fa(otp)} onChange={e=>handleOtp(e.target.value)} placeholder="۱۲۳۴۵۶" inputMode="numeric" dir="ltr" error={errors.otp} autoFocus/><button className="text-sm text-primary-700 font-bold" onClick={()=>setStep('details')}>ویرایش شماره</button></>}
-   {step==='vehicleType'&&<><h2 className="text-xl font-black">انتخاب خودرو</h2><div className="grid gap-3">{VEHICLES.map(x=><button key={x} type="button" onClick={()=>{setVehicle(v=>({...v,vehicleType:x}));setStep('bodyType')}} className="p-4 rounded-2xl border border-gray-200 bg-white font-black text-right hover:border-primary-400">{x}<ArrowRight className="w-4 h-4 inline mr-2"/></button>)}</div></>}
-   {step==='bodyType'&&<><h2 className="text-xl font-black">نوع بارگیر</h2><div className="grid grid-cols-2 gap-3">{BODIES.map(x=><button key={x} type="button" onClick={()=>selectBody(x)} className="p-4 rounded-2xl border border-gray-200 bg-white font-black">{x}</button>)}</div></>}
-   {step==='feature'&&<><h2 className="text-xl font-black">ویژگی بارگیر</h2><div className="grid grid-cols-2 gap-3">{BODY_FEATURES.map(x=><button key={x} type="button" onClick={()=>{setVehicle(v=>({...v,bodyFeature:x}));setStep('plate')}} className="p-4 rounded-2xl border border-gray-200 bg-white font-black">{x}</button>)}</div></>}
-   {step==='plate'&&<><h2 className="text-xl font-black">ثبت پلاک</h2><div className="rounded-xl border-2 border-gray-400 bg-white overflow-hidden shadow-sm"><div className="flex items-stretch h-20" dir="ltr"><div className="w-10 bg-sky-700 flex items-center justify-center"><div className="w-6 h-11 border border-white/70 flex flex-col"><span className="h-1/3 bg-emerald-500"></span><span className="h-1/3 bg-white"></span><span className="h-1/3 bg-red-500"></span></div></div><input value={fa(vehicle.p1)} onChange={e=>setVehicle(v=>({...v,p1:en(e.target.value).replace(/\D/g,'').slice(0,2)}))} inputMode="numeric" placeholder="__" className="w-[21%] text-center text-2xl font-black outline-none"/><select value={vehicle.letter} onChange={e=>setVehicle(v=>({...v,letter:e.target.value}))} className="w-[19%] border-x border-gray-300 bg-white text-center text-2xl font-black outline-none"><option value="ع">ع</option>{PLATE_LETTERS.filter(x=>x!=='ع').map(x=><option key={x} value={x}>{x}</option>)}</select><input value={fa(vehicle.p2)} onChange={e=>setVehicle(v=>({...v,p2:en(e.target.value).replace(/\D/g,'').slice(0,3)}))} inputMode="numeric" placeholder="___" className="w-[28%] text-center text-2xl font-black outline-none"/><div className="flex-1 border-r border-gray-300 flex flex-col items-center justify-center text-[9px] font-bold text-gray-500"><span>IRAN</span><b className="text-base">{fa(vehicle.iran||'__')}</b></div></div></div><Input label="کد ایران" value={fa(vehicle.iran)} onChange={e=>setVehicle(v=>({...v,iran:en(e.target.value).replace(/\D/g,'').slice(0,2)}))} placeholder="__" inputMode="numeric" dir="ltr" error={errors.vehicle}/><Button type="button" size="full" loading={loading} onClick={finishRegister}>تکمیل و ورود</Button></>}
-  </div>}
-  <div className="mt-8 flex items-center justify-center gap-2 text-xs text-gray-400"><ShieldCheck className="w-4 h-4"/>ورود امن با شماره تلفن</div>
- </div></div>;
+type Notice = { text: string; ok: boolean } | null;
+
+export function AuthPage(_props: { mode: 'login' | 'register'; onModeChange: (mode: 'login' | 'register') => void }) {
+  const { signIn } = useAuth();
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [accepted, setAccepted] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [seconds, setSeconds] = useState(60);
+  const [notice, setNotice] = useState<Notice>(null);
+  const [phoneError, setPhoneError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const otpRef = useRef<HTMLInputElement>(null);
+  const normalizedPhone = en(phone.trim()).replace(/\\s/g, '');
+
+  useEffect(() => {
+    if (step !== 'otp' || seconds <= 0) return;
+    const timer = window.setTimeout(() => setSeconds(value => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [step, seconds]);
+
+  useEffect(() => {
+    if (step !== 'otp') return;
+    const controller = new AbortController();
+    const credentials = navigator.credentials as CredentialsContainer & {
+      get: (options?: CredentialRequestOptions) => Promise<Credential | null>;
+    };
+    if ('OTPCredential' in window && navigator.credentials?.get) {
+      credentials.get({
+        otp: { transport: ['sms'] },
+        signal: controller.signal,
+      } as unknown as CredentialRequestOptions).then((credential) => {
+        const code = (credential as (Credential & { code?: string }) | null)?.code;
+        if (code) handleOtp(code);
+      }).catch(() => undefined);
+    }
+    return () => controller.abort();
+  // SMS autofill is started only when the OTP page opens.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  const requestCode = () => {
+    if (!accepted) {
+      setNotice({ text: 'پذیرش قوانین و مقررات الزامی است', ok: false });
+      return;
+    }
+    if (!/^09\\d{9}$/.test(normalizedPhone)) {
+      setPhoneError('شماره تلفن معتبر نیست');
+      setNotice(null);
+      return;
+    }
+    setPhoneError('');
+    setOtp('');
+    setSeconds(60);
+    setNotice(null);
+    setStep('otp');
+  };
+
+  const editPhone = () => {
+    setStep('phone');
+    setOtp('');
+    setNotice(null);
+  };
+
+  const handleOtp = (value: string) => {
+    const code = en(value).replace(/\\D/g, '').slice(0, 5);
+    setOtp(code);
+    setNotice(null);
+    if (code.length !== 5) return;
+    if (code !== DEMO_OTP) {
+      setNotice({ text: 'ورود ناموفق، کد اشتباه است', ok: false });
+      return;
+    }
+    setNotice({ text: 'ورود موفقیت‌آمیز بود؛ در حال ورود به صفحه اصلی…', ok: true });
+    setLoading(true);
+    window.setTimeout(async () => {
+      const result = await signIn(normalizedPhone);
+      if (result.error) {
+        setNotice({ text: result.error, ok: false });
+        setLoading(false);
+        return;
+      }
+      // Auth state changes to the home screen after successful verification.
+    }, 850);
+  };
+
+  if (termsOpen) {
+    return <div dir="rtl" className="min-h-screen bg-white px-5 py-8">
+      <div className="mx-auto max-w-md">
+        <button type="button" onClick={() => setTermsOpen(false)} className="mb-7 flex items-center gap-2 text-sm font-bold text-gray-500">
+          <ArrowRight className="h-4 w-4" /> بازگشت به ورود
+        </button>
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
+          <FileText className="h-7 w-7" />
+        </div>
+        <h1 className="text-2xl font-black text-gray-900">قوانین و مقررات</h1>
+        <p className="mt-5 leading-8 text-gray-600">استفاده از براه به معنی پذیرش قوانین و مقررات استفاده از بازارگاه حمل‌ونقل است.</p>
+        <p className="mt-3 leading-8 text-gray-600">اطلاعات ثبت‌شده باید صحیح و متعلق به صاحب حساب باشد و کاربران مسئول حفظ اطلاعات حساب خود هستند.</p>
+        <p className="mt-3 leading-8 text-gray-600">کاربر موظف است از خدمات براه در چارچوب قوانین و مقررات مربوط استفاده کند و اطلاعات حساب خود را محرمانه نگه دارد.</p>
+      </div>
+    </div>;
+  }
+
+  return <div dir="rtl" className="min-h-screen bg-white flex flex-col">
+    <div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md mx-auto w-full">
+      <div className="text-center mb-8">
+        <div className="mx-auto w-16 h-16 rounded-[22px] bg-primary-600 text-white flex items-center justify-center shadow-lg">
+          <Truck className="w-8 h-8" />
+        </div>
+        {step === 'phone' && <h1 className="text-3xl font-black text-gray-900 mt-4">خوش آمدید</h1>}
+        <p className="text-sm font-medium text-gray-500 mt-3">{APP_TAGLINE}</p>
+      </div>
+
+      {step === 'phone' ? <div className="space-y-5">
+        <h2 className="text-xl font-black text-gray-900">شماره تلفن خود را وارد کنید</h2>
+        <Input
+          label="شماره تلفن"
+          value={phone}
+          onChange={event => { setPhone(en(event.target.value)); setPhoneError(''); }}
+          placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          dir="ltr"
+          error={phoneError}
+        />
+        <div className="flex items-start gap-2">
+          <input
+            id="terms-accepted"
+            type="checkbox"
+            checked={accepted}
+            onChange={event => { setAccepted(event.target.checked); if (event.target.checked && notice?.text === 'پذیرش قوانین و مقررات الزامی است') setNotice(null); }}
+            className="mt-1 h-4 w-4 shrink-0 accent-[#1358ED]"
+          />
+          <label htmlFor="terms-accepted" className="text-sm leading-7 text-gray-600">
+            با ورود به براه قوانین و مقررات را می‌پذیرم.{' '}
+            <button type="button" onClick={() => setTermsOpen(true)} className="font-bold text-primary-700 underline underline-offset-2">قوانین و مقررات</button>
+          </label>
+        </div>
+        {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
+        <Button type="button" size="full" onClick={requestCode}>درخواست کد فعال‌سازی</Button>
+      </div> : <div className="space-y-5">
+        <h2 className="text-xl font-black text-gray-900">لطفاً کد ارسال‌شده به شماره</h2>
+        <p className="text-gray-500">کد ارسال‌شده به شماره <span dir="ltr" className="font-black text-gray-800">{fa(normalizedPhone)}</span> را وارد کنید.</p>
+        <Input
+          ref={otpRef}
+          label="کد ۵ رقمی"
+          value={fa(otp)}
+          onChange={event => handleOtp(event.target.value)}
+          placeholder="-----"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="[0-9۰-۹]*"
+          maxLength={5}
+          dir="ltr"
+          autoFocus
+        />
+        {notice && <div role="status" className={`rounded-xl border px-4 py-3 text-center text-sm font-bold ${notice.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{notice.text}</div>}
+        <div className="text-center text-sm font-bold text-gray-500">
+          {seconds > 0 ? <>درخواست مجدد کد تا <span className="font-black text-primary-700">{fa(String(seconds).padStart(2, '0'))}</span> ثانیه دیگر</> : <button type="button" disabled={loading} onClick={() => { setOtp(''); setSeconds(60); setNotice(null); otpRef.current?.focus(); }} className="font-bold text-primary-700 disabled:opacity-50">درخواست مجدد کد</button>}
+        </div>
+        <button type="button" onClick={editPhone} className="mx-auto flex items-center gap-2 text-sm font-bold text-gray-500">
+          <Pencil className="h-4 w-4" /> ویرایش شماره تلفن
+        </button>
+      </div>}
+
+      <div className="mt-8 flex items-center justify-center gap-2 text-xs text-gray-400">
+        <ShieldCheck className="w-4 h-4" /> ورود امن با شماره تلفن
+      </div>
+    </div>
+  </div>;
 }
