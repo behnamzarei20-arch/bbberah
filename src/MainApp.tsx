@@ -631,34 +631,34 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const cardClass = 'w-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden';
     const rowClass = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-right';
     const labelClass = 'flex min-w-0 items-center gap-3 text-right text-xl font-black text-gray-900';
-    const statusClass = 'shrink-0 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-base font-black text-gray-600';
+    const statusClass = 'shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-base font-black text-blue-700';
     const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`;
     return <div className="space-y-3">
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="p-4 flex flex-col items-start text-right gap-2" dir="rtl">
-          <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
+          <div className="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
           <h2 className="font-black text-2xl text-gray-900">ادمین</h2>
-          <p className="text-base font-bold text-blue-600" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
+          <p className="text-base font-bold text-gray-900 dark:text-gray-900" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
         </div>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('account')} className={rowClass} dir="rtl">
-          <span className={labelClass}><ShieldCheck className="h-5 w-5 shrink-0 text-black"/>احراز هویت</span>
+          <span className={labelClass}><ShieldCheck className="h-5 w-5 shrink-0 text-primary-600"/>احراز هویت</span>
           <span className={verificationStatusClass}>{verificationLabel}</span>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('vehicle-dashboard')} className={rowClass} dir="rtl">
-          <span className={labelClass}><CarFront className="h-5 w-5 shrink-0 text-black"/>خودروی من</span>
+          <span className={labelClass}><CarFront className="h-5 w-5 shrink-0 text-primary-600"/>خودروی من</span>
           <span className={`${statusClass} max-w-[55%] truncate`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('wallet')} className={rowClass} dir="rtl">
-          <span className={labelClass}><WalletCards className="h-5 w-5 shrink-0 text-black"/>کیف پول</span>
+          <span className={labelClass}><WalletCards className="h-5 w-5 shrink-0 text-primary-600"/>کیف پول</span>
           <span className={statusClass}>{money(walletBalance)} تومان</span>
         </button>
       </div>
