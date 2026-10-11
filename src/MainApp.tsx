@@ -357,7 +357,6 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     } catch {}
   };
   const [accountName, setAccountName] = useState(profile?.full_name || '');
-  const [settlingCallLoadId, setSettlingCallLoadId] = useState<string | null>(null);
   const [expandedCallId, setExpandedCallId] = useState<string | null>(null);
   const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
 
@@ -678,14 +677,12 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     </div>;
   };
 
-  const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
   const getLoadInteraction = (loadId:string) => {
     const contact = contactHistory.some(item => item.loadId === loadId);
     const offer = myOffers.some(item => item.loadId === loadId);
     if (contact || offer) return { label:'تماس گرفته‌اید', cls:'border-primary-200 bg-primary-50 text-primary-700' };
     return null;
   };
-  const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
   const compactDateTime = (timestamp:number) => {
     const date=new Date(timestamp);
     const now=new Date();
@@ -1322,7 +1319,7 @@ const ProfilePage = () => <div className="space-y-3">
               <div className="mt-1 text-xs font-bold text-gray-600">📦 {load.type}</div>
               <div className="mt-2 flex items-center justify-between text-[10px] font-bold text-sky-800"><span>تماس</span><span>{expanded?'بستن منو':'لمس برای عملیات'}</span></div>
             </button>
-            {expanded && <div className="grid grid-cols-2 gap-2 border-t border-sky-200 bg-white p-3">
+            {expanded && <div className={"grid "+(needsStatus ? "grid-cols-3" : "grid-cols-2")+" gap-2 border-t border-sky-200 bg-white p-3"}>
               <a href={'tel:'+load.phone} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-2.5 text-sm font-black text-emerald-800"><Phone className="h-4 w-4"/>تماس</a>
               {needsStatus && <button type="button" onClick={()=>{setSelected(load);setContactReport(null);go('contact-report');}} className="flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-2.5 text-sm font-black text-amber-800">تعیین وضعیت</button>}
               <button type="button" onClick={()=>{setSelected(load);go('cargo-detail');}} className="flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-2 py-2.5 text-sm font-black text-gray-800"><FileText className="h-4 w-4"/>جزئیات</button>
