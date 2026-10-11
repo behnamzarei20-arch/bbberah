@@ -3,7 +3,7 @@ import {
   ArrowLeft, ArrowRight, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
-  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info
+  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -1305,7 +1305,7 @@ const ProfilePage = () => <div className="space-y-3">
           if(!load) return null;
           const shipmentResult=shipmentHistory.find(h=>h.loadId===load.id);
           const status=item.status==='carried' ? 'بارگیری کردم' : shipmentResult?.outcome==='carried' ? 'بارگیری کردم' : shipmentResult?.outcome==='withdrawn' ? 'انصراف از حمل' : item.status==='agreed' ? 'توافق کردیم' : item.status==='declined' ? 'عدم توافق' : 'هنوز مشخص نیست';
-          const statusClass=item.status==='agreed'||item.status==='carried'||shipmentResult?.outcome==='carried' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : item.status==='declined'||shipmentResult?.outcome==='withdrawn' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-800 border-amber-200';
+          const statusClass=shipmentResult?.outcome==='withdrawn'||item.status==='declined' ? 'bg-red-50 text-red-700 border-red-200' : item.status==='agreed'||item.status==='carried'||shipmentResult?.outcome==='carried' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200';
           const cardKey=item.loadId+'-'+item.at+'-'+idx;
           const expanded=expandedCallId===cardKey;
           const needsStatus=item.status==='uncertain'||item.status==='declined';
