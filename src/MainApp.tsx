@@ -198,9 +198,11 @@ export function MainApp() {
   const [page, setPage] = useState<Page>('home');
   const [pressedHomeCard, setPressedHomeCard] = useState<string | null>(null);
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
+  const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads].map((load, index) => ({
     ...load,
     publishedAt: load.publishedAt ?? Date.now() - demoPublicationAges[index % demoPublicationAges.length] * 60_000,
+    priceIndex: load.priceIndex ?? demoPriceIndexes[index % demoPriceIndexes.length],
   })));
   const [selected, setSelected] = useState<Load|null>(null);
   const [origin, setOrigin] = useState('');
