@@ -98,7 +98,7 @@ function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
 
 function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }: { load:Load; onOpen:()=>void; onOffer:()=>void; interactionLabel?:string; interactionClass?:string }) {
   const commission = Math.round(load.price * 0.05);
-  const publishedAt = load.publishedAt ? new Date(load.publishedAt) : null;
+  const publishedAt = load.publishedAt ? (typeof load.publishedAt === 'number' ? new Date(load.publishedAt) : new Date(load.publishedAt)) : null;
   const publishedTime = publishedAt && !Number.isNaN(publishedAt.getTime())
     ? publishedAt.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })
     : typeof load.publishedAt === 'string' ? load.publishedAt : '';
