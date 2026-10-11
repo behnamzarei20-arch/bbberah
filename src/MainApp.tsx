@@ -3,7 +3,7 @@ import {
   ArrowLeft, ArrowRight, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
-  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, MoreVertical, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info
+  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -357,7 +357,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     } catch {}
   };
   const [accountName, setAccountName] = useState(profile?.full_name || '');
-  const [settlingCallLoadId, setSettlingCallLoadId] = useState<string | null>(null);
+  const [expandedCallId, setExpandedCallId] = useState<string | null>(null);
   const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
 
   const notify = (m:string) => { setToast(m); window.setTimeout(()=>setToast(''), 2600); };
@@ -677,14 +677,22 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     </div>;
   };
 
-  const contactStatusLabel = {agreed:'توافق کردیم',declined:'توافق نکردیم',uncertain:'مشخص نیست',carried:'بار را حمل کردم'} as const;
   const getLoadInteraction = (loadId:string) => {
     const contact = contactHistory.some(item => item.loadId === loadId);
     const offer = myOffers.some(item => item.loadId === loadId);
     if (contact || offer) return { label:'تماس گرفته‌اید', cls:'border-primary-200 bg-primary-50 text-primary-700' };
     return null;
   };
-  const contactStatusClass = {agreed:'text-emerald-700 bg-emerald-50',declined:'text-red-700 bg-red-50',uncertain:'text-amber-700 bg-amber-50',carried:'text-blue-700 bg-blue-50'} as const;
+  const compactDateTime = (timestamp:number) => {
+    const date=new Date(timestamp);
+    const now=new Date();
+    const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+    const dateStart=new Date(date.getFullYear(),date.getMonth(),date.getDate()).getTime();
+    const days=Math.round((todayStart-dateStart)/86400000);
+    const dayLabel=days===0?'امروز':days===1?'دیروز':new Intl.DateTimeFormat('fa-IR-u-ca-persian',{day:'numeric',month:'short'}).format(date);
+    const timeLabel=new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit'}).format(date);
+    return dayLabel+' '+timeLabel;
+  };
 
   const animateHomeCard = (id:string, action:()=>void) => {
     if (pressedHomeCard) return;
@@ -1289,56 +1297,49 @@ const ProfilePage = () => <div className="space-y-3">
   const SimplePage = () => {
     if (page==='verification') return <VerificationPage/>;
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
-    if (page==='calls') return <div className="space-y-6">
-      <section className="space-y-3"><h2 className="text-lg font-black">وضعیت تماس‌ها</h2>
-      {contactHistory.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].sort((a,b)=>b.at-a.at).map((item,idx)=>{
-        const load=loads.find(l=>l.id===item.loadId);
-        if(!load) return null;
-        const shipmentResult = shipmentHistory.find(h => h.loadId === load.id);
-        const status = item.status==='carried'
-          ? 'حمل انجام شد'
-          : shipmentResult?.outcome==='withdrawn'
-            ? 'از حمل بار منصرف شدید'
-            : contactStatusLabel[item.status];
-        const canResolve = item.status==='uncertain' && !shipmentResult;
-        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0"><b className="block">{load.title}</b><p className="text-xs text-gray-500 mt-1">{load.from} ← {load.to}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleDateString('fa-IR')}</p></div>
-            <span className={'shrink-0 rounded-full px-3 py-1 text-xs font-black '+contactStatusClass[item.status]}>{status}</span>
-          </div>
-          {canResolve && <div className="grid grid-cols-2 gap-2 mt-4">
-            <Button size="sm" className="w-full" onClick={()=>{setSelected(load);setContactReport('agreed');go('contact-report')}}>توافق شد</Button>
-            <Button size="sm" variant="outline" className="w-full" onClick={()=>{setSelected(load);setContactReport('declined');go('contact-report')}}>عدم توافق</Button>
-          </div>}
-          {item.status==='agreed' && !shipmentResult && settlingCallLoadId !== load.id && <Button size="sm" className="w-full mt-3" onClick={()=>setSettlingCallLoadId(load.id)}>تعیین وضعیت حمل</Button>}
-          {item.status==='agreed' && !shipmentResult && settlingCallLoadId === load.id && <div className="grid grid-cols-1 gap-2 mt-3">
-            <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" onClick={()=>{setSelected(load);settleShipment(load,'carried');setSettlingCallLoadId(null);}}>بار را حمل کردم</Button>
-            <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={()=>{settleShipment(load,'withdrawn');setSettlingCallLoadId(null);goHome();}}>از حمل بار منصرف شدم</Button>
-          </div>}
-          {item.status!=='uncertain' && <div className="grid grid-cols-1 gap-2 mt-3">
-            <Button size="sm" className="w-full" variant="outline" onClick={()=>{setSelected(load);go('cargo-detail');}}>مشاهده جزئیات بار</Button>
-            <a href={`tel:${load.phone}`} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 flex items-center justify-center gap-2 text-sm font-black text-emerald-700"><Phone className="w-4 h-4"/> تماس</a>
-            <Button size="sm" className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-200" variant="outline" disabled={reportedLoadIds.includes(load.id)} onClick={()=>{if(reportedLoadIds.includes(load.id)) return; setSelected(load);go('report');}}>{reportedLoadIds.includes(load.id) ? 'گزارش ثبت شده' : 'گزارش تخلف'}</Button>
-          </div>}
-        </CardBody></Card>;
-      })}
+    if (page==='calls') return <div className="space-y-5">
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-2"><h2 className="text-base font-black">وضعیت تماس‌ها</h2><span className="rounded-full bg-sky-100 text-sky-800 px-2.5 py-1 text-[11px] font-black">تماس</span></div>
+        {contactHistory.length===0 ? <Card><CardBody className="p-4"><Empty title="هنوز تماسی ثبت نشده" text="بعد از تماس با صاحب بار، نتیجه تماس را مشخص کنید تا اینجا ثبت شود."/></CardBody></Card> : [...contactHistory].sort((a,b)=>b.at-a.at).map((item,idx)=>{
+          const load=loads.find(l=>l.id===item.loadId);
+          if(!load) return null;
+          const shipmentResult=shipmentHistory.find(h=>h.loadId===load.id);
+          const status=item.status==='carried' ? 'بارگیری کردم' : shipmentResult?.outcome==='carried' ? 'بارگیری کردم' : shipmentResult?.outcome==='withdrawn' ? 'انصراف از حمل' : item.status==='agreed' ? 'توافق کردیم' : item.status==='declined' ? 'عدم توافق' : 'هنوز مشخص نیست';
+          const statusClass=shipmentResult?.outcome==='withdrawn'||item.status==='declined' ? 'bg-red-50 text-red-700 border-red-200' : item.status==='agreed'||item.status==='carried'||shipmentResult?.outcome==='carried' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200';
+          const cardKey=item.loadId+'-'+item.at+'-'+idx;
+          const expanded=expandedCallId===cardKey;
+          const needsStatus=item.status==='uncertain'||item.status==='declined';
+          return <div key={cardKey} className="overflow-hidden rounded-xl border border-sky-200 bg-sky-50/50 shadow-sm">
+            <button type="button" aria-expanded={expanded} onClick={()=>setExpandedCallId(expanded?null:cardKey)} className="block w-full p-3 text-right">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-gray-500">{compactDateTime(item.at)}</span>
+                <span className={'shrink-0 rounded-lg border px-2 py-1 text-[11px] font-black '+statusClass}>{status}</span>
+              </div>
+              <div className="mt-2 flex items-center gap-1 text-sm font-black text-gray-900"><MapPin className="h-4 w-4 shrink-0 text-sky-700"/><span>{load.from}</span><span className="text-gray-400">&gt;</span><span>{load.to}</span></div>
+              <div className="mt-1 text-xs font-bold text-gray-600">📦 {load.type}</div>
+              <div className="mt-2 flex items-center justify-between text-[10px] font-bold text-sky-800"><span>تماس</span><span>{expanded?'بستن منو':'لمس برای عملیات'}</span></div>
+            </button>
+            {expanded && <div className={"grid "+(needsStatus ? "grid-cols-3" : "grid-cols-2")+" gap-2 border-t border-sky-200 bg-white p-3"}>
+              <a href={'tel:'+load.phone} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-2.5 text-sm font-black text-emerald-800"><Phone className="h-4 w-4"/>تماس</a>
+              {needsStatus && <button type="button" onClick={()=>{setSelected(load);setContactReport(null);go('contact-report');}} className="flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-2.5 text-sm font-black text-amber-800">تعیین وضعیت</button>}
+              <button type="button" onClick={()=>{setSelected(load);go('cargo-detail');}} className="flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-2 py-2.5 text-sm font-black text-gray-800"><FileText className="h-4 w-4"/>جزئیات</button>
+            </div>}
+          </div>;
+        })}
       </section>
       <section className="space-y-3">
-        <h2 className="text-lg font-black">پیشنهادهای قیمت</h2>
-        {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای قیمت شما پس از ارسال در همین صفحه نمایش داده می‌شوند."/></CardBody></Card> :
-          [...myOffers].sort((a,b)=>b.at-a.at).map(offer => {
-            const load = loads.find(l => l.id === offer.loadId);
-            if (!load) return null;
-            const statusText = offer.status === 'accepted' ? 'پذیرفته شد' : offer.status === 'rejected' ? 'رد شد' : 'در انتظار';
-            const statusClass = offer.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : offer.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-gray-100 text-gray-600 border-gray-200';
-            return <Card key={offer.loadId}><CardBody className="p-4 space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0"><b className="block">{load.from} ← {load.to}</b><p className="text-xs text-gray-500 mt-1">{load.title}</p></div>
-                <span className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black ${statusClass}`}>{statusText}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3"><span className="text-sm font-bold text-gray-500">قیمت پیشنهادی</span><b className="text-base font-black">{money(offer.price)} تومان</b></div>
-              <Button size="sm" variant="outline" className="w-full" onClick={()=>openOfferDetail(offer.loadId)}>مشاهده جزئیات پیشنهاد</Button>
-            </CardBody></Card>;
+        <div className="flex items-center justify-between gap-2"><h2 className="text-base font-black">پیشنهادهای قیمت</h2><span className="rounded-full bg-violet-100 text-violet-800 px-2.5 py-1 text-[11px] font-black">پیشنهاد</span></div>
+        {myOffers.length===0 ? <Card><CardBody className="p-4"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای قیمت شما پس از ارسال در همین صفحه نمایش داده می‌شوند."/></CardBody></Card> :
+          [...myOffers].sort((a,b)=>b.at-a.at).map(offer=>{
+            const load=loads.find(l=>l.id===offer.loadId); if(!load) return null;
+            const statusText=offer.status==='accepted'?'پذیرفته شد':offer.status==='rejected'?'رد شد':'در انتظار';
+            const statusClass=offer.status==='accepted'?'bg-emerald-50 text-emerald-700 border-emerald-200':offer.status==='rejected'?'bg-red-50 text-red-700 border-red-200':'bg-gray-100 text-gray-700 border-gray-200';
+            return <button key={offer.loadId} type="button" onClick={()=>openOfferDetail(offer.loadId)} className="block w-full rounded-xl border border-violet-200 bg-violet-50/50 p-3 text-right shadow-sm">
+              <div className="flex items-center justify-between gap-2"><span className="text-[11px] font-bold text-gray-500">{compactDateTime(offer.at)}</span><span className={'shrink-0 rounded-lg border px-2 py-1 text-[11px] font-black '+statusClass}>{statusText}</span></div>
+              <div className="mt-2 flex items-center gap-1 text-sm font-black text-gray-900"><MapPin className="h-4 w-4 shrink-0 text-violet-700"/><span>{load.from}</span><span className="text-gray-400">&gt;</span><span>{load.to}</span></div>
+              <div className="mt-1 text-xs font-bold text-gray-600">📦 {load.type}</div>
+              <div className="mt-2 text-[10px] font-bold text-violet-800">پیشنهاد قیمت · لمس برای جزئیات</div>
+            </button>;
           })}
       </section>
     </div>;
@@ -1360,22 +1361,18 @@ const ProfilePage = () => <div className="space-y-3">
       })}</div>
     </div>;
     if (page==='offers') return <div className="space-y-3">
-      {myOffers.length===0 ? <Card><CardBody className="p-5"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
-        [...myOffers].reverse().map((offer)=>{
+      {myOffers.length===0 ? <Card><CardBody className="p-4"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
+        [...myOffers].sort((a,b)=>b.at-a.at).map(offer=>{
           const load=loads.find(l=>l.id===offer.loadId); if(!load) return null;
-          const offerDate=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(offer.at));
-          const offerWeekday=new Intl.DateTimeFormat('fa-IR',{weekday:'long'}).format(new Date(offer.at));
-          const statusBox=offer.status==='accepted'?'bg-emerald-50 text-emerald-700 border-emerald-200':offer.status==='rejected'?'bg-red-50 text-red-700 border-red-200':'bg-gray-100 text-gray-600 border-gray-200';
           const statusText=offer.status==='accepted'?'پذیرفته شد':offer.status==='rejected'?'رد شد':'در انتظار';
-          return <Card key={offer.loadId}><CardBody className="p-4">
-            <div className="flex items-center gap-3" dir="rtl">
-              <div className="flex-1 min-w-0"><div className="flex items-center justify-center gap-2 text-lg font-black whitespace-nowrap"><span className="text-gray-950">⚫️{load.from}</span><span className="text-gray-400">---&gt;</span><span className="text-blue-600">🔵{load.to}</span></div><div className="mt-2 text-center text-xs font-bold text-gray-400">{offerDate} / {offerWeekday}</div></div>
-              <button type="button" onClick={()=>openOfferDetail(offer.loadId)} aria-label="دیدن جزئیات" className="w-9 h-9 shrink-0 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><MoreVertical className="w-5 h-5 text-gray-500"/></button>
-            </div>
-            <div className="mt-4 flex justify-center"><span className={`rounded-xl border px-4 py-2 text-xs font-black ${statusBox}`}>{statusText}</span></div>
-          </CardBody></Card>;
+          const statusClass=offer.status==='accepted'?'bg-emerald-50 text-emerald-700 border-emerald-200':offer.status==='rejected'?'bg-red-50 text-red-700 border-red-200':'bg-gray-100 text-gray-700 border-gray-200';
+          return <button key={offer.loadId} type="button" onClick={()=>openOfferDetail(offer.loadId)} className="block w-full rounded-xl border border-violet-200 bg-violet-50/50 p-3 text-right shadow-sm">
+            <div className="flex items-center justify-between gap-2"><span className="text-[11px] font-bold text-gray-500">{compactDateTime(offer.at)}</span><span className={'shrink-0 rounded-lg border px-2 py-1 text-[11px] font-black '+statusClass}>{statusText}</span></div>
+            <div className="mt-2 flex items-center gap-1 text-sm font-black text-gray-900"><MapPin className="h-4 w-4 shrink-0 text-violet-700"/><span>{load.from}</span><span className="text-gray-400">&gt;</span><span>{load.to}</span></div>
+            <div className="mt-1 text-xs font-bold text-gray-600">📦 {load.type}</div>
+            <div className="mt-2 text-[10px] font-bold text-violet-800">پیشنهاد قیمت · لمس برای جزئیات</div>
+          </button>;
         })}
-
     </div>;
     if (page==='shipment') return <div className="space-y-4">
       {agreedFollowupLoadId ? (() => {
