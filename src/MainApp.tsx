@@ -197,7 +197,11 @@ export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
   const [pressedHomeCard, setPressedHomeCard] = useState<string | null>(null);
-  const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads]);
+  const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
+  const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads].map((load, index) => ({
+    ...load,
+    publishedAt: load.publishedAt ?? Date.now() - demoPublicationAges[index % demoPublicationAges.length] * 60_000,
+  })));
   const [selected, setSelected] = useState<Load|null>(null);
   const [origin, setOrigin] = useState('');
   const [originText, setOriginText] = useState('');
