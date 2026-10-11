@@ -102,8 +102,13 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }:
   const publishedTime = publishedAt && !Number.isNaN(publishedAt.getTime())
     ? publishedAt.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })
     : typeof load.publishedAt === 'string' ? load.publishedAt : '';
+  // Stable pseudo-random labels per load: they don't flicker when React re-renders.
+  const labelSeed = Array.from(load.id).reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 7);
+  const showUrgent = load.isUrgent ?? (labelSeed % 4 === 0);
+  const showNew = load.isNew ?? (labelSeed % 3 === 0);
   const hasFeatures = Boolean(load.rubari || load.barbari || load.freeCall);
-  const priceIndex = Math.max(0, Math.min(100, load.priceIndex ?? 50));
+  const hasPriceIndex = typeof load.priceIndex === 'number' && Number.isFinite(load.priceIndex);
+  const priceIndex = hasPriceIndex ? Math.max(0, Math.min(100, load.priceIndex as number)) : 0;
   return <Card hoverable>
     <CardBody className="p-2.5">
       <div className="flex min-h-5 items-center justify-between gap-2 border-b border-gray-100 pb-1.5 text-[10px] font-bold">
@@ -112,8 +117,8 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }:
           <span>{publishedTime ? `انتشار ${publishedTime}` : ''}</span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {load.isUrgent && <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-red-600">فوری</span>}
-          {load.isNew && <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-emerald-700">جدید</span>}
+          {showUrgent && <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-red-600">فوری</span>}
+          {showNew && <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-emerald-700">جدید</span>}
         </div>
       </div>
 
@@ -125,13 +130,14 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }:
 
       <div className="py-1.5 text-center">
         <b className="block text-xl font-black leading-7 text-gray-950">{money(load.price)} تومان</b>
-        <div className="mt-0.5 flex items-center justify-center gap-2 text-[10px] font-bold text-gray-500">
+        {hasPriceIndex && <div className="mt-0.5 flex items-center justify-center gap-2 text-[10px] font-bold text-gray-500">
           <span>شاخص قیمت</span>
           <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص قیمت ${fa(priceIndex)} درصد`}>
             <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-primary-700 via-primary-500 to-primary-200" style={{width:`${priceIndex}%`}}/>
             <span className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-primary-700 bg-white" style={{right:`calc(${priceIndex}% - 5px)`}}/>
           </div>
-        </div>
+          <span>{fa(priceIndex)}٪</span>
+        </div>}
       </div>
 
       {interactionLabel && <div className={`mb-1 rounded-lg border px-2 py-1 text-center text-xs font-black ${interactionClass || 'border-gray-200 bg-gray-50 text-gray-700'}`}>{interactionLabel}</div>}
