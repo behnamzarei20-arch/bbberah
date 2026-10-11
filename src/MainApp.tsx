@@ -140,9 +140,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="py-1.5 text-center">
         <b className="block text-xl font-black leading-7 text-gray-950">{money(load.price)} تومان</b>
-        {hasPriceIndex && <div className="mt-1 flex items-center justify-center gap-2 text-xs font-bold text-gray-600">
-          <span>شاخص میانگین قیمت</span>
-          <div className="relative h-2 w-20 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)} درصد`}>
+        {hasPriceIndex && <div className="mt-2 flex items-center justify-center gap-3 text-base font-black text-gray-700">
+          <div className="relative h-3 w-24 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)} درصد`}>
             <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-primary-700 via-primary-500 to-primary-200" style={{width:`${priceIndex}%`}}/>
             <span className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-primary-700 bg-white" style={{right:`calc(${priceIndex}% - 5px)`}}/>
           </div>
@@ -182,8 +181,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       <div className="mt-2">
-        <Button size="full" onClick={onOpen} className="h-9 text-sm font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
-          <Phone className="ml-1.5 h-4 w-4" aria-hidden="true"/> تماس
+        <Button size="full" onClick={onOpen} className="h-9 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
+          <PhoneCall className="ml-2 h-5 w-5" aria-hidden="true"/> تماس برای هماهنگی
         </Button>
       </div>
     </CardBody>
