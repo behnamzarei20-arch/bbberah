@@ -99,8 +99,15 @@ function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
 function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }: { load:Load; onOpen:()=>void; onOffer:()=>void; interactionLabel?:string; interactionClass?:string }) {
   const commission = Math.round(load.price * 0.05);
   const publishedAt = load.publishedAt ? (typeof load.publishedAt === 'number' ? new Date(load.publishedAt) : new Date(load.publishedAt)) : null;
-  const publishedTime = publishedAt && !Number.isNaN(publishedAt.getTime())
-    ? publishedAt.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })
+  const publishedMinutesAgo = publishedAt && !Number.isNaN(publishedAt.getTime())
+    ? Math.max(0, Math.floor((Date.now() - publishedAt.getTime()) / 60000))
+    : null;
+  const publishedTime = publishedMinutesAgo !== null
+    ? publishedMinutesAgo < 15 ? 'دقایقی قبل'
+      : publishedMinutesAgo < 30 ? 'یک ربع قبل'
+      : publishedMinutesAgo < 60 ? 'نیم ساعت قبل'
+      : publishedMinutesAgo < 120 ? 'یک ساعت قبل'
+      : '۲ ساعت قبل'
     : typeof load.publishedAt === 'string' ? load.publishedAt : '';
   // Stable pseudo-random labels per load: they don't flicker when React re-renders.
   const labelSeed = Array.from(load.id).reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 7);
@@ -111,27 +118,26 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }:
   const priceIndex = hasPriceIndex ? Math.max(0, Math.min(100, load.priceIndex as number)) : 0;
   return <Card hoverable>
     <CardBody className="p-2.5">
-      <div className="flex min-h-5 items-center justify-between gap-2 border-b border-gray-100 pb-1.5 text-[10px] font-bold">
-        <div className="flex min-w-0 items-center gap-1 text-gray-500">
-          <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden="true"/>
-          <span>{publishedTime ? `انتشار ${publishedTime}` : ''}</span>
+      <div className="-mx-2.5 -mt-2.5 mb-2 flex min-h-10 items-center justify-between gap-2 rounded-t-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-black text-blue-900">
+        <div className="flex min-w-0 items-center gap-1.5">
+          {publishedTime && <><Clock3 className="h-4 w-4 shrink-0 text-blue-700" aria-hidden="true"/><span>{publishedTime}</span></>}
         </div>
-        <div className="flex shrink-0 items-center gap-1">
-          {showUrgent && <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-red-600">فوری</span>}
-          {showNew && <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-emerald-700">جدید</span>}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {showUrgent && <span className="rounded-md bg-red-100 px-2 py-1 text-sm font-black text-red-700">فوری</span>}
+          {showNew && <span className="rounded-md bg-emerald-100 px-2 py-1 text-sm font-black text-emerald-800">جدید</span>}
         </div>
       </div>
 
-      {hasFeatures && <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-gray-100 py-1.5 text-[10px] font-bold text-gray-600">
+      {hasFeatures && <div className="-mx-2.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-gray-100 px-2.5 py-2 text-sm font-bold text-gray-700">
         {load.rubari && <span className="inline-flex items-center gap-1"><Package className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>روباری</span>}
         {load.barbari && <span className="inline-flex items-center gap-1"><Truck className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>باربری</span>}
         {load.freeCall && <span className="inline-flex items-center gap-1"><PhoneCall className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>تماس رایگان</span>}
       </div>}
 
-      <div className="py-1.5 text-center">
+      <div className="py-2 text-center">
         <b className="block text-xl font-black leading-7 text-gray-950">{money(load.price)} تومان</b>
-        {hasPriceIndex && <div className="mt-0.5 flex items-center justify-center gap-2 text-[10px] font-bold text-gray-500">
-          <span>شاخص قیمت</span>
+        {hasPriceIndex && <div className="mt-1 flex items-center justify-center gap-2 text-sm font-bold text-gray-600">
+          <span>شاخص میانگین قیمت</span>
           <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص قیمت ${fa(priceIndex)} درصد`}>
             <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-primary-700 via-primary-500 to-primary-200" style={{width:`${priceIndex}%`}}/>
             <span className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-primary-700 bg-white" style={{right:`calc(${priceIndex}% - 5px)`}}/>
@@ -140,40 +146,38 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }:
         </div>}
       </div>
 
-      {interactionLabel && <div className={`mb-1 rounded-lg border px-2 py-1 text-center text-xs font-black ${interactionClass || 'border-gray-200 bg-gray-50 text-gray-700'}`}>{interactionLabel}</div>}
-
-      <div className="flex items-center gap-2 border-y border-gray-100 py-2" dir="rtl">
+      <div className="-mx-2.5 flex items-center gap-2 border-y border-gray-100 px-2.5 py-3" dir="rtl">
         <div className="min-w-0 flex-1 text-center">
-          <b className="block truncate text-sm font-black leading-5">{load.from}</b>
-          <span className="block text-[10px] font-bold text-gray-500">استان {cityProvinceName(load.from)}</span>
-          <div className="relative mx-auto mt-1 h-5 w-5" aria-label="مبدأ">
+          <div className="relative mx-auto mb-1 h-6 w-6" aria-label="مبدأ">
             <span className="absolute left-1/2 top-1/2 h-5 w-px -translate-x-1/2 -translate-y-1/2 bg-primary-600"/>
             <span className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 bg-primary-600"/>
             <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary-600 bg-white"/>
             <span className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-600"/>
           </div>
+          <b className="block truncate text-base font-black leading-6">{load.from}</b>
+          <span className="block text-sm font-bold text-gray-600">استان {cityProvinceName(load.from)}</span>
         </div>
         <div className="flex w-24 shrink-0 flex-col items-center gap-1">
           <div className="flex w-full items-center">
-            <div className="flex-1 border-t border-dashed border-primary-400"/>
-            <ArrowLeft className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/>
+            <div className="flex-1 border-t-2 border-dashed border-primary-600"/>
+            <ArrowLeft className="h-5 w-5 shrink-0 stroke-[3] text-primary-700" aria-hidden="true"/>
           </div>
-          <span className="text-[10px] font-bold text-gray-500">{fa(load.routeDistance)} کیلومتر</span>
+          <span className="text-xs font-bold text-gray-600">{fa(load.routeDistance)} کیلومتر</span>
         </div>
         <div className="min-w-0 flex-1 text-center">
-          <b className="block truncate text-sm font-black leading-5">{load.to}</b>
-          <span className="block text-[10px] font-bold text-gray-500">استان {cityProvinceName(load.to)}</span>
-          <div className="mt-1 flex h-5 items-center justify-center" aria-label="مقصد">
-            <MapPin className="h-5 w-5 text-primary-600" aria-hidden="true"/>
+          <div className="mb-1 flex h-6 items-center justify-center" aria-label="مقصد">
+            <MapPin className="h-6 w-6 text-primary-700" aria-hidden="true"/>
           </div>
+          <b className="block truncate text-base font-black leading-6">{load.to}</b>
+          <span className="block text-sm font-bold text-gray-600">استان {cityProvinceName(load.to)}</span>
         </div>
       </div>
 
-      <div className="divide-y divide-gray-100 text-xs">
-        <div className="flex items-center gap-2 py-1.5"><Package className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">نوع بار</span><b className="mr-auto text-gray-800">{load.type}</b></div>
-        <div className="flex items-center gap-2 py-1.5"><WeightIcon className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">وزن بار</span><b className="mr-auto text-gray-800">{fa(load.weight)} کیلوگرم</b></div>
-        <div className="flex items-center gap-2 py-1.5"><Percent className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">کمیسیون براه</span><b className="mr-auto text-gray-800">{money(commission)} تومان</b></div>
-        <div className="flex items-start gap-2 py-1.5"><FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 text-gray-500">توضیحات</span><p className="mr-auto min-w-0 text-right font-bold leading-5 text-gray-700">{load.description}</p></div>
+      <div className="-mx-2.5 divide-y divide-gray-100 px-2.5 text-base">
+        <div className="flex items-center gap-2 py-2"><Package className="h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-600">نوع بار</span><b className="mr-auto text-gray-900">{load.type}</b></div>
+        <div className="flex items-center gap-2 py-2"><WeightIcon className="h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-600">وزن بار</span><b className="mr-auto text-gray-900">{fa(load.weight)} کیلوگرم</b></div>
+        <div className="flex items-center gap-2 py-2"><Percent className="h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-600">کمیسیون براه</span><b className="mr-auto text-gray-900">{money(commission)} تومان</b></div>
+        <div className="flex items-start gap-2 py-2"><FileText className="mt-1 h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 font-bold text-gray-600">توضیحات</span><p className="mr-auto min-w-0 text-right font-bold leading-6 text-gray-900">{load.description}</p></div>
       </div>
 
       <div className="mt-2">
