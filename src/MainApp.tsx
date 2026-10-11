@@ -123,7 +123,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
   const priceIndex = hasPriceIndex ? Math.max(0, Math.min(100, load.priceIndex as number)) : 0;
   return <Card hoverable>
     <CardBody className="p-2.5">
-      <div className="mx-[-0.625rem] mt-[-0.625rem] mb-2 flex min-h-11 items-center justify-between gap-2 rounded-t-lg rounded-b-none border-0 bg-blue-50 px-3 py-2.5 text-base font-bold">
+      <div className="mx-[-11px] mt-[-11px] mb-2 flex min-h-11 items-center justify-between gap-2 rounded-t-[8px] border-0 bg-blue-50 px-3 py-2.5 text-base font-bold">
         <div className="flex min-w-0 items-center gap-1.5 text-gray-600">
           <Clock3 className="h-5 w-5 shrink-0" aria-hidden="true"/>
           <span>{publishedTime}</span>
@@ -142,8 +142,9 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="py-2 text-center">
         <b className="block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
-        {hasPriceIndex && <div className="mt-2 flex items-center justify-center gap-3 text-base font-black text-gray-700">
-          <div className="relative h-3 w-24 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)} درصد`}>
+        {hasPriceIndex && <div className="mt-1 flex items-center justify-center gap-2 text-sm font-bold text-gray-600">
+          <span>شاخص میانگین قیمت</span>
+          <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص قیمت ${fa(priceIndex)} درصد`}>
             <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-primary-700 via-primary-500 to-primary-200" style={{width:`${priceIndex}%`}}/>
             <span className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-primary-700 bg-white" style={{right:`calc(${priceIndex}% - 5px)`}}/>
           </div>
@@ -175,11 +176,11 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>
       </div>
 
-      <div className="mx-[-0.625rem] divide-y divide-gray-100 px-3 text-base">
-        <div className="flex items-center gap-3 py-3"><Package className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">نوع بار</span><b className="mr-auto text-base font-black text-gray-950">{load.type}</b></div>
-        <div className="flex items-center gap-3 py-3"><WeightIcon className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">وزن بار</span><b className="mr-auto text-base font-black text-gray-950">{formattedWeightTons} تن</b></div>
-        <div className="flex items-center gap-3 py-3"><Percent className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">کمیسیون براه</span><b className="mr-auto text-base font-black text-gray-950">{money(commission)} تومان</b></div>
-        <div className="flex items-start gap-3 py-3"><FileText className="mt-1 h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 font-bold text-gray-700">توضیحات</span><p className="mr-auto min-w-0 text-right text-base font-bold leading-7 text-gray-900">{load.description}</p></div>
+      <div className="mx-[-11px] divide-y-2 divide-gray-400 px-0 text-base">
+        <div className="flex items-center gap-3 px-3 py-3"><Package className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">نوع بار</span><b className="mr-auto text-base font-black text-gray-950">{load.type}</b></div>
+        <div className="flex items-center gap-3 px-3 py-3"><WeightIcon className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">وزن بار</span><b className="mr-auto text-base font-black text-gray-950">{formattedWeightTons} تن</b></div>
+        <div className="flex items-center gap-3 px-3 py-3"><Percent className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">کمیسیون براه</span><b className="mr-auto text-base font-black text-gray-950">{money(commission)} تومان</b></div>
+        <div className="flex items-start gap-3 px-3 py-3"><FileText className="mt-1 h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 font-bold text-gray-700">توضیحات</span><p className="mr-auto min-w-0 text-right text-base font-bold leading-7 text-gray-900">{load.description}</p></div>
       </div>
 
       <div className="mt-2">
