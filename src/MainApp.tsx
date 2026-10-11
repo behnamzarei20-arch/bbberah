@@ -1343,6 +1343,23 @@ const ProfilePage = () => <div className="space-y-3">
           })}
       </section>
     </div>;
+    if (page==='notifications') return <div className="space-y-4">
+      <Card><CardBody className="px-3 py-2.5 flex items-center justify-between gap-3">
+        <b className="text-sm">دریافت پیامک</b>
+        <button type="button" role="switch" aria-checked={smsNotificationsEnabled} onClick={()=>setSmsNotificationsEnabled(v=>!v)} className={`relative w-11 h-6 shrink-0 rounded-full transition-colors ${smsNotificationsEnabled?'bg-emerald-600':'bg-gray-300'}`} aria-label="فعال یا غیرفعال‌کردن دریافت پیامک">
+          <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${smsNotificationsEnabled?'right-1':'right-6'}`}/>
+        </button>
+      </CardBody></Card>
+      <div className="space-y-3">{notificationItems.map(item=>{
+        const isRead = readNotificationIds.includes(item.id);
+        return <Card key={item.id}><CardBody className={`p-0 overflow-hidden border rounded-2xl ${isRead?'border-gray-100 bg-white':'border-orange-200 bg-orange-50'}`}>
+          <button type="button" onClick={()=>setReadNotificationIds(current=>current.includes(item.id)?current:[...current,item.id])} className={`w-full p-4 flex gap-3 text-right transition-colors ${isRead?'bg-white':'bg-orange-50'}`}>
+            <Bell className={`w-5 h-5 shrink-0 mt-0.5 ${isRead?'text-gray-400':'text-orange-600'}`}/>
+            <span className="min-w-0 flex-1"><b className="block text-sm">{item.message}</b><span className="block text-[11px] text-gray-400 mt-1">{item.date}</span><span className={`block text-[10px] font-bold mt-1 ${isRead?'text-gray-500':'text-orange-700'}`}>{isRead?'خوانده‌شده':'خوانده‌نشده'}</span></span>
+          </button>
+        </CardBody></Card>;
+      })}</div>
+    </div>;
     if (page==='offers') return <div className="space-y-3">
       {myOffers.length===0 ? <Card><CardBody className="p-4"><Empty title="هنوز پیشنهادی ارسال نشده" text="پیشنهادهای شما برای هر بار بعد از ارسال، جداگانه اینجا نمایش داده می‌شود."/></CardBody></Card> :
         [...myOffers].sort((a,b)=>b.at-a.at).map(offer=>{
