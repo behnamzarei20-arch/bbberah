@@ -20,6 +20,8 @@ type Load = {
   id: string; title: string; from: string; to: string; type: string; vehicle: string;
   weight: number; price: number; pickup: string; delivery: string; status: LoadStatus;
   distance: number; routeDistance: number; description: string; phone: string;
+  publishedAt?: number | string; isUrgent?: boolean; isNew?: boolean;
+  rubari?: boolean; barbari?: boolean; freeCall?: boolean; priceIndex?: number;
 };
 
 type GeoPoint = { lat:number; lon:number };
@@ -96,66 +98,87 @@ function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
 
 function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }: { load:Load; onOpen:()=>void; onOffer:()=>void; interactionLabel?:string; interactionClass?:string }) {
   const commission = Math.round(load.price * 0.05);
+  const publishedAt = load.publishedAt ? (typeof load.publishedAt === 'number' ? new Date(load.publishedAt) : new Date(load.publishedAt)) : null;
+  const publishedTime = publishedAt && !Number.isNaN(publishedAt.getTime())
+    ? publishedAt.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })
+    : typeof load.publishedAt === 'string' ? load.publishedAt : '';
+  // Stable pseudo-random labels per load: they don't flicker when React re-renders.
+  const labelSeed = Array.from(load.id).reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 7);
+  const showUrgent = load.isUrgent ?? (labelSeed % 4 === 0);
+  const showNew = load.isNew ?? (labelSeed % 3 === 0);
+  const hasFeatures = Boolean(load.rubari || load.barbari || load.freeCall);
+  const hasPriceIndex = typeof load.priceIndex === 'number' && Number.isFinite(load.priceIndex);
+  const priceIndex = hasPriceIndex ? Math.max(0, Math.min(100, load.priceIndex as number)) : 0;
   return <Card hoverable>
-    <CardBody className="p-4">
-      <div className="text-center pb-2">
-        <b className="block text-2xl font-black text-gray-950 leading-9">{money(load.price)} تومان</b>
+    <CardBody className="p-2.5">
+      <div className="flex min-h-5 items-center justify-between gap-2 border-b border-gray-100 pb-1.5 text-[10px] font-bold">
+        <div className="flex min-w-0 items-center gap-1 text-gray-500">
+          <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden="true"/>
+          <span>{publishedTime ? `انتشار ${publishedTime}` : ''}</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {showUrgent && <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-red-600">فوری</span>}
+          {showNew && <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-emerald-700">جدید</span>}
+        </div>
       </div>
 
-      {interactionLabel && (
-        <div className={`mt-1 mb-3 rounded-xl border px-3 py-2 text-center text-sm font-black ${interactionClass || 'border-gray-200 bg-gray-50 text-gray-700'}`}>
-          {interactionLabel}
-        </div>
-      )}
+      {hasFeatures && <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-gray-100 py-1.5 text-[10px] font-bold text-gray-600">
+        {load.rubari && <span className="inline-flex items-center gap-1"><Package className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>روباری</span>}
+        {load.barbari && <span className="inline-flex items-center gap-1"><Truck className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>باربری</span>}
+        {load.freeCall && <span className="inline-flex items-center gap-1"><PhoneCall className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>تماس رایگان</span>}
+      </div>}
 
-      <div className="px-1 pt-2 pb-6">
-        <div className="relative mx-auto w-[12.5rem] h-8" dir="ltr">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center" aria-label="قیمت کم">
-            <CircleDollarSign className="w-5 h-5 text-primary-200" strokeWidth={2.2} aria-hidden="true"/>
+      <div className="py-1.5 text-center">
+        <b className="block text-xl font-black leading-7 text-gray-950">{money(load.price)} تومان</b>
+        {hasPriceIndex && <div className="mt-0.5 flex items-center justify-center gap-2 text-[10px] font-bold text-gray-500">
+          <span>شاخص قیمت</span>
+          <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص قیمت ${fa(priceIndex)} درصد`}>
+            <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-primary-700 via-primary-500 to-primary-200" style={{width:`${priceIndex}%`}}/>
+            <span className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-primary-700 bg-white" style={{right:`calc(${priceIndex}% - 5px)`}}/>
           </div>
-          <div className="absolute left-7 right-7 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-gradient-to-r from-primary-200 via-primary-400 to-primary-700">
-            <span className="absolute top-1/2 left-[38%] -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-primary-700 shadow-sm" aria-hidden="true"/>
+          <span>{fa(priceIndex)}٪</span>
+        </div>}
+      </div>
+
+      {interactionLabel && <div className={`mb-1 rounded-lg border px-2 py-1 text-center text-xs font-black ${interactionClass || 'border-gray-200 bg-gray-50 text-gray-700'}`}>{interactionLabel}</div>}
+
+      <div className="flex items-center gap-2 border-y border-gray-100 py-2" dir="rtl">
+        <div className="min-w-0 flex-1 text-center">
+          <b className="block truncate text-sm font-black leading-5">{load.from}</b>
+          <span className="block text-[10px] font-bold text-gray-500">استان {cityProvinceName(load.from)}</span>
+          <div className="relative mx-auto mt-1 h-5 w-5" aria-label="مبدأ">
+            <span className="absolute left-1/2 top-1/2 h-5 w-px -translate-x-1/2 -translate-y-1/2 bg-primary-600"/>
+            <span className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 bg-primary-600"/>
+            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary-600 bg-white"/>
+            <span className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-600"/>
           </div>
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6" aria-label="قیمت زیاد">
-            <CircleDollarSign className="absolute inset-0 w-6 h-6 text-primary-700" strokeWidth={2.4} aria-hidden="true"/>
-            <Coins className="absolute left-0.5 top-2.5 w-3.5 h-3.5 text-primary-500" strokeWidth={2.2} aria-hidden="true"/>
+        </div>
+        <div className="flex w-24 shrink-0 flex-col items-center gap-1">
+          <div className="flex w-full items-center">
+            <div className="flex-1 border-t border-dashed border-primary-400"/>
+            <ArrowLeft className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/>
+          </div>
+          <span className="text-[10px] font-bold text-gray-500">{fa(load.routeDistance)} کیلومتر</span>
+        </div>
+        <div className="min-w-0 flex-1 text-center">
+          <b className="block truncate text-sm font-black leading-5">{load.to}</b>
+          <span className="block text-[10px] font-bold text-gray-500">استان {cityProvinceName(load.to)}</span>
+          <div className="mt-1 flex h-5 items-center justify-center" aria-label="مقصد">
+            <MapPin className="h-5 w-5 text-primary-600" aria-hidden="true"/>
           </div>
         </div>
       </div>
 
-      <div className="flex items-start gap-2 py-7 mt-4 mb-16 border-y border-gray-100" dir="rtl">
-        <div className="flex-1 min-w-0 text-center">
-          <div className="flex justify-center mb-2 w-full"><Target className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/></div>
-          <b className="block min-w-0 text-xl font-black leading-8 truncate">{load.from}</b>
-          <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.from)}</span>
-        </div>
-        <div className="w-28 relative flex items-center justify-center self-center">
-          <div className="w-full border-t-2 border-dashed border-primary-300"/>
-          <div className="absolute flex flex-col items-center bg-white px-1 -top-4">
-            <Route className="w-5 h-5 text-primary-600" aria-hidden="true"/>
-            <span className="text-xs font-black text-primary-800 mt-0.5">{fa(load.routeDistance)} کیلومتر</span>
-          </div>
-        </div>
-        <div className="flex-1 min-w-0 text-center">
-          <div className="flex justify-center mb-2 w-full"><MapPin className="w-6 h-6 text-primary-600 shrink-0" aria-hidden="true"/></div>
-          <b className="block min-w-0 text-xl font-black leading-8 truncate">{load.to}</b>
-          <span className="block text-xs font-bold text-gray-400 mt-0.5">استان {cityProvinceName(load.to)}</span>
-        </div>
+      <div className="divide-y divide-gray-100 text-xs">
+        <div className="flex items-center gap-2 py-1.5"><Package className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">نوع بار</span><b className="mr-auto text-gray-800">{load.type}</b></div>
+        <div className="flex items-center gap-2 py-1.5"><WeightIcon className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">وزن بار</span><b className="mr-auto text-gray-800">{fa(load.weight)} کیلوگرم</b></div>
+        <div className="flex items-center gap-2 py-1.5"><Percent className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">کمیسیون براه</span><b className="mr-auto text-gray-800">{money(commission)} تومان</b></div>
+        <div className="flex items-start gap-2 py-1.5"><FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 text-gray-500">توضیحات</span><p className="mr-auto min-w-0 text-right font-bold leading-5 text-gray-700">{load.description}</p></div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mt-0">
-        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><Package className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">{load.type}</b></div>
-        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><WeightIcon className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">{fa(load.weight)} kg</b></div>
-        <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center"><CircleDollarSign className="w-5 h-5 mx-auto text-primary-600" aria-hidden="true"/><b className="block text-xl font-black mt-1">کمیسیون براه</b><span className="block text-base font-bold text-gray-500 mt-0.5">{money(commission)} تومان</span></div>
-      </div>
-
-      <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
-        <div className="flex items-center gap-2 mb-1.5"><FileText className="w-5 h-5 text-primary-600" aria-hidden="true"/><span className="text-xl font-black text-gray-700">توضیحات بار</span></div>
-        <p className="text-xl leading-8 font-bold text-gray-700 text-right">{load.description}</p>
-      </div>
-      <div className="mt-3">
-        <Button size="full" onClick={onOpen} className="h-14 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
-          <Truck className="w-5 h-5 ml-2" aria-hidden="true"/> {interactionLabel ? 'تماس گرفته‌اید' : 'درخواست برای حمل بار'}
+      <div className="mt-2">
+        <Button size="full" onClick={onOpen} className="h-9 text-sm font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
+          <Phone className="ml-1.5 h-4 w-4" aria-hidden="true"/> {interactionLabel ? 'تماس گرفته‌اید' : 'تماس'}
         </Button>
       </div>
     </CardBody>
