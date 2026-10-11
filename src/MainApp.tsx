@@ -89,19 +89,29 @@ function Status({ status }: { status: LoadStatus }) {
 
 function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
   if (!message) return null;
-  return <div className="fixed inset-x-4 bottom-5 z-50 mx-auto max-w-lg rounded-2xl bg-gray-900 px-4 py-3 text-sm font-bold text-white shadow-2xl flex items-center gap-3">
+  return <div className="fixed inset-x-4 bottom-5 z-50 mx-auto max-w-lg rounded-lg bg-gray-900 px-4 py-3 text-sm font-bold text-white shadow-2xl flex items-center gap-3">
     <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
     <span className="flex-1">{message}</span>
     <button onClick={onClose} aria-label="بستن"><X className="w-4 h-4" /></button>
   </div>;
 }
 
-function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }: { load:Load; onOpen:()=>void; onOffer:()=>void; interactionLabel?:string; interactionClass?:string }) {
+function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOffer:()=>void }) {
   const commission = Math.round(load.price * 0.05);
-  const publishedAt = load.publishedAt ? (typeof load.publishedAt === 'number' ? new Date(load.publishedAt) : new Date(load.publishedAt)) : null;
-  const publishedTime = publishedAt && !Number.isNaN(publishedAt.getTime())
-    ? publishedAt.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })
-    : typeof load.publishedAt === 'string' ? load.publishedAt : '';
+  const publishedAt = load.publishedAt ? new Date(load.publishedAt) : null;
+  const publishedTime = (() => {
+    if (!publishedAt || Number.isNaN(publishedAt.getTime())) {
+      return typeof load.publishedAt === 'string' && /قبل|دقیقه|ساعت/.test(load.publishedAt) ? load.publishedAt : '';
+    }
+    const minutes = Math.max(0, Math.floor((Date.now() - publishedAt.getTime()) / 60000));
+    if (minutes < 8) return 'دقایقی قبل';
+    if (minutes < 23) return 'یک ربع قبل';
+    if (minutes < 50) return 'نیم ساعت قبل';
+    if (minutes < 100) return 'یک ساعت قبل';
+    if (minutes < 180) return '۲ ساعت قبل';
+    const hours = Math.max(1, Math.floor(minutes / 60));
+    return `${fa(hours)} ساعت قبل`;
+  })();
   // Stable pseudo-random labels per load: they don't flicker when React re-renders.
   const labelSeed = Array.from(load.id).reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 7);
   const showUrgent = load.isUrgent ?? (labelSeed % 4 === 0);
@@ -111,28 +121,28 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }:
   const priceIndex = hasPriceIndex ? Math.max(0, Math.min(100, load.priceIndex as number)) : 0;
   return <Card hoverable>
     <CardBody className="p-2.5">
-      <div className="flex min-h-5 items-center justify-between gap-2 border-b border-gray-100 pb-1.5 text-[10px] font-bold">
-        <div className="flex min-w-0 items-center gap-1 text-gray-500">
-          <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden="true"/>
-          <span>{publishedTime ? `انتشار ${publishedTime}` : ''}</span>
+      <div className="mx-[-0.625rem] mb-1.5 flex min-h-8 items-center justify-between gap-2 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-bold">
+        <div className="flex min-w-0 items-center gap-1.5 text-gray-600">
+          <Clock3 className="h-4 w-4 shrink-0" aria-hidden="true"/>
+          <span>{publishedTime}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
-          {showUrgent && <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-red-600">فوری</span>}
-          {showNew && <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-emerald-700">جدید</span>}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {showUrgent && <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-black text-red-700">فوری</span>}
+          {showNew && <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-black text-emerald-700">جدید</span>}
         </div>
       </div>
 
-      {hasFeatures && <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-gray-100 py-1.5 text-[10px] font-bold text-gray-600">
-        {load.rubari && <span className="inline-flex items-center gap-1"><Package className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>روباری</span>}
-        {load.barbari && <span className="inline-flex items-center gap-1"><Truck className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>باربری</span>}
-        {load.freeCall && <span className="inline-flex items-center gap-1"><PhoneCall className="h-3.5 w-3.5 text-primary-600" aria-hidden="true"/>تماس رایگان</span>}
+      {hasFeatures && <div className="mx-[-0.625rem] flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-gray-100 px-2.5 py-1.5 text-xs font-bold text-gray-700">
+        {load.rubari && <span className="inline-flex items-center gap-1"><Package className="h-4 w-4 text-primary-600" aria-hidden="true"/>روباری</span>}
+        {load.barbari && <span className="inline-flex items-center gap-1"><Truck className="h-4 w-4 text-primary-600" aria-hidden="true"/>باربری</span>}
+        {load.freeCall && <span className="inline-flex items-center gap-1"><PhoneCall className="h-4 w-4 text-primary-600" aria-hidden="true"/>تماس رایگان</span>}
       </div>}
 
       <div className="py-1.5 text-center">
         <b className="block text-xl font-black leading-7 text-gray-950">{money(load.price)} تومان</b>
-        {hasPriceIndex && <div className="mt-0.5 flex items-center justify-center gap-2 text-[10px] font-bold text-gray-500">
-          <span>شاخص قیمت</span>
-          <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص قیمت ${fa(priceIndex)} درصد`}>
+        {hasPriceIndex && <div className="mt-1 flex items-center justify-center gap-2 text-xs font-bold text-gray-600">
+          <span>شاخص میانگین قیمت</span>
+          <div className="relative h-2 w-20 overflow-hidden rounded-full bg-gray-100" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)} درصد`}>
             <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-primary-700 via-primary-500 to-primary-200" style={{width:`${priceIndex}%`}}/>
             <span className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-primary-700 bg-white" style={{right:`calc(${priceIndex}% - 5px)`}}/>
           </div>
@@ -140,45 +150,40 @@ function LoadCard({ load, onOpen, onOffer, interactionLabel, interactionClass }:
         </div>}
       </div>
 
-      {interactionLabel && <div className={`mb-1 rounded-lg border px-2 py-1 text-center text-xs font-black ${interactionClass || 'border-gray-200 bg-gray-50 text-gray-700'}`}>{interactionLabel}</div>}
-
-      <div className="flex items-center gap-2 border-y border-gray-100 py-2" dir="rtl">
+      <div className="mx-[-0.625rem] flex items-center gap-2 border-y border-gray-100 px-2.5 py-2" dir="rtl">
         <div className="min-w-0 flex-1 text-center">
-          <b className="block truncate text-sm font-black leading-5">{load.from}</b>
-          <span className="block text-[10px] font-bold text-gray-500">استان {cityProvinceName(load.from)}</span>
-          <div className="relative mx-auto mt-1 h-5 w-5" aria-label="مبدأ">
-            <span className="absolute left-1/2 top-1/2 h-5 w-px -translate-x-1/2 -translate-y-1/2 bg-primary-600"/>
-            <span className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 bg-primary-600"/>
-            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary-600 bg-white"/>
-            <span className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-600"/>
+          <div className="mb-1 flex h-5 items-center justify-center" aria-label="مبدأ">
+            <span className="relative block h-4 w-4 rounded-full border-2 border-primary-600 bg-white after:absolute after:inset-[3px] after:rounded-full after:bg-primary-600"/>
           </div>
+          <b className="block truncate text-base font-black leading-6">{load.from}</b>
+          <span className="block text-xs font-bold text-gray-500">استان {cityProvinceName(load.from)}</span>
         </div>
         <div className="flex w-24 shrink-0 flex-col items-center gap-1">
           <div className="flex w-full items-center">
-            <div className="flex-1 border-t border-dashed border-primary-400"/>
-            <ArrowLeft className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/>
+            <div className="flex-1 border-t-2 border-dashed border-primary-400"/>
+            <ArrowLeft className="h-5 w-5 shrink-0 text-primary-700" strokeWidth={3} aria-hidden="true"/>
           </div>
-          <span className="text-[10px] font-bold text-gray-500">{fa(load.routeDistance)} کیلومتر</span>
+          <span className="text-xs font-bold text-gray-500">{fa(load.routeDistance)} کیلومتر</span>
         </div>
         <div className="min-w-0 flex-1 text-center">
-          <b className="block truncate text-sm font-black leading-5">{load.to}</b>
-          <span className="block text-[10px] font-bold text-gray-500">استان {cityProvinceName(load.to)}</span>
-          <div className="mt-1 flex h-5 items-center justify-center" aria-label="مقصد">
+          <div className="mb-1 flex h-5 items-center justify-center" aria-label="مقصد">
             <MapPin className="h-5 w-5 text-primary-600" aria-hidden="true"/>
           </div>
+          <b className="block truncate text-base font-black leading-6">{load.to}</b>
+          <span className="block text-xs font-bold text-gray-500">استان {cityProvinceName(load.to)}</span>
         </div>
       </div>
 
-      <div className="divide-y divide-gray-100 text-xs">
-        <div className="flex items-center gap-2 py-1.5"><Package className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">نوع بار</span><b className="mr-auto text-gray-800">{load.type}</b></div>
-        <div className="flex items-center gap-2 py-1.5"><WeightIcon className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">وزن بار</span><b className="mr-auto text-gray-800">{fa(load.weight)} کیلوگرم</b></div>
-        <div className="flex items-center gap-2 py-1.5"><Percent className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-500">کمیسیون براه</span><b className="mr-auto text-gray-800">{money(commission)} تومان</b></div>
-        <div className="flex items-start gap-2 py-1.5"><FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 text-gray-500">توضیحات</span><p className="mr-auto min-w-0 text-right font-bold leading-5 text-gray-700">{load.description}</p></div>
+      <div className="mx-[-0.625rem] divide-y divide-gray-100 px-2.5 text-sm">
+        <div className="flex items-center gap-2 py-2"><Package className="h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-600">نوع بار</span><b className="mr-auto text-gray-900">{load.type}</b></div>
+        <div className="flex items-center gap-2 py-2"><WeightIcon className="h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-600">وزن بار</span><b className="mr-auto text-gray-900">{fa(load.weight)} کیلوگرم</b></div>
+        <div className="flex items-center gap-2 py-2"><Percent className="h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="text-gray-600">کمیسیون براه</span><b className="mr-auto text-gray-900">{money(commission)} تومان</b></div>
+        <div className="flex items-start gap-2 py-2"><FileText className="mt-0.5 h-5 w-5 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 text-gray-600">توضیحات</span><p className="mr-auto min-w-0 text-right font-bold leading-6 text-gray-800">{load.description}</p></div>
       </div>
 
       <div className="mt-2">
         <Button size="full" onClick={onOpen} className="h-9 text-sm font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
-          <Phone className="ml-1.5 h-4 w-4" aria-hidden="true"/> {interactionLabel ? 'تماس گرفته‌اید' : 'تماس'}
+          <Phone className="ml-1.5 h-4 w-4" aria-hidden="true"/> تماس
         </Button>
       </div>
     </CardBody>
@@ -651,13 +656,13 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
     const vehicleTypeLabel = vehicleForm.type === 'وانت و نیسان' ? 'نیسان' : vehicleForm.type;
     const vehicleSummary = [vehicleTypeLabel, vehicleForm.usage, vehicleForm.feature].filter(Boolean).join(' · ');
-    const cardClass = 'w-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden';
+    const cardClass = 'w-full rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden';
     const rowClass = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-right';
     const labelClass = 'flex min-w-0 items-center gap-3 text-right text-xl font-black text-gray-900';
     const statusClass = 'shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-base font-black text-blue-700';
     const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`;
     return <div className="space-y-3">
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="p-4 flex flex-col items-start text-right gap-2" dir="rtl">
           <div className="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
           <h2 className="font-black text-2xl text-gray-900">ادمین</h2>
@@ -739,19 +744,19 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       }
     };
     return <><style>{`@keyframes brah-card-press { 0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } 22% { transform: scale(1.025); box-shadow: 0 9px 22px rgba(37,99,235,0.18), 0 3px 8px rgba(0,0,0,0.08); } 48% { transform: scale(1.055); box-shadow: 0 15px 32px rgba(37,99,235,0.26), 0 4px 10px rgba(0,0,0,0.10); } 68% { transform: scale(1.035); box-shadow: 0 12px 27px rgba(37,99,235,0.22); } 84% { transform: scale(1.015); box-shadow: 0 8px 20px rgba(37,99,235,0.16); } 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style><div className="grid grid-cols-2 gap-3 w-full">
-      <button onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={`relative aspect-auto w-full min-h-[150px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={`relative aspect-auto w-full min-h-[150px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">پیشنهادهای من</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">پیشنهادهایت را پیگیری کن</span></div>
       </button>
-      <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={`relative aspect-auto w-full min-h-[150px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={`relative aspect-auto w-full min-h-[150px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">سوابق تماس و وضعیت بارها</span></div>
       </button>
-      <button onClick={()=>animateHomeCard('search',openSearchPage)} className={`relative aspect-auto w-full min-h-[205px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[1.035] active:shadow-[0_12px_28px_rgba(37,99,235,0.24),0_3px_8px_rgba(0,0,0,0.10)] transition-[transform,box-shadow] duration-100 ease-out ${pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button onClick={()=>animateHomeCard('search',openSearchPage)} className={`relative aspect-auto w-full min-h-[205px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[1.035] active:shadow-[0_12px_28px_rgba(37,99,235,0.24),0_3px_8px_rgba(0,0,0,0.10)] transition-[transform,box-shadow] duration-100 ease-out ${pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">مبدأ و مقصد را انتخاب کن</span></div>
       </button>
-      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={`relative aspect-auto w-full min-h-[205px] rounded-2xl bg-white border-2 border-black p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
+      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={`relative aspect-auto w-full min-h-[205px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
         <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
         <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">بارهای نزدیک خودت را ببین</span></div>
       </button>
@@ -772,7 +777,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     });
     return nearbyFiltered.length ? (
       <div className="space-y-3">
-        {nearbyFiltered.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
+        {nearbyFiltered.map(l=>{return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>;})}
       </div>
     ) : (
       <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای اطراف این مقصد هنوز باری ثبت نشده است."/></CardBody></Card>
@@ -799,7 +804,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     if (searchSubmitted) {
       return filtered.length ? (
         <div className="space-y-3">
-          {filtered.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
+          {filtered.map(l=>{return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>;})}
         </div>
       ) : (
         <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است." action={clearAll}/></CardBody></Card>
@@ -809,12 +814,12 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     return <div className="space-y-4">
       <Card><CardBody className="p-4">
         <div className="flex items-center gap-2 px-1"><Search className="w-5 h-5 text-primary-700" aria-hidden="true"/><h2 className="font-black text-lg text-gray-900">جستجوی بار</h2></div>
-        <button onClick={()=>{setOrigin('');setOriginText('');setOriginProvince('');setOriginCounty('');replacePage('origin-select');}} className="w-full mt-5 mb-3 rounded-2xl border border-black bg-white p-4 text-right active:bg-gray-50">
+        <button onClick={()=>{setOrigin('');setOriginText('');setOriginProvince('');setOriginCounty('');replacePage('origin-select');}} className="w-full mt-5 mb-3 rounded-lg border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مبدأ</span>
           <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={originText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{originText || 'مبدأ را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
         </button>
         <div className="border-t border-gray-100 my-6"/>
-        <button onClick={()=>{setDestination('');setDestinationText('');setDestinationProvince('');setDestinationCounty('');replacePage('destination-select');}} className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
+        <button onClick={()=>{setDestination('');setDestinationText('');setDestinationProvince('');setDestinationCounty('');replacePage('destination-select');}} className="w-full rounded-lg border border-gray-200 bg-white p-4 text-right active:bg-gray-50">
           <span className="block text-xs font-bold text-gray-400 mb-1">مقصد</span>
           <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-primary-600 shrink-0"/><span className={destinationText ? 'text-gray-900 font-bold' : 'text-gray-400'}>{destinationText || 'مقصد را انتخاب کنید'}</span><ChevronLeft className="w-4 h-4 text-gray-300 mr-auto"/></div>
         </button>
@@ -838,7 +843,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       : [];
     return routeLoads.length ? (
       <div className="space-y-3">
-        {routeLoads.map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}
+        {routeLoads.map(l=>{return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>;})}
       </div>
     ) : (
       <Card><CardBody><Empty title="بار مرتبط پیدا نشد" text="برای این مسیر هنوز باری ثبت نشده است."/></CardBody></Card>
@@ -978,13 +983,13 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-          <input value={query} onChange={e=>{const value=e.target.value; setQuery(value); if(isNearby){ const q=normalizeSearch(value).replace(/^شهرستان/,''); if(q){ const exactProvince=iranLocations.find(p=>normalizeSearch(p.name)===q); if(exactProvince){ chooseProvince(String(exactProvince.id)); return; } const exactCity=allDestinationCities.find(x=>normalizeSearch(x.city)===q); if(exactCity){ chooseCity(exactCity.city, exactCity.countyId); return; } } }}} placeholder={isOrigin ? 'مثال تهران' : 'مثال یزد'} className="w-full rounded-2xl border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
+          <input value={query} onChange={e=>{const value=e.target.value; setQuery(value); if(isNearby){ const q=normalizeSearch(value).replace(/^شهرستان/,''); if(q){ const exactProvince=iranLocations.find(p=>normalizeSearch(p.name)===q); if(exactProvince){ chooseProvince(String(exactProvince.id)); return; } const exactCity=allDestinationCities.find(x=>normalizeSearch(x.city)===q); if(exactCity){ chooseCity(exactCity.city, exactCity.countyId); return; } } }}} placeholder={isOrigin ? 'مثال تهران' : 'مثال یزد'} className="w-full rounded-lg border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
         </div>
-        {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
+        {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-lg bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
           <Navigation className="w-5 h-5" />
           اطراف من
         </button>}
-        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-2xl bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
+        {!isOrigin && <button type="button" onClick={openAllDestinationCities} className="w-full mt-3 rounded-lg bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
           <Globe2 className="w-5 h-5" />
           همه شهرها
         </button>}
@@ -1024,14 +1029,14 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-2xl border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-lg border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
         </div>
         <div className="mt-5 space-y-3 max-h-[68vh] overflow-auto">
           {iranLocations.map(province => {
             const provinceMatches = matches(province.name);
             const counties = province.counties.map(county => ({...county,cities:county.cities.filter(city => provinceMatches || matches(county.name) || matches(city))})).filter(county => provinceMatches || matches(county.name) || county.cities.length);
             if (normalized && !provinceMatches && !counties.length) return null;
-            return <div key={province.id} className="rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden">
+            return <div key={province.id} className="rounded-lg border border-gray-100 bg-gray-50 overflow-hidden">
               <div className="px-4 py-3 bg-primary-50 border-b border-primary-100"><b className="block text-base font-black">{province.name}</b><span className="text-[11px] text-gray-500">{fa(province.counties.length)} شهرستان</span></div>
               <div className="p-2 space-y-2">{counties.map(county => <div key={county.id} className="rounded-xl bg-white border border-gray-100">
                 <div className="px-3 py-2 border-b border-gray-50"><b className="text-sm">شهرستان {county.name}</b></div>
@@ -1110,8 +1115,8 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="w-full max-w-lg rounded-t-3xl bg-white p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
         <h3 className="font-black text-lg mb-4">انتخاب تصویر</h3>
         <div className="grid grid-cols-2 gap-3">
-          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('gallery')}>از گالری</button>
-          <button type="button" className="rounded-2xl border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('camera')}>از دوربین</button>
+          <button type="button" className="rounded-lg border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('gallery')}>از گالری</button>
+          <button type="button" className="rounded-lg border border-gray-200 p-4 text-center font-black" onClick={() => chooseSource('camera')}>از دوربین</button>
         </div>
       </div>
     </div>;
@@ -1121,17 +1126,17 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
 
-    if (identityRejected) return <Card><CardBody className="p-5 text-center space-y-4"><div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center"><XCircle className="w-8 h-8 text-red-500"/></div><h3 className="font-black text-lg text-red-600">احراز هویت تأیید نشد</h3><p className="text-sm text-gray-500 leading-7">مدارک ارسالی شما نیاز به اصلاح دارد. پس از اصلاح می‌توانید دوباره مدارک را ارسال کنید.</p><div className="rounded-2xl bg-red-50 border border-red-100 p-4 text-right space-y-2"><div className="text-sm font-black text-red-700">دلیل عدم تأیید</div><div className="text-sm text-gray-600 leading-7">تصویر مدارک واضح نیست یا نیاز به بررسی و اصلاح دارد.</div></div><Button size="full" onClick={() => { setIdentityRejected(false); setIdentityPending(false); setVerificationStep(1); window.localStorage.removeItem('bbberah_identity_rejected_v1'); window.localStorage.removeItem('bbberah_identity_pending_v1'); }} className="!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600">اصلاح و ارسال مجدد</Button></CardBody></Card>;
+    if (identityRejected) return <Card><CardBody className="p-5 text-center space-y-4"><div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center"><XCircle className="w-8 h-8 text-red-500"/></div><h3 className="font-black text-lg text-red-600">احراز هویت تأیید نشد</h3><p className="text-sm text-gray-500 leading-7">مدارک ارسالی شما نیاز به اصلاح دارد. پس از اصلاح می‌توانید دوباره مدارک را ارسال کنید.</p><div className="rounded-lg bg-red-50 border border-red-100 p-4 text-right space-y-2"><div className="text-sm font-black text-red-700">دلیل عدم تأیید</div><div className="text-sm text-gray-600 leading-7">تصویر مدارک واضح نیست یا نیاز به بررسی و اصلاح دارد.</div></div><Button size="full" onClick={() => { setIdentityRejected(false); setIdentityPending(false); setVerificationStep(1); window.localStorage.removeItem('bbberah_identity_rejected_v1'); window.localStorage.removeItem('bbberah_identity_pending_v1'); }} className="!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600">اصلاح و ارسال مجدد</Button></CardBody></Card>;
 
-    if (identityPending) return <Card><CardBody className="p-5 text-center space-y-3"><Clock3 className="w-12 h-12 mx-auto text-orange-500"/><h3 className="font-black text-lg text-orange-600">در انتظار تایید احراز هویت</h3><p className="text-sm text-gray-500 leading-7">مدارک شما ارسال شده و تا زمان بررسی نهایی قابل ویرایش یا ارسال مجدد نیست.</p><div className="rounded-2xl bg-orange-50 border border-orange-100 p-4 text-sm font-bold text-orange-700">لطفاً منتظر نتیجه بررسی بمانید.</div></CardBody></Card>;
+    if (identityPending) return <Card><CardBody className="p-5 text-center space-y-3"><Clock3 className="w-12 h-12 mx-auto text-orange-500"/><h3 className="font-black text-lg text-orange-600">در انتظار تایید احراز هویت</h3><p className="text-sm text-gray-500 leading-7">مدارک شما ارسال شده و تا زمان بررسی نهایی قابل ویرایش یا ارسال مجدد نیست.</p><div className="rounded-lg bg-orange-50 border border-orange-100 p-4 text-sm font-bold text-orange-700">لطفاً منتظر نتیجه بررسی بمانید.</div></CardBody></Card>;
 
     if (verificationStep === 1) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
         <div className="flex items-center justify-between"><h2 className="text-lg font-black">کد ملی خود را وارد کنید</h2><button type="button" onClick={()=>go("account")} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
         <div>
-          <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-2xl border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
+          <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-lg border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
         </div>
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
           مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
         </div>
         <Button size="full" onClick={submitNationalId} disabled={nationalId.length !== 10} className={nationalId.length === 10 ? '!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600' : '!bg-gray-300 !text-gray-500 !border-gray-300'}>ارسال</Button>
@@ -1141,15 +1146,15 @@ const ProfilePage = () => <div className="space-y-3">
     if (verificationStep === 2) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
         <div className="flex items-center justify-between"><h2 className="text-lg font-black">ارسال عکس گواهینامه</h2><button type="button" onClick={()=>setVerificationStep(1)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
           <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
         </div>
-        <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+        <button type="button" onClick={() => setPicker('license')} className="w-full rounded-lg border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
           {licensePhoto ? <img src={URL.createObjectURL(licensePhoto)} alt="تصویر گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
         </button>
         {sourceInputs('license')}
-        {licensePhoto && <button type="button" onClick={() => setPicker('license')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        {licensePhoto && <button type="button" onClick={() => setPicker('license')} className="w-full rounded-lg border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
         <Button size="full" onClick={submitLicense}>بعدی</Button>
       </CardBody></Card>
       {pickerMenu}
@@ -1158,15 +1163,15 @@ const ProfilePage = () => <div className="space-y-3">
     return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
         <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2><button type="button" onClick={()=>setVerificationStep(2)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
           <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
           <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
         </div>
-        <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
+        <button type="button" onClick={() => setPicker('face')} className="w-full rounded-lg border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
           {licenseFacePhoto ? <img src={URL.createObjectURL(licenseFacePhoto)} alt="چهره همراه گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
         </button>
         {sourceInputs('face')}
-        {licenseFacePhoto && <button type="button" onClick={() => setPicker('face')} className="w-full rounded-2xl border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
+        {licenseFacePhoto && <button type="button" onClick={() => setPicker('face')} className="w-full rounded-lg border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
         <Button size="full" onClick={submitVerification}>ارسال و منتظر تایید</Button>
       </CardBody></Card>
       {pickerMenu}
@@ -1248,13 +1253,13 @@ const ProfilePage = () => <div className="space-y-3">
         <div className="mt-4 space-y-2">
           {reportOptions.map(option => {
             const checked = selectedReports.includes(option);
-            return <button key={option} type="button" onClick={()=>setSelectedReports(prev=>checked ? prev.filter(item=>item!==option) : [...prev, option])} className={`w-full rounded-2xl border p-3 text-right flex items-center gap-3 transition ${checked ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700'}`}>
+            return <button key={option} type="button" onClick={()=>setSelectedReports(prev=>checked ? prev.filter(item=>item!==option) : [...prev, option])} className={`w-full rounded-lg border p-3 text-right flex items-center gap-3 transition ${checked ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700'}`}>
               <span className={`w-5 h-5 rounded-md border-2 shrink-0 flex items-center justify-center ${checked ? 'border-red-600 bg-red-600 text-white' : 'border-gray-300 bg-white'}`}>{checked ? '✓' : ''}</span>
               <span className="text-sm font-bold">{option}</span>
             </button>;
           })}
         </div>
-        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="توضیحات بیشتر (اختیاری)..." className="mt-4 w-full min-h-32 rounded-2xl border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
+        <textarea value={reportText} onChange={e=>setReportText(e.target.value)} placeholder="توضیحات بیشتر (اختیاری)..." className="mt-4 w-full min-h-32 rounded-lg border border-gray-200 p-4 text-sm font-bold outline-none focus:border-primary-500 resize-none" />
         <Button size="full" className="mt-3 bg-red-600 hover:bg-red-700 text-white border-red-600" onClick={submitReport}>ارسال گزارش</Button>
       </CardBody></Card>
     </div>;
@@ -1300,13 +1305,13 @@ const ProfilePage = () => <div className="space-y-3">
           <PhoneCall className="w-6 h-6 text-primary-600 shrink-0 mt-1"/>
           <div><h2 className="text-xl font-black">نتیجه تماس را ثبت کنید</h2><p className="text-sm text-gray-500 mt-2 leading-6">بعد از تماس یکی از سه گزینه را انتخاب کنید.</p></div>
         </div>
-        {selected && <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
+        {selected && <div className="mt-4 rounded-lg bg-gray-50 border border-gray-100 p-4"><b className="block">{selected.title}</b><span className="text-sm text-gray-500 mt-1 block">{selected.from} ← {selected.to}</span></div>}
       </CardBody></Card>
       <Card><CardBody className="p-4">
         <div className="space-y-2">
           {options.map(([value,title,cls])=>{
             const blocked = value==='declined' && declinedBlocked;
-            return <button key={value} type="button" disabled={blocked} onClick={()=>setContactReport(value)} className={`w-full text-right rounded-2xl border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls} ${blocked?'opacity-45 cursor-not-allowed':''}`}>
+            return <button key={value} type="button" disabled={blocked} onClick={()=>setContactReport(value)} className={`w-full text-right rounded-lg border-2 p-4 transition ${contactReport===value?'border-primary-600 ring-2 ring-primary-100':'border-transparent'} ${cls} ${blocked?'opacity-45 cursor-not-allowed':''}`}>
               <span className="block font-black text-base">{title}</span>
               {value==='declined' && <span className="block text-xs font-black mt-2">{declinedCount}/۲ ثبت برای این بار</span>}
             </button>;
@@ -1319,7 +1324,7 @@ const ProfilePage = () => <div className="space-y-3">
 
   const SimplePage = () => {
     if (page==='verification') return <VerificationPage/>;
-    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{const interaction=getLoadInteraction(l.id); return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)} interactionLabel={interaction?.label} interactionClass={interaction?.cls}/>;})}</div>;
+    if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>;})}</div>;
     if (page==='calls') return <div className="space-y-5">
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-2"><h2 className="text-base font-black">وضعیت تماس‌ها</h2><span className="rounded-full bg-sky-100 text-sky-800 px-2.5 py-1 text-[11px] font-black">تماس</span></div>
@@ -1375,7 +1380,7 @@ const ProfilePage = () => <div className="space-y-3">
       </CardBody></Card>
       <div className="space-y-3">{notificationItems.map(item=>{
         const isRead = readNotificationIds.includes(item.id);
-        return <Card key={item.id}><CardBody className={`p-0 overflow-hidden border rounded-2xl ${isRead?'border-gray-100 bg-white':'border-orange-200 bg-orange-50'}`}>
+        return <Card key={item.id}><CardBody className={`p-0 overflow-hidden border rounded-lg ${isRead?'border-gray-100 bg-white':'border-orange-200 bg-orange-50'}`}>
           <button type="button" onClick={()=>setReadNotificationIds(current=>current.includes(item.id)?current:[...current,item.id])} className={`w-full p-4 flex gap-3 text-right transition-colors ${isRead?'bg-white':'bg-orange-50'}`}>
             <Bell className={`w-5 h-5 shrink-0 mt-0.5 ${isRead?'text-gray-400':'text-orange-600'}`}/>
             <span className="min-w-0 flex-1"><b className="block text-sm">{item.message}</b><span className="block text-[11px] text-gray-400 mt-1">{item.date}</span><span className={`block text-[10px] font-bold mt-1 ${isRead?'text-gray-500':'text-orange-700'}`}>{isRead?'خوانده‌شده':'خوانده‌نشده'}</span></span>
@@ -1405,7 +1410,7 @@ const ProfilePage = () => <div className="space-y-3">
         const scoreChange = Math.max(1, Math.round(commission / 50000));
         return <Card><CardBody className="p-5">
           <div className="flex items-center gap-3"><CheckCircle2 className="w-7 h-7 text-emerald-600"/><div><b>تعیین تکلیف حمل</b><p className="text-xs text-gray-400 mt-1">{followupLoad.from} به {followupLoad.to}</p></div></div>
-          <div className="mt-4 rounded-2xl bg-gray-50 p-4 text-sm font-bold leading-7">برای این بار توافق ثبت شده است. پس از تعیین نتیجه، امتیاز و کمیسیون مطابق عملکرد شما ثبت می‌شود.</div>
+          <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm font-bold leading-7">برای این بار توافق ثبت شده است. پس از تعیین نتیجه، امتیاز و کمیسیون مطابق عملکرد شما ثبت می‌شود.</div>
           <div className="grid grid-cols-1 gap-3 mt-4">
             <Button size="full" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'carried')}>۱. بار را حمل کردم</Button>
             <Button size="full" variant="outline" className="h-14 text-base font-black" onClick={()=>settleShipment(followupLoad,'withdrawn')}>۲. از حمل بار منصرف شدم</Button>
@@ -1433,7 +1438,7 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='vehicle-select') return <div className="space-y-4">
       <div className="px-1"><h2 className="font-black text-lg">نوع خودروی خود را انتخاب کنید</h2></div>
       <div className="space-y-3">
-        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label,usage:label==='تریلی'?v.usage:'',feature:''}));if(label==='تریلی'){go('trailer-select');}else if(label==='جفت'){go('jooft-usage');}else if(label==='تک'){go('tak-usage');}else if(label==='کامیونت'){go('komionet-usage');}else if(label==='نیسان و وانت'){go('van-usage');}else{go('vehicle-loader');}}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {(['تریلی','جفت','تک','کامیونت','نیسان و وانت']).map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:label,usage:label==='تریلی'?v.usage:'',feature:''}));if(label==='تریلی'){go('trailer-select');}else if(label==='جفت'){go('jooft-usage');}else if(label==='تک'){go('tak-usage');}else if(label==='کامیونت'){go('komionet-usage');}else if(label==='نیسان و وانت'){go('van-usage');}else{go('vehicle-loader');}}} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center"><VehicleIcon type={label}/></span><span className="font-black">{label}</span></span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
@@ -1449,7 +1454,7 @@ const ProfilePage = () => <div className="space-y-3">
             setVehicleForm(v=>({...v,type:'جفت',usage:'',feature:label}));
             go('vehicle');
           }
-        }} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        }} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
@@ -1460,7 +1465,7 @@ const ProfilePage = () => <div className="space-y-3">
         {(['وانت','نیسان']).map(label=><button key={label} type="button" onClick={()=>{
           setVehicleForm(v=>({...v,type:label,usage:'',feature:''}));
           go('van-feature');
-        }} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        }} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
@@ -1470,7 +1475,7 @@ const ProfilePage = () => <div className="space-y-3">
       return <div className="space-y-4">
         <div className="px-1"><h2 className="font-black text-lg">ویژگی بارگیر خود را انتخاب کنید</h2></div>
         <div className="space-y-3">
-          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:label}));go('vehicle');}} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
         </div>
       </div>;
     }
@@ -1485,7 +1490,7 @@ const ProfilePage = () => <div className="space-y-3">
             setVehicleForm(v=>({...v,type:'کامیونت',usage:'کمپرسی',feature:'کمپرسی'}));
             go('vehicle');
           }
-        }} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        }} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
@@ -1499,7 +1504,7 @@ const ProfilePage = () => <div className="space-y-3">
       return <div className="space-y-4">
         <div className="px-1"><h2 className="font-black text-lg">ویژگی بارگیر خود را انتخاب کنید</h2></div>
         <div className="space-y-3">
-          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'کامیونت',feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'کامیونت',feature:label}));go('vehicle');}} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
         </div>
       </div>;
     }
@@ -1514,7 +1519,7 @@ const ProfilePage = () => <div className="space-y-3">
             setVehicleForm(v=>({...v,type:'تک',usage:'',feature:label}));
             go('vehicle');
           }
-        }} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        }} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
@@ -1524,7 +1529,7 @@ const ProfilePage = () => <div className="space-y-3">
       return <div className="space-y-4">
         <div className="px-1"><h2 className="font-black text-lg">ویژگی کاربری</h2><p className="text-xs text-gray-400 mt-1">ویژگی {vehicleForm.usage || 'خودرو'} را انتخاب کنید.</p></div>
         <div className="space-y-3">
-          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'تک',feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'تک',feature:label}));go('vehicle');}} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
         </div>
       </div>;
     }
@@ -1533,7 +1538,7 @@ const ProfilePage = () => <div className="space-y-3">
       return <div className="space-y-4">
         <div className="px-1"><h2 className="font-black text-lg">ویژگی کاربری</h2><p className="text-xs text-gray-400 mt-1">ویژگی {vehicleForm.usage || 'خودرو'} را انتخاب کنید.</p></div>
         <div className="space-y-3">
-          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'جفت',feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,type:'جفت',feature:label}));go('vehicle');}} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
         </div>
       </div>;
     }
@@ -1545,7 +1550,7 @@ const ProfilePage = () => <div className="space-y-3">
       return <div className="space-y-4">
         <div className="px-1"><h2 className="font-black text-lg">خودروی من</h2></div>
 
-        <button type="button" onClick={()=>go('vehicle-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        <button type="button" onClick={()=>go('vehicle-select')} className="w-full rounded-lg border border-gray-200 bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">خودروی من</span>
           <span className="mt-1 flex items-center justify-between gap-3">
             <span className="text-lg font-black">{vehicleSummary || 'خودرو ثبت نشده'}</span>
@@ -1553,7 +1558,7 @@ const ProfilePage = () => <div className="space-y-3">
           </span>
         </button>
 
-        <div className="rounded-2xl border-2 border-black bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
           <span className="block text-xs font-bold text-gray-400 mb-3">شماره پلاک</span>
           <div className="mx-auto flex h-16 max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white" dir="ltr">
             <div className="flex w-12 items-center justify-center bg-blue-700 text-white">
@@ -1577,7 +1582,7 @@ const ProfilePage = () => <div className="space-y-3">
           </div>
         </div>
 
-        <div className="rounded-2xl border-2 border-black bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
           <div className="flex items-center justify-between gap-3">
             <div>
               <span className="block text-xs font-bold text-gray-400">شماره هوشمند ناوگان</span>
@@ -1593,15 +1598,15 @@ const ProfilePage = () => <div className="space-y-3">
     if (page==='vehicle') return <div className="space-y-4">
       <div className="px-1"><h2 className="font-black text-lg">خودروی من</h2><p className="text-xs text-gray-400 mt-1">مشخصات خودرو را بررسی یا ویرایش کنید.</p></div>
       <div className="space-y-3">
-        <button type="button" onClick={()=>go('vehicle-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        <button type="button" onClick={()=>go('vehicle-select')} className="w-full rounded-lg border border-gray-200 bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">نوع خودرو</span>
           <span className="block mt-1 text-lg font-black">{vehicleForm.type}</span>
         </button>
-        {vehicleForm.usage && <button type="button" onClick={()=>go('trailer-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {vehicleForm.usage && <button type="button" onClick={()=>go('trailer-select')} className="w-full rounded-lg border border-gray-200 bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">نوع کاربری</span>
           <span className="block mt-1 text-lg font-black">{vehicleForm.usage}</span>
         </button>}
-        {vehicleForm.feature && <button type="button" onClick={()=>go(vehicleForm.type==='جفت' ? 'jooft-feature' : vehicleForm.type==='تک' ? 'tak-feature' : vehicleForm.usage==='کفی'||vehicleForm.usage==='بغلدار'||vehicleForm.usage==='چادری' ? 'flatbed-size' : 'trailer-select')} className="w-full rounded-2xl border-2 border-black bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        {vehicleForm.feature && <button type="button" onClick={()=>go(vehicleForm.type==='جفت' ? 'jooft-feature' : vehicleForm.type==='تک' ? 'tak-feature' : vehicleForm.usage==='کفی'||vehicleForm.usage==='بغلدار'||vehicleForm.usage==='چادری' ? 'flatbed-size' : 'trailer-select')} className="w-full rounded-lg border border-gray-200 bg-white p-4 text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="block text-xs font-bold text-gray-400">ویژگی کاربری</span>
           <span className="block mt-1 text-lg font-black">{vehicleForm.feature}</span>
         </button>}
@@ -1619,7 +1624,7 @@ const ProfilePage = () => <div className="space-y-3">
             setVehicleForm(v=>({...v,type:'تریلی',usage:'',feature:label}));
             go('vehicle');
           }
-        }} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
+        }} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform">
           <span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/>
         </button>)}
       </div>
@@ -1633,7 +1638,7 @@ const ProfilePage = () => <div className="space-y-3">
       return <div className="space-y-4">
         <div className="px-1"><h2 className="font-black text-lg">ویژگی کاربری</h2><p className="text-xs text-gray-400 mt-1">ویژگی {vehicleForm.usage || 'بارگیر'} را انتخاب کنید.</p></div>
         <div className="space-y-3">
-          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:label}));go('vehicle');}} className="w-full rounded-2xl border-2 border-black bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
+          {featureOptions.map(label=><button key={label} type="button" onClick={()=>{setVehicleForm(v=>({...v,feature:label}));go('vehicle');}} className="w-full rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between text-right shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.99] transition-transform"><span className="font-black">{label}</span><ChevronLeft className="w-5 h-5 text-gray-500"/></button>)}
         </div>
       </div>;
     }
@@ -1679,7 +1684,7 @@ const ProfilePage = () => <div className="space-y-3">
           ['۲۰. ارتباط با براه','برای مشکلات حساب، احراز هویت، بار، سفر، پرداخت یا اعتراض به محدودیت حساب، راننده باید از مسیرهای رسمی پشتیبانی استفاده کند. اطلاعات تماس رسمی براه در نسخه نهایی در این بخش درج می‌شود: [شماره پشتیبانی]، [ایمیل رسمی براه]، [وب‌سایت رسمی براه].'],
           ['۲۱. پذیرش قوانین','با استفاده از براه، راننده تأیید می‌کند که قوانین و مقررات را مطالعه کرده و متعهد به رعایت آن‌ها است. ادامه استفاده از خدمات پس از انتشار نسخه به‌روزشده قوانین، در صورت اعلام و مطابق قوانین، به منزله پذیرش شرایط جدید خواهد بود. برای استفاده از خدمات ارسال پیشنهاد، راننده باید تأیید پذیرش قوانین را در حساب خود ثبت کرده باشد.']
         ].map(([h,p])=><section key={h} className="border-t border-gray-100 pt-4"><h4 className="font-black text-gray-900">{h}</h4><p className="mt-2">{p}</p></section>)}
-        <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 leading-7"><b>توجه حقوقی:</b> این متن برای استفاده در اپلیکیشن براه تنظیم شده و پیش از انتشار عمومی باید توسط مشاور حقوقی براه با اطلاعات ثبتی، قوانین حمل‌ونقل و سیاست حریم خصوصی نهایی تطبیق داده شود.</div>
+        <div className="mt-5 rounded-lg bg-amber-50 p-4 text-sm text-amber-900 leading-7"><b>توجه حقوقی:</b> این متن برای استفاده در اپلیکیشن براه تنظیم شده و پیش از انتشار عمومی باید توسط مشاور حقوقی براه با اطلاعات ثبتی، قوانین حمل‌ونقل و سیاست حریم خصوصی نهایی تطبیق داده شود.</div>
       </CardBody></Card>
       <Card><CardBody className="p-5">
         <div className="flex items-start gap-3">
@@ -1709,7 +1714,7 @@ const ProfilePage = () => <div className="space-y-3">
     return <div className="fixed inset-0 z-[80] bg-black/40 flex items-end justify-center p-0" onClick={closeOfferDetail}>
       <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7 shadow-2xl" onClick={e=>e.stopPropagation()} dir="rtl">
         <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black text-gray-900">جزئیات پیشنهاد قیمت</h3><button type="button" onClick={closeOfferDetail} aria-label="بستن" className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center"><X className="w-5 h-5"/></button></div>
-        <div className="mt-4 rounded-2xl bg-gray-50 p-4">
+        <div className="mt-4 rounded-lg bg-gray-50 p-4">
           <div className="text-center text-lg font-black text-gray-900"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><WeightIcon className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">وزن بار</span><b className="block mt-1 text-sm font-black text-gray-900">{fa(detailLoad.weight)} کیلو</b></div>
@@ -1733,7 +1738,7 @@ const ProfilePage = () => <div className="space-y-3">
       </div>
     </div>}
     <main className={`max-w-lg mx-auto px-4 pt-5 pb-24 ${page === 'home' ? 'h-[calc(100dvh-136px)] overflow-hidden overscroll-none' : ''}`}>
-      {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
+      {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
@@ -1743,7 +1748,7 @@ const ProfilePage = () => <div className="space-y-3">
     {shipmentRewardSummary && <div className="fixed inset-0 z-[75] bg-black/40 flex items-center justify-center p-5">
       <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center"><Star className="w-6 h-6 text-emerald-600"/></div>
+          <div className="w-11 h-11 rounded-lg bg-emerald-50 flex items-center justify-center"><Star className="w-6 h-6 text-emerald-600"/></div>
           <div><h3 className="font-black text-lg">امتیاز حمل ثبت شد</h3><p className="text-xs text-gray-500 mt-1">جزئیات نتیجه حمل</p></div>
         </div>
         <div className="mt-5 space-y-2 text-sm font-bold">
@@ -1756,8 +1761,8 @@ const ProfilePage = () => <div className="space-y-3">
       </div>
     </div>}
     {confirmAction && <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl"><h3 className="font-black text-lg">تأیید عملیات</h3><p className="text-sm text-gray-500 mt-2">{confirmAction==='cancel-offer'?'آیا می‌خواهید پیشنهاد انتخاب‌شده لغو شود؟':'آیا می‌خواهید این بار لغو شود؟ این عملیات در نسخه آزمایشی فقط وضعیت رابط را تغییر می‌دهد.'}</p><div className="grid grid-cols-2 gap-2 mt-5"><Button variant="outline" onClick={()=>setConfirmAction(null)}>انصراف</Button><Button onClick={()=>{setConfirmAction(null);setActionBusy(true);setTimeout(()=>{setActionBusy(false);notify('پیشنهاد لغو شد.');},500)}}>{actionBusy?'در حال انجام...':'تأیید'}</Button></div></div></div>}
-    {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-2xl bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><p className="text-xs text-gray-500 mt-1">صاحب کالا امتیاز راننده را ثبت می‌کند.</p><div className="flex gap-2 mt-3" dir="ltr">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setOwnerDriverRating(n)} className={`text-3xl ${n<=ownerDriverRating?'text-amber-400':'text-gray-300'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(ownerDriverRating?'امتیاز صاحب کالا ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز راننده</Button></div></div>}
-    {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center overscroll-none" style={{touchAction:"none"}} onTouchMove={e=>e.preventDefault()} onWheel={e=>e.preventDefault()}><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7 select-none overscroll-none" onTouchStart={e=>{const target=e.target as HTMLElement;if(target.closest('button,a,[role="slider"]'))return;offerTouchStartY.current=e.touches[0].clientY;}} onTouchMove={e=>{const start=offerTouchStartY.current;if(start===null)return;e.preventDefault();setOfferDragY(Math.max(0,e.touches[0].clientY-start));}} onTouchEnd={e=>{const start=offerTouchStartY.current;offerTouchStartY.current=null;if(start!==null){const delta=e.changedTouches[0].clientY-start;if(delta>70){setOfferOpen(false);setOfferDragY(0);}else setOfferDragY(0);}}} style={{transform:`translateY(${offerDragY}px)`,transition:offerTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}}> <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex items-center justify-between"><span className="text-base font-bold text-gray-500">قیمت اعلامی</span><b className="text-xl font-black">{money(selected.price)} تومان</b></div></div><div className="mt-4"><label className="block text-base font-bold text-gray-700">قیمت پیشنهادی</label><div className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-4 text-center text-xl font-black text-gray-900" dir="ltr">{money(Number(offerPrice)||0)} تومان</div><div className="mt-4 px-1" dir="ltr">
+    {page==='shipment' && shipmentStage==='delivered' && <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4"><div className="rounded-lg bg-white border shadow-xl p-4"><b>سفر با موفقیت تحویل شد</b><p className="text-xs text-gray-500 mt-1">صاحب کالا امتیاز راننده را ثبت می‌کند.</p><div className="flex gap-2 mt-3" dir="ltr">{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setOwnerDriverRating(n)} className={`text-3xl ${n<=ownerDriverRating?'text-amber-400':'text-gray-300'}`}>★</button>)}</div><Button className="w-full mt-3" onClick={()=>notify(ownerDriverRating?'امتیاز صاحب کالا ثبت شد.':'لطفاً امتیاز را انتخاب کنید.')}>ثبت امتیاز راننده</Button></div></div>}
+    {offerOpen && selected && <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center overscroll-none" style={{touchAction:"none"}} onTouchMove={e=>e.preventDefault()} onWheel={e=>e.preventDefault()}><div className="w-full max-w-lg bg-white rounded-t-[28px] p-5 pb-7 select-none overscroll-none" onTouchStart={e=>{const target=e.target as HTMLElement;if(target.closest('button,a,[role="slider"]'))return;offerTouchStartY.current=e.touches[0].clientY;}} onTouchMove={e=>{const start=offerTouchStartY.current;if(start===null)return;e.preventDefault();setOfferDragY(Math.max(0,e.touches[0].clientY-start));}} onTouchEnd={e=>{const start=offerTouchStartY.current;offerTouchStartY.current=null;if(start!==null){const delta=e.changedTouches[0].clientY-start;if(delta>70){setOfferOpen(false);setOfferDragY(0);}else setOfferDragY(0);}}} style={{transform:`translateY(${offerDragY}px)`,transition:offerTouchStartY.current===null?'transform 180ms ease-out':'none',touchAction:"none"}}> <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-3 touch-none" aria-hidden="true"/><div className="flex items-center justify-between"><h3 className="font-black text-lg">ثبت پیشنهاد</h3><button onClick={()=>setOfferOpen(false)} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"><X className="w-5 h-5"/></button></div><p className="text-sm text-gray-500 mt-2">{selected.title}</p><div className="mt-4 rounded-lg bg-gray-50 p-4"><div className="flex items-center justify-between"><span className="text-base font-bold text-gray-500">قیمت اعلامی</span><b className="text-xl font-black">{money(selected.price)} تومان</b></div></div><div className="mt-4"><label className="block text-base font-bold text-gray-700">قیمت پیشنهادی</label><div className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-4 text-center text-xl font-black text-gray-900" dir="ltr">{money(Number(offerPrice)||0)} تومان</div><div className="mt-4 px-1" dir="ltr">
   <div className="flex items-center gap-3">
     <button type="button" aria-label="کاهش ۵۰ هزار تومان" className="w-10 h-10 shrink-0 rounded-xl border border-gray-200 bg-gray-50 text-2xl font-black text-gray-700 flex items-center justify-center" onClick={()=>adjustOfferPrice(-50000)}>−</button>
     <div className="relative flex-1 h-10 flex items-center cursor-pointer touch-none select-none" role="slider" aria-label="تغییر قیمت پیشنهاد" aria-valuemin={0} aria-valuemax={100} aria-valuenow={offerSlider} tabIndex={-1}
