@@ -141,7 +141,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       <div className="border-b border-gray-300 py-2 text-center">
         <div className="inline-flex max-w-full flex-col items-center">
           <b className="inline-block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
-          {hasPriceIndex && <div className="mt-3 w-full px-1" aria-hidden="true">
+          {hasPriceIndex && <div className="mt-3 w-full" aria-hidden="true">
             <div className="relative h-2 overflow-visible rounded-full bg-slate-100 shadow-inner">
               <div className="absolute inset-0 rounded-full bg-gradient-to-l from-blue-700 via-blue-500 to-sky-200" />
               <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[3px] border-white bg-blue-700 shadow-[0_1px_5px_rgba(15,23,42,0.28)]" style={{right:`calc(${priceIndex}% - 8px)`}} />
