@@ -770,30 +770,30 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
 
         <div className="grid grid-cols-3 gap-2.5">
-          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={"flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-95 " + (pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
             <ReceiptText className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">پیشنهادهای من</span>
           </button>
-          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={"flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-95 " + (pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
             <PhoneCall className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">تماس‌های من</span>
           </button>
-          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2 text-center shadow-sm transition active:scale-95">
+          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-95">
             <Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">فروشگاه</span>
           </button>
         </div>
 
         <div className="mt-auto grid grid-cols-2 gap-2.5 pt-3">
-          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className={"relative flex aspect-square w-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 text-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] transition active:scale-[0.97] " + (pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
-            <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50"><Search className="h-6 w-6 text-primary-600" aria-hidden="true"/></span>
+          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-[0.97] " + (pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+            <Search className="h-6 w-6 text-primary-600" aria-hidden="true"/>
             <b className="text-base sm:text-lg font-black text-gray-950">جستجوی بار</b>
-            <span className="mt-1 text-[11px] sm:text-xs font-bold leading-5 text-gray-500">مبدأ و مقصد را انتخاب کن</span>
+            <span className="text-[11px] sm:text-xs font-bold leading-5 text-gray-500">مبدأ و مقصد را انتخاب کن</span>
           </button>
-          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={"relative flex aspect-square w-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 text-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] transition active:scale-[0.97] " + (pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
-            <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50"><Navigation className="h-6 w-6 text-primary-600" aria-hidden="true"/></span>
+          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-[0.97] " + (pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+            <Navigation className="h-6 w-6 text-primary-600" aria-hidden="true"/>
             <b className="text-base sm:text-lg font-black text-gray-950">اطراف من</b>
-            <span className="mt-1 text-[11px] sm:text-xs font-bold leading-5 text-gray-500">بارهای نزدیک خودت را ببین</span>
+            <span className="text-[11px] sm:text-xs font-bold leading-5 text-gray-500">بارهای نزدیک خودت را ببین</span>
           </button>
         </div>
       </section>
