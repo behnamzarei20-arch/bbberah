@@ -133,7 +133,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       {hasFeatures && <div className="flex min-h-10 flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-gray-300 px-3 py-2 text-base font-bold text-gray-800">
-        {load.rubari && <span className="inline-flex items-center gap-1"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Package className="h-5 w-5" aria-hidden="true"/></span>روباری</span>}
+        {load.rubari && <span className="inline-flex items-center gap-1"><Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>روباری</span>}
         {load.barbari && <span className="inline-flex items-center gap-1"><Truck className="h-5 w-5 text-primary-600" aria-hidden="true"/>باربری</span>}
         {load.freeCall && <span className="inline-flex items-center gap-1"><PhoneCall className="h-4 w-4 text-primary-600" aria-hidden="true"/>تماس رایگان</span>}
       </div>}
@@ -776,7 +776,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
             <span className="text-xs font-black leading-5 text-gray-900">تماس‌های من</span>
           </button>
           <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Package className="h-5 w-5" aria-hidden="true"/></span>
             <span className="text-xs font-black leading-5 text-gray-900">فروشگاه</span>
           </button>
         </div>
