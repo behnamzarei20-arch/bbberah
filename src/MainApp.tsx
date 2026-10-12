@@ -196,7 +196,6 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
-  const [pressedHomeCard, setPressedHomeCard] = useState<string | null>(null);
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
   const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads].map((load, index) => ({
@@ -469,7 +468,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
         }
         setPage(next);
         
-        window.scrollTo({top:0,behavior:'smooth'});
+        window.scrollTo({top:0,behavior:'auto'});
       }
     };
     window.addEventListener('popstate', onPopState);
@@ -485,19 +484,19 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     window.history.pushState({ bbberahPage: p }, '', '#' + p);
     setPage(p);
     
-    window.scrollTo({top:0,behavior:'smooth'});
+    window.scrollTo({top:0,behavior:'auto'});
   };
   const replacePage = (p:Page) => {
     window.history.replaceState({ bbberahPage: p }, '', '#' + p);
     setPage(p);
     
-    window.scrollTo({top:0,behavior:'smooth'});
+    window.scrollTo({top:0,behavior:'auto'});
   };
   const goHome = () => {
     window.history.replaceState({ bbberahPage: 'home' }, '', '#home');
     setPage('home');
     
-    window.scrollTo({top:0,behavior:'smooth'});
+    window.scrollTo({top:0,behavior:'auto'});
   };
   const resetSearchFields = () => {
     setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
@@ -728,10 +727,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     return dayLabel+' '+timeLabel;
   };
 
-  const animateHomeCard = (id:string, action:()=>void) => {
-    if (pressedHomeCard) return;
-    setPressedHomeCard(id); navigator.vibrate?.(18);
-    window.setTimeout(() => { setPressedHomeCard(null); action(); }, 320);
+  const animateHomeCard = (_id:string, action:()=>void) => {
+    action();
   };
 
   const HomePage = () => {
@@ -749,12 +746,12 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <><style>{`@keyframes brah-card-press { 0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } 22% { transform: scale(1.025); box-shadow: 0 9px 22px rgba(37,99,235,0.18), 0 3px 8px rgba(0,0,0,0.08); } 48% { transform: scale(1.055); box-shadow: 0 15px 32px rgba(37,99,235,0.26), 0 4px 10px rgba(0,0,0,0.10); } 68% { transform: scale(1.035); box-shadow: 0 12px 27px rgba(37,99,235,0.22); } 84% { transform: scale(1.015); box-shadow: 0 8px 20px rgba(37,99,235,0.16); } 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style> <div className="flex min-h-0 flex-1 flex-col gap-3 w-full">
+    return <><style>{`.home-quick-action,.home-quick-action:focus,.home-quick-action:active,.home-quick-action:focus-visible { box-shadow: none !important; outline: none !important; transform: none !important; -webkit-tap-highlight-color: transparent; } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style> <div className="flex min-h-0 flex-1 flex-col gap-3 w-full">
       <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[136px] shrink-0 sm:h-[156px] overflow-hidden rounded-2xl bg-slate-900 shadow-md">
         <div className="absolute inset-0 grid grid-cols-3">
-          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80" alt="کامیون حمل بار" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="تریلی جاده‌ای" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=600&q=80" alt="خودروهای باری" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1563380362065-5a92d7d1c3a8?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=800&q=85" alt="کامیون و تریلی در مسیر حمل بار" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
         </div>
         <div className="absolute inset-0 bg-gradient-to-l from-slate-950/85 via-slate-900/35 to-transparent"/>
         <div className="absolute inset-y-0 right-0 flex flex-col justify-center px-4 text-right text-white">
@@ -770,27 +767,27 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
 
         <div className="grid grid-cols-3 gap-2.5">
-          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-95 " + (pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
             <ReceiptText className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">پیشنهادهای من</span>
           </button>
-          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-95 " + (pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
             <PhoneCall className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">تماس‌های من</span>
           </button>
-          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-95">
+          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
             <Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">فروشگاه</span>
           </button>
         </div>
 
         <div className="mt-auto grid grid-cols-2 gap-2.5 pt-3">
-          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-[0.97] " + (pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
             <Search className="h-6 w-6 text-primary-600" aria-hidden="true"/>
             <b className="text-base sm:text-lg font-black text-gray-950">جستجوی بار</b>
             <span className="text-[11px] sm:text-xs font-bold leading-5 text-gray-500">مبدأ و مقصد را انتخاب کن</span>
           </button>
-          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={"flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center transition active:scale-[0.97] " + (pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
             <Navigation className="h-6 w-6 text-primary-600" aria-hidden="true"/>
             <b className="text-base sm:text-lg font-black text-gray-950">اطراف من</b>
             <span className="text-[11px] sm:text-xs font-bold leading-5 text-gray-500">بارهای نزدیک خودت را ببین</span>
@@ -1767,7 +1764,7 @@ const ProfilePage = () => <div className="space-y-3">
     </div>;
   };
 
-  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'h-[100dvh] overflow-hidden overscroll-none' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
+  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'fixed inset-0 overflow-hidden overscroll-none' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
     {page==='home' ? <Header/> : <div className="max-w-lg mx-auto px-4 pt-4">
       <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
         <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-gray-600 bg-white border border-gray-200" aria-label="بازگشت" title="بازگشت"><ArrowRight className="w-5 h-5"/></button>
@@ -1775,7 +1772,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
     </div>}
-    <main className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-0 h-[calc(100dvh-136px)] overflow-hidden overscroll-none flex flex-col' : 'pb-24'}`}>
+    <main className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-0 h-[calc(100dvh-136px)] min-h-0 overflow-hidden overscroll-none flex flex-col' : 'pb-24'}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
