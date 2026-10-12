@@ -749,8 +749,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     return <><style>{`.home-quick-action,.home-quick-action:focus,.home-quick-action:active,.home-quick-action:focus-visible { box-shadow: none !important; outline: none !important; transform: none !important; -webkit-tap-highlight-color: transparent; } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style> <div className="flex min-h-0 flex-1 flex-col gap-3 w-full">
       <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[136px] shrink-0 sm:h-[156px] overflow-hidden rounded-2xl bg-slate-900 shadow-md">
         <div className="absolute inset-0 grid grid-cols-3">
-          <img src="https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1563380362065-5a92d7d1c3a8?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1700716465891-9e5e9f501d7d?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
           <img src="https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=800&q=85" alt="کامیون و تریلی در مسیر حمل بار" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
         </div>
         <div className="absolute inset-0 bg-gradient-to-l from-slate-950/85 via-slate-900/35 to-transparent"/>
