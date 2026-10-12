@@ -126,7 +126,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           <Clock3 className="h-5 w-5 shrink-0" aria-hidden="true"/>
           <span>{publishedTime}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
           {showUrgent && <span className="rounded-md bg-red-50 px-2.5 py-1.5 text-base font-black text-red-700">فوری</span>}
           {showNew && <span className="rounded-md bg-emerald-50 px-2.5 py-1.5 text-base font-black text-emerald-700">جدید</span>}
         </div>
@@ -159,7 +159,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
               <span className="absolute inset-[3px] z-10 rounded-full bg-white"/>
             </span>
           </div>
-          <b className="block truncate text-lg font-bold leading-7">{load.from}</b>
+          <b className="block truncate text-xl font-extrabold leading-7">{load.from}</b>
           <span className="block text-sm font-bold text-gray-600">استان {cityProvinceName(load.from)}</span>
         </div>
         <div className="flex w-24 shrink-0 flex-col items-center gap-1">
@@ -173,7 +173,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           <div className="mb-1 flex h-5 items-center justify-center" aria-label="مقصد">
             <MapPin className="h-5 w-5 text-primary-600 [&>circle]:fill-white" fill="currentColor" aria-hidden="true" />
           </div>
-          <b className="block truncate text-lg font-bold leading-7">{load.to}</b>
+          <b className="block truncate text-xl font-extrabold leading-7">{load.to}</b>
           <span className="block text-sm font-bold text-gray-600">استان {cityProvinceName(load.to)}</span>
         </div>
       </div>
