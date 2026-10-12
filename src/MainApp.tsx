@@ -133,7 +133,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>
 
       {hasFeatures && <div className="flex min-h-10 flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-gray-300 px-3 py-2 text-base font-bold text-gray-800">
-        {load.rubari && <span className="inline-flex items-center gap-1"><Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>روباری</span>}
+        {load.rubari && <span className="inline-flex items-center gap-1"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Package className="h-5 w-5" aria-hidden="true"/></span>روباری</span>}
         {load.barbari && <span className="inline-flex items-center gap-1"><Truck className="h-5 w-5 text-primary-600" aria-hidden="true"/>باربری</span>}
         {load.freeCall && <span className="inline-flex items-center gap-1"><PhoneCall className="h-4 w-4 text-primary-600" aria-hidden="true"/>تماس رایگان</span>}
       </div>}
@@ -627,7 +627,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
     <div className="relative max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
-      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
+      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
       <button type="button" onClick={()=>goHome()} className="absolute left-1/2 -translate-x-1/2 font-black text-2xl tracking-tight text-primary-700">براه</button>
       <div className="flex items-center gap-2">
         <button type="button"
@@ -637,12 +637,12 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           onPointerLeave={endThemePress}
           onContextMenu={e=>e.preventDefault()}
           onClick={handleThemeClick}
-          className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center"
+          className="w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center"
           aria-label={displayMode==='auto'?'حالت نمایش خودکار':displayMode==='night'?'حالت شب':'حالت روز'}
           title="لمس کوتاه: روز/شب؛ نگه‌داشتن: خودکار">
           {displayMode==='auto' ? <Monitor className="w-5 h-5"/> : effectiveDark ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
         </button>
-        <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
+        <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
       </div>
     </div>
   </header>;
@@ -768,11 +768,11 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
         <div className="grid grid-cols-3 gap-2.5">
           <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <ReceiptText className="h-5 w-5 text-primary-600" aria-hidden="true"/>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><ReceiptText className="h-5 w-5" aria-hidden="true"/></span>
             <span className="text-xs font-black leading-5 text-gray-900">پیشنهادهای من</span>
           </button>
           <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <PhoneCall className="h-5 w-5 text-primary-600" aria-hidden="true"/>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><PhoneCall className="h-5 w-5" aria-hidden="true"/></span>
             <span className="text-xs font-black leading-5 text-gray-900">تماس‌های من</span>
           </button>
           <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
@@ -781,13 +781,13 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           </button>
         </div>
 
-        <div className="mt-auto grid grid-cols-2 gap-2.5 pt-3">
+        <div className="mt-auto grid grid-cols-2 gap-2.5 pt-3 pb-2">
           <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <Search className="h-8 w-8 text-primary-600" aria-hidden="true"/>
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Search className="h-8 w-8" aria-hidden="true"/></span>
             <b className="text-xl sm:text-2xl font-black text-gray-950">جستجوی بار</b>
           </button>
           <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <Navigation className="h-8 w-8 text-primary-600" aria-hidden="true"/>
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Navigation className="h-8 w-8" aria-hidden="true"/></span>
             <b className="text-xl sm:text-2xl font-black text-gray-950">اطراف من</b>
           </button>
         </div>
