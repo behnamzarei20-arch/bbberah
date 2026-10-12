@@ -97,7 +97,6 @@ function Toast({ message, onClose }: { message:string; onClose:()=>void }) {
 }
 
 function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOffer:()=>void }) {
-  const commission = Math.round(load.price * 0.05);
   const weightTons = load.weight / 1000;
   const formattedWeightTons = fa(Number.isInteger(weightTons) ? weightTons : weightTons.toFixed(1)).replace(".", "/");
   const publishedAt = load.publishedAt ? new Date(load.publishedAt) : null;
