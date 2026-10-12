@@ -147,7 +147,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
               <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[3px] border-white bg-blue-700 shadow-[0_1px_5px_rgba(15,23,42,0.28)]" style={{right:`calc(${priceIndex}% - 8px)`}} />
             </div>
           </div>}
-        </div>}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 border-b border-gray-300 px-2.5 py-2" dir="rtl">
@@ -171,8 +171,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>
         <div className="min-w-0 flex-1 text-center">
           <div className="mb-1 flex h-5 items-center justify-center" aria-label="مقصد">
-            <MapPin className="h-5 w-5 text-primary-600" fill="currentColor" aria-hidden="true" style={{fillRule:"nonzero"}}>
-            </MapPin>
+            <MapPin className="h-5 w-5 text-primary-600 [&>circle]:fill-white" fill="currentColor" aria-hidden="true" />
           </div>
           <b className="block truncate text-lg font-bold leading-7">{load.to}</b>
           <span className="block text-sm font-bold text-gray-600">استان {cityProvinceName(load.to)}</span>
