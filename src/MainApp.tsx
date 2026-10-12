@@ -142,12 +142,25 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="py-2 text-center">
         <b className="block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
-        {hasPriceIndex && <div className="mt-2 flex items-center justify-center gap-3" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)}`}>
-          <CircleDollarSign className="h-8 w-8 shrink-0 text-blue-200" aria-hidden="true"/>
-          <div className="relative h-3 w-24 overflow-hidden rounded-full bg-gradient-to-l from-blue-800 via-blue-600 to-blue-200" aria-hidden="true">
-            <span className="absolute top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border-[3px] border-blue-800 bg-white" style={{right:`calc(${priceIndex}% - 12px)`}}/>
+        {hasPriceIndex && <div className="mt-2 flex flex-col items-center gap-1.5" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)}`}>
+          <div className="flex w-44 max-w-full items-center justify-between gap-2" aria-hidden="true">
+            <span className="relative block h-6 w-5 shrink-0">
+              <span className="absolute bottom-1 left-0 h-1.5 w-5 rounded-sm bg-blue-200"/>
+              <span className="absolute bottom-2.5 left-0 h-1.5 w-5 rounded-sm bg-blue-200"/>
+            </span>
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-blue-100">
+              <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-blue-800 via-blue-600 to-blue-200" style={{width:`${priceIndex}%`}}/>
+              <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[2.5px] border-blue-800 bg-white" style={{right:`calc(${priceIndex}% - 8px)`}}/>
+            </div>
+            <span className="relative block h-6 w-5 shrink-0">
+              <span className="absolute bottom-0 left-0 h-1.5 w-5 rounded-sm bg-blue-800"/>
+              <span className="absolute bottom-1.5 left-0 h-1.5 w-5 rounded-sm bg-blue-800"/>
+              <span className="absolute bottom-3 left-0 h-1.5 w-5 rounded-sm bg-blue-800"/>
+              <span className="absolute bottom-[18px] left-0 h-1.5 w-5 rounded-sm bg-blue-800"/>
+              <span className="absolute bottom-[22px] left-0 h-1.5 w-5 rounded-sm bg-blue-800"/>
+            </span>
           </div>
-          <CircleDollarSign className="h-8 w-8 shrink-0 text-blue-800" aria-hidden="true"/>
+          <span className="text-sm font-bold text-gray-700">شاخص میانگین قیمت</span>
         </div>}
       </div>
 
