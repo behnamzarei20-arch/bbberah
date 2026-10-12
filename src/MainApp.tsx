@@ -140,23 +140,14 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
 
       <div className="border-b border-gray-300 py-2 text-center">
         <b className="block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
-        {hasPriceIndex && <div className="mt-2 flex flex-col items-center" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)}`}>
-          <div className="flex w-44 max-w-full items-center justify-between gap-2" aria-hidden="true">
-            <span className="relative block h-6 w-5 shrink-0">
-              <span className="absolute bottom-0 left-0 h-1.5 w-5 rounded-sm border-t border-blue-900 bg-blue-800 shadow-[0_1px_0_#1e40af]"/>
-              <span className="absolute bottom-1.5 left-0 h-1.5 w-5 rounded-sm border-t border-blue-900 bg-blue-800 shadow-[0_1px_0_#1e40af]"/>
-              <span className="absolute bottom-3 left-0 h-1.5 w-5 rounded-sm border-t border-blue-900 bg-blue-800 shadow-[0_1px_0_#1e40af]"/>
-              <span className="absolute bottom-[18px] left-0 h-1.5 w-5 rounded-sm border-t border-blue-900 bg-blue-800 shadow-[0_1px_0_#1e40af]"/>
-              <span className="absolute bottom-[22px] left-0 h-1.5 w-5 rounded-sm border-t border-blue-900 bg-blue-800 shadow-[0_1px_0_#1e40af]"/>
-            </span>
-            <div className="relative h-2 w-full overflow-hidden rounded-full bg-blue-100">
-              <div className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-blue-800 via-blue-600 to-blue-200" style={{width:`${priceIndex}%`}}/>
-              <span className="absolute left-1/2 top-1/2 h-0 w-0 -translate-x-1/2 -translate-y-1/2 border-x-[6px] border-t-[8px] border-x-transparent border-t-blue-800" style={{left:`calc(100% - ${priceIndex}%)`}}/>
-            </div>
-            <span className="relative block h-6 w-5 shrink-0">
-              <span className="absolute bottom-1 left-0 h-1.5 w-5 rounded-sm border-t border-blue-300 bg-blue-200 shadow-[0_1px_0_#93c5fd]"/>
-              <span className="absolute bottom-2.5 left-0 h-1.5 w-5 rounded-sm border-t border-blue-300 bg-blue-200 shadow-[0_1px_0_#93c5fd]"/>
-            </span>
+        {hasPriceIndex && <div className="mx-auto mt-3 w-full max-w-[260px] px-3" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)} از ۱۰۰`}>
+          <div className="mb-2 flex items-center justify-between text-xs font-bold">
+            <span className="text-gray-500">شاخص قیمت</span>
+            <span className="tabular-nums text-gray-800">{fa(priceIndex)} <span className="font-medium text-gray-400">از ۱۰۰</span></span>
+          </div>
+          <div className="relative h-2 overflow-visible rounded-full bg-slate-100 shadow-inner" aria-hidden="true">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-l from-blue-700 via-blue-500 to-sky-200" />
+            <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[3px] border-white bg-blue-700 shadow-[0_1px_5px_rgba(15,23,42,0.28)]" style={{right:`calc(${priceIndex}% - 8px)`}} />
           </div>
         </div>}
       </div>
