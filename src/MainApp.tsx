@@ -783,14 +783,12 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
         <div className="mt-auto grid grid-cols-2 gap-2.5 pt-3">
           <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <Search className="h-6 w-6 text-primary-600" aria-hidden="true"/>
-            <b className="text-base sm:text-lg font-black text-gray-950">جستجوی بار</b>
-            <span className="text-[11px] sm:text-xs font-bold leading-5 text-gray-500">مبدأ و مقصد را انتخاب کن</span>
+            <Search className="h-8 w-8 text-primary-600" aria-hidden="true"/>
+            <b className="text-xl sm:text-2xl font-black text-gray-950">جستجوی بار</b>
           </button>
           <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <Navigation className="h-6 w-6 text-primary-600" aria-hidden="true"/>
-            <b className="text-base sm:text-lg font-black text-gray-950">اطراف من</b>
-            <span className="text-[11px] sm:text-xs font-bold leading-5 text-gray-500">بارهای نزدیک خودت را ببین</span>
+            <Navigation className="h-8 w-8 text-primary-600" aria-hidden="true"/>
+            <b className="text-xl sm:text-2xl font-black text-gray-950">اطراف من</b>
           </button>
         </div>
       </section>
@@ -1764,7 +1762,7 @@ const ProfilePage = () => <div className="space-y-3">
     </div>;
   };
 
-  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'fixed inset-0 overflow-hidden overscroll-none' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
+  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'min-h-[100dvh] overflow-x-hidden overscroll-y-auto' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
     {page==='home' ? <Header/> : <div className="max-w-lg mx-auto px-4 pt-4">
       <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
         <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-gray-600 bg-white border border-gray-200" aria-label="بازگشت" title="بازگشت"><ArrowRight className="w-5 h-5"/></button>
@@ -1772,7 +1770,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
     </div>}
-    <main className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-0 h-[calc(100dvh-136px)] min-h-0 overflow-hidden overscroll-none flex flex-col' : 'pb-24'}`}>
+    <main className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-0 h-[calc(100dvh-136px)] min-h-0 overflow-hidden flex flex-col' : 'pb-24'}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
