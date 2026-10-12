@@ -751,7 +751,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         <div className="absolute inset-0 grid grid-cols-3">
           <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
           <img src="https://images.unsplash.com/photo-1700716465891-9e5e9f501d7d?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=800&q=85" alt="کامیون و تریلی در مسیر حمل بار" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون و تریلی در مسیر حمل بار" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
         </div>
         <div className="absolute inset-0 bg-gradient-to-l from-slate-950/85 via-slate-900/35 to-transparent"/>
         <div className="absolute inset-y-0 right-0 flex flex-col justify-center px-4 text-right text-white">
