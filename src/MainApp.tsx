@@ -749,23 +749,54 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <><style>{`@keyframes brah-card-press { 0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } 22% { transform: scale(1.025); box-shadow: 0 9px 22px rgba(37,99,235,0.18), 0 3px 8px rgba(0,0,0,0.08); } 48% { transform: scale(1.055); box-shadow: 0 15px 32px rgba(37,99,235,0.26), 0 4px 10px rgba(0,0,0,0.10); } 68% { transform: scale(1.035); box-shadow: 0 12px 27px rgba(37,99,235,0.22); } 84% { transform: scale(1.015); box-shadow: 0 8px 20px rgba(37,99,235,0.16); } 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style><div className="grid grid-cols-2 gap-3 w-full">
-      <button onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={`relative aspect-auto w-full min-h-[150px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
-        <ReceiptText className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">پیشنهادهای من</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">پیشنهادهایت را پیگیری کن</span></div>
-      </button>
-      <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={`relative aspect-auto w-full min-h-[150px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
-        <PhoneCall className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">تماس‌ها و وضعیت‌ها</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">سوابق تماس و وضعیت بارها</span></div>
-      </button>
-      <button onClick={()=>animateHomeCard('search',openSearchPage)} className={`relative aspect-auto w-full min-h-[205px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[1.035] active:shadow-[0_12px_28px_rgba(37,99,235,0.24),0_3px_8px_rgba(0,0,0,0.10)] transition-[transform,box-shadow] duration-100 ease-out ${pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
-        <Search className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">جستجوی بار</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">مبدأ و مقصد را انتخاب کن</span></div>
-      </button>
-      <button onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={`relative aspect-auto w-full min-h-[205px] rounded-lg bg-white border border-gray-200 p-4 text-center flex flex-col items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] active:scale-[0.94] active:shadow-[inset_0_3px_7px_rgba(0,0,0,0.14)] transition-transform duration-100 ease-out ${pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : ''}`}>
-        <Navigation className="absolute top-4 right-4 w-7 h-7 text-primary-600" aria-hidden="true"/>
-        <div className="w-full text-center"><b className="block text-xl font-black text-gray-950">اطراف من</b><span className="absolute bottom-3 left-3 right-3 text-xs sm:text-sm font-bold text-gray-700 text-center leading-5">بارهای نزدیک خودت را ببین</span></div>
-      </button>
+    return <><style>{`@keyframes brah-card-press { 0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } 22% { transform: scale(1.025); box-shadow: 0 9px 22px rgba(37,99,235,0.18), 0 3px 8px rgba(0,0,0,0.08); } 48% { transform: scale(1.055); box-shadow: 0 15px 32px rgba(37,99,235,0.26), 0 4px 10px rgba(0,0,0,0.10); } 68% { transform: scale(1.035); box-shadow: 0 12px 27px rgba(37,99,235,0.22); } 84% { transform: scale(1.015); box-shadow: 0 8px 20px rgba(37,99,235,0.16); } 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style> <div className="flex flex-col gap-3 w-full">
+      <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[104px] sm:h-[124px] overflow-hidden rounded-2xl bg-slate-900 shadow-md">
+        <div className="absolute inset-0 grid grid-cols-3">
+          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80" alt="کامیون حمل بار" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="تریلی جاده‌ای" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=600&q=80" alt="خودروهای باری" className="h-full w-full object-cover"/>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-l from-slate-950/85 via-slate-900/35 to-transparent"/>
+        <div className="absolute inset-y-0 right-0 flex flex-col justify-center px-4 text-right text-white">
+          <span className="text-lg sm:text-xl font-black drop-shadow">براه</span>
+          <span className="mt-1 text-xs sm:text-sm font-bold text-white/90">همراه مسیرهای جاده‌ای</span>
+        </div>
+      </section>
+
+      <section aria-label="منوی دسترسی سریع" className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-black text-gray-900">منوی دسترسی سریع</h2>
+          <span className="h-1 w-8 rounded-full bg-primary-600" aria-hidden="true"/>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2.5">
+          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={"flex min-h-[78px] flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+            <ReceiptText className="h-5 w-5 text-primary-600" aria-hidden="true"/>
+            <span className="text-xs font-black leading-5 text-gray-900">پیشنهادهای من</span>
+          </button>
+          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={"flex min-h-[78px] flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+            <PhoneCall className="h-5 w-5 text-primary-600" aria-hidden="true"/>
+            <span className="text-xs font-black leading-5 text-gray-900">تماس‌های من</span>
+          </button>
+          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="flex min-h-[78px] flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-2 text-center shadow-sm transition active:scale-95">
+            <Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>
+            <span className="text-xs font-black leading-5 text-gray-900">فروشگاه</span>
+          </button>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2.5">
+          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className={"relative flex aspect-square w-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 text-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] transition active:scale-[0.97] " + (pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+            <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50"><Search className="h-6 w-6 text-primary-600" aria-hidden="true"/></span>
+            <b className="text-base sm:text-lg font-black text-gray-950">جستجوی بار</b>
+            <span className="mt-1 text-[11px] sm:text-xs font-bold leading-5 text-gray-500">مبدأ و مقصد را انتخاب کن</span>
+          </button>
+          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className={"relative flex aspect-square w-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 text-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] transition active:scale-[0.97] " + (pressedHomeCard==='nearby' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+            <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50"><Navigation className="h-6 w-6 text-primary-600" aria-hidden="true"/></span>
+            <b className="text-base sm:text-lg font-black text-gray-950">اطراف من</b>
+            <span className="mt-1 text-[11px] sm:text-xs font-bold leading-5 text-gray-500">بارهای نزدیک خودت را ببین</span>
+          </button>
+        </div>
+      </section>
     </div></>;
   };
 
