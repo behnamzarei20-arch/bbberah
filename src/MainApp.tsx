@@ -121,9 +121,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
   const hasFeatures = Boolean(load.rubari || load.barbari || load.freeCall);
   const hasPriceIndex = typeof load.priceIndex === 'number' && Number.isFinite(load.priceIndex);
   const priceIndex = hasPriceIndex ? Math.max(0, Math.min(100, load.priceIndex as number)) : 0;
-  return <Card hoverable>
-    <CardBody className="p-2.5">
-      <div className="mx-[-11px] mt-[-11px] flex min-h-11 items-center justify-between gap-2 rounded-t-[8px] border-0 bg-blue-50 px-3 py-2.5 text-base font-bold">
+  return <div className="w-full overflow-hidden rounded-md border border-gray-400 bg-white shadow-sm">
+      <div className="flex min-h-11 items-center justify-between gap-2 border-b border-gray-300 bg-blue-50 px-3 py-2.5 text-base font-bold">
         <div className="flex min-w-0 items-center gap-1.5 text-gray-600">
           <Clock3 className="h-5 w-5 shrink-0" aria-hidden="true"/>
           <span>{publishedTime}</span>
@@ -134,13 +133,13 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>
       </div>
 
-      {hasFeatures && <div className="mx-[-0.625rem] flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-gray-100 px-3 py-2 text-base font-bold text-gray-800">
+      {hasFeatures && <div className="flex min-h-10 flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-gray-300 px-3 py-2 text-base font-bold text-gray-800">
         {load.rubari && <span className="inline-flex items-center gap-1"><Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>روباری</span>}
         {load.barbari && <span className="inline-flex items-center gap-1"><Truck className="h-5 w-5 text-primary-600" aria-hidden="true"/>باربری</span>}
         {load.freeCall && <span className="inline-flex items-center gap-1"><PhoneCall className="h-4 w-4 text-primary-600" aria-hidden="true"/>تماس رایگان</span>}
       </div>}
 
-      <div className="py-2 text-center">
+      <div className="border-b border-gray-300 py-2 text-center">
         <b className="block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
         {hasPriceIndex && <div className="mt-2 flex flex-col items-center" aria-label={`شاخص میانگین قیمت ${fa(priceIndex)}`}>
           <div className="flex w-44 max-w-full items-center justify-between gap-2" aria-hidden="true">
@@ -163,7 +162,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>}
       </div>
 
-      <div className="mx-[-0.625rem] flex items-center gap-2 border-y border-gray-100 px-2.5 py-2" dir="rtl">
+      <div className="flex items-center gap-2 border-b border-gray-300 px-2.5 py-2" dir="rtl">
         <div className="min-w-0 flex-1 text-center">
           <div className="mb-1 flex h-5 items-center justify-center" aria-label="مبدأ">
             <span className="relative block h-4 w-4 rounded-full border-2 border-primary-600 bg-white after:absolute after:inset-[3px] after:rounded-full after:bg-primary-600"/>
@@ -187,20 +186,16 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>
       </div>
 
-      <div className="mx-[-11px] divide-y-2 divide-gray-400 px-0 text-base">
-        <div className="flex items-center gap-3 px-3 py-3"><Package className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">نوع بار</span><b className="mr-auto text-base font-black text-gray-950">{load.type}</b></div>
-        <div className="flex items-center gap-3 px-3 py-3"><WeightIcon className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">وزن بار</span><b className="mr-auto text-base font-black text-gray-950">{formattedWeightTons} تن</b></div>
-        <div className="flex items-center gap-3 px-3 py-3"><Percent className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">کمیسیون براه</span><b className="mr-auto text-base font-black text-gray-950">{money(commission)} تومان</b></div>
-        <div className="flex items-start gap-3 px-3 py-3"><FileText className="mt-1 h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 font-bold text-gray-700">توضیحات</span><p className="mr-auto min-w-0 text-right text-base font-bold leading-7 text-gray-900">{load.description}</p></div>
+      <div className="text-base">
+        <div className="flex items-center gap-3 border-b border-gray-300 px-3 py-3"><Package className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">نوع بار</span><b className="mr-auto text-base font-black text-gray-950">{load.type}</b></div>
+        <div className="flex items-center gap-3 border-b border-gray-300 px-3 py-3"><WeightIcon className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="font-bold text-gray-700">وزن بار</span><b className="mr-auto text-base font-black text-gray-950">{formattedWeightTons} تن</b></div>
+        <div className="flex items-start gap-3 border-b border-gray-300 px-3 py-3"><FileText className="mt-1 h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><span className="shrink-0 font-bold text-gray-700">توضیحات</span><p className="mr-auto min-w-0 text-right text-base font-bold leading-7 text-gray-900">{load.description}</p></div>
       </div>
 
-      <div className="mt-2">
-        <Button size="full" onClick={onOpen} className="h-8 min-h-0 py-1.5 text-base font-black bg-primary-500 hover:bg-primary-600 text-white border-primary-500">
-          <PhoneCall className="ml-2 h-4 w-4" aria-hidden="true"/> تماس برای هماهنگی
-        </Button>
-      </div>
-    </CardBody>
-  </Card>;
+      <Button size="full" onClick={onOpen} className="h-12 min-h-0 w-full rounded-none border-0 bg-primary-600 py-1.5 text-base font-black text-white shadow-none hover:bg-primary-700">
+        <PhoneCall className="ml-2 h-4 w-4" aria-hidden="true"/> تماس برای هماهنگی
+      </Button>
+    </div>;
 }
 function Empty({ title, text, action }: {title:string;text:string;action?:()=>void}) {
   return <div className="py-14 text-center"><Package className="w-10 h-10 mx-auto text-gray-300"/><h3 className="font-black mt-3">{title}</h3><p className="text-sm text-gray-400 mt-2">{text}</p>{action && <Button size="sm" variant="outline" className="mt-5" onClick={action}>تلاش دوباره</Button>}</div>;
@@ -1206,6 +1201,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
     </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
     <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p></CardBody></Card>
+    <Card><CardBody className="p-5"><div className="flex items-center gap-3"><PhoneCall className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><div className="min-w-0 flex-1"><span className="block text-sm font-bold text-gray-500">شماره تماس بار</span><a href={`tel:${selected.phone}`} dir="ltr" className="mt-1 inline-block text-lg font-black text-primary-700">{selected.phone}</a></div></div></CardBody></Card>
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
   const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
