@@ -139,25 +139,27 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       </div>}
 
       <div className="border-b border-gray-300 py-2 text-center">
-        <b className="block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
-        {hasPriceIndex && <div className="mx-auto mt-3 w-full max-w-[260px] px-3" aria-hidden="true">
-          <div className="relative h-2 overflow-visible rounded-full bg-slate-100 shadow-inner">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-l from-blue-700 via-blue-500 to-sky-200" />
-            <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[3px] border-white bg-blue-700 shadow-[0_1px_5px_rgba(15,23,42,0.28)]" style={{right:`calc(${priceIndex}% - 8px)`}} />
-          </div>
-        </div>}
+        <div className="inline-flex max-w-full flex-col items-center">
+          <b className="inline-block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
+          {hasPriceIndex && <div className="mt-3 w-full" aria-hidden="true">
+            <div className="relative h-2 overflow-visible rounded-full bg-slate-100 shadow-inner">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-l from-blue-700 via-blue-500 to-sky-200" />
+              <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[3px] border-white bg-blue-700 shadow-[0_1px_5px_rgba(15,23,42,0.28)]" style={{right:`calc(${priceIndex}% - 8px)`}} />
+            </div>
+          </div>}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 border-b border-gray-300 px-2.5 py-2" dir="rtl">
         <div className="min-w-0 flex-1 text-center">
           <div className="mb-1 flex h-5 items-center justify-center" aria-label="مبدأ">
             <span className="relative block h-4 w-4 rounded-full border-2 border-primary-600 bg-primary-600">
-              <span className="absolute inset-[3px] rounded-full bg-white"/>
               <span className="absolute left-1/2 top-1/2 h-[22px] w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-600"/>
               <span className="absolute left-1/2 top-1/2 h-[3px] w-[22px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-600"/>
+              <span className="absolute inset-[3px] z-10 rounded-full bg-white"/>
             </span>
           </div>
-          <b className="block truncate text-lg font-extrabold leading-7">{load.from}</b>
+          <b className="block truncate text-lg font-bold leading-7">{load.from}</b>
           <span className="block text-sm font-bold text-gray-600">استان {cityProvinceName(load.from)}</span>
         </div>
         <div className="flex w-24 shrink-0 flex-col items-center gap-1">
@@ -169,11 +171,9 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         </div>
         <div className="min-w-0 flex-1 text-center">
           <div className="mb-1 flex h-5 items-center justify-center" aria-label="مقصد">
-            <span className="relative block h-4 w-4 rounded-full border-2 border-primary-600 bg-primary-600" aria-hidden="true">
-              <span className="absolute inset-[3px] rounded-full bg-white"/>
-            </span>
+            <MapPin className="h-5 w-5 text-primary-600 [&>circle]:fill-white" fill="currentColor" aria-hidden="true" />
           </div>
-          <b className="block truncate text-lg font-extrabold leading-7">{load.to}</b>
+          <b className="block truncate text-lg font-bold leading-7">{load.to}</b>
           <span className="block text-sm font-bold text-gray-600">استان {cityProvinceName(load.to)}</span>
         </div>
       </div>
@@ -181,6 +181,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
       <div className="text-base">
         <div className="flex items-center justify-start gap-3 border-b border-gray-300 px-3 py-3 text-right"><Package className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><b className="text-base font-black text-gray-950">{load.type}</b></div>
         <div className="flex items-center justify-start gap-3 border-b border-gray-300 px-3 py-3 text-right"><WeightIcon className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><b className="text-base font-black text-gray-950">{formattedWeightTons} تن</b></div>
+        <div className="flex items-start justify-start gap-3 border-b border-gray-300 px-3 py-3 text-right"><FileText className="mt-1 h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><p className="min-w-0 text-right text-base font-bold leading-7 text-gray-900">{load.description}</p></div>
       </div>
 
       <Button size="full" onClick={onOpen} className="h-12 min-h-0 w-full rounded-none border-0 bg-primary-600 py-1.5 text-lg font-black text-white shadow-none hover:bg-primary-700">
