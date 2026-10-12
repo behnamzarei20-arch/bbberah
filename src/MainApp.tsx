@@ -749,8 +749,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <><style>{`@keyframes brah-card-press { 0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } 22% { transform: scale(1.025); box-shadow: 0 9px 22px rgba(37,99,235,0.18), 0 3px 8px rgba(0,0,0,0.08); } 48% { transform: scale(1.055); box-shadow: 0 15px 32px rgba(37,99,235,0.26), 0 4px 10px rgba(0,0,0,0.10); } 68% { transform: scale(1.035); box-shadow: 0 12px 27px rgba(37,99,235,0.22); } 84% { transform: scale(1.015); box-shadow: 0 8px 20px rgba(37,99,235,0.16); } 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style> <div className="flex flex-col gap-3 w-full">
-      <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[104px] sm:h-[124px] overflow-hidden rounded-2xl bg-slate-900 shadow-md">
+    return <><style>{`@keyframes brah-card-press { 0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } 22% { transform: scale(1.025); box-shadow: 0 9px 22px rgba(37,99,235,0.18), 0 3px 8px rgba(0,0,0,0.08); } 48% { transform: scale(1.055); box-shadow: 0 15px 32px rgba(37,99,235,0.26), 0 4px 10px rgba(0,0,0,0.10); } 68% { transform: scale(1.035); box-shadow: 0 12px 27px rgba(37,99,235,0.22); } 84% { transform: scale(1.015); box-shadow: 0 8px 20px rgba(37,99,235,0.16); } 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.10); } } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style> <div className="flex min-h-0 flex-1 flex-col gap-3 w-full">
+      <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[136px] shrink-0 sm:h-[156px] overflow-hidden rounded-2xl bg-slate-900 shadow-md">
         <div className="absolute inset-0 grid grid-cols-3">
           <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80" alt="کامیون حمل بار" className="h-full w-full object-cover"/>
           <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="تریلی جاده‌ای" className="h-full w-full object-cover"/>
@@ -770,21 +770,21 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
 
         <div className="grid grid-cols-3 gap-2.5">
-          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={"flex min-h-[78px] flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className={"flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='offers' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
             <ReceiptText className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">پیشنهادهای من</span>
           </button>
-          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={"flex min-h-[78px] flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
+          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className={"flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2 text-center shadow-sm transition active:scale-95 " + (pressedHomeCard==='calls' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
             <PhoneCall className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">تماس‌های من</span>
           </button>
-          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="flex min-h-[78px] flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-2 text-center shadow-sm transition active:scale-95">
+          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2 text-center shadow-sm transition active:scale-95">
             <Package className="h-5 w-5 text-primary-600" aria-hidden="true"/>
             <span className="text-xs font-black leading-5 text-gray-900">فروشگاه</span>
           </button>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2.5">
+        <div className="mt-auto grid grid-cols-2 gap-2.5 pt-3">
           <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className={"relative flex aspect-square w-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 text-center shadow-[0_4px_14px_rgba(0,0,0,0.10)] transition active:scale-[0.97] " + (pressedHomeCard==='search' ? 'animate-[brah-card-press_320ms_cubic-bezier(0.22,1,0.36,1)]' : '')}>
             <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50"><Search className="h-6 w-6 text-primary-600" aria-hidden="true"/></span>
             <b className="text-base sm:text-lg font-black text-gray-950">جستجوی بار</b>
@@ -1775,7 +1775,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
     </div>}
-    <main className={`max-w-lg mx-auto px-4 pt-5 pb-24 ${page === 'home' ? 'h-[calc(100dvh-136px)] overflow-hidden overscroll-none' : ''}`}>
+    <main className={`max-w-lg mx-auto px-4 pt-3 pb-24 ${page === 'home' ? 'h-[calc(100dvh-136px)] overflow-hidden overscroll-none flex flex-col' : ''}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
