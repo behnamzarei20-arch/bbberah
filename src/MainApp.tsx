@@ -625,7 +625,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     return () => window.removeEventListener('popstate', onOfferBack);
   }, [offerOpen]);
 
-  const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
+  const Header = () => <header className="sticky top-0 z-30 bg-gray-200/95 backdrop-blur border-b border-gray-300">
     <div className="relative max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
       <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
       <button type="button" onClick={()=>goHome()} className="absolute left-1/2 -translate-x-1/2 font-black text-2xl tracking-tight text-primary-700">براه</button>
@@ -647,7 +647,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     </div>
   </header>;
 
-  const BottomNav = () => <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-gray-100 bg-white/95 backdrop-blur">
+  const BottomNav = () => <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-gray-300 bg-gray-200/95 backdrop-blur">
     <div className="max-w-lg mx-auto grid grid-cols-4 h-[72px]">
       {[
         ['home','خانه',Home],['search','جستجو',Search],['calls','تماس‌ها',PhoneCall],['profile','حساب',User]
@@ -760,14 +760,14 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
       </section>
 
-      <section aria-label="جستجوی بار و اطراف من" className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
-        <div className="mt-auto grid grid-cols-2 gap-2.5 py-2">
-          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Search className="h-8 w-8" aria-hidden="true"/></span>
+      <section aria-label="جستجوی بار و اطراف من" className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-300 bg-gray-100 p-3 shadow-sm">
+        <div className="mt-auto grid grid-cols-2 gap-3 pb-5 pt-2">
+          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-2 py-3 text-center shadow-sm">
+            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Search className="h-9 w-9" aria-hidden="true"/></span>
             <b className="text-xl sm:text-2xl font-black text-gray-950">جستجوی بار</b>
           </button>
-          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Navigation className="h-8 w-8" aria-hidden="true"/></span>
+          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-2 py-3 text-center shadow-sm">
+            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Navigation className="h-9 w-9" aria-hidden="true"/></span>
             <b className="text-xl sm:text-2xl font-black text-gray-950">اطراف من</b>
           </button>
         </div>
@@ -1742,7 +1742,7 @@ const ProfilePage = () => <div className="space-y-3">
     </div>;
   };
 
-  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'min-h-[100dvh] overflow-x-hidden overscroll-y-auto' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8f8f7] text-gray-900"}`}>
+  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'min-h-[100dvh] overflow-x-hidden overscroll-y-auto' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-gray-200 text-gray-900"}`}>
     {page==='home' ? <Header/> : <div className="max-w-lg mx-auto px-4 pt-4">
       <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
         <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-gray-600 bg-white border border-gray-200" aria-label="بازگشت" title="بازگشت"><ArrowRight className="w-5 h-5"/></button>
