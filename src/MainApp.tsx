@@ -775,7 +775,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     </div></>;
   };
 
-  const NearbyResultsPage  const NearbyResultsPage = () => {
+  const NearbyResultsPage = () => {
     const nearbyFiltered = loads.filter(l => {
       if (l.status === 'delivered') return false;
       if (nearbyLocationStatus !== 'ready' || !nearbyUserLocation || !cityCoordinates[l.from]) return false;
