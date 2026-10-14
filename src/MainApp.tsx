@@ -625,7 +625,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     return () => window.removeEventListener('popstate', onOfferBack);
   }, [offerOpen]);
 
-  const Header = () => <header className="sticky top-0 z-30 bg-gray-200/95 backdrop-blur border-b border-gray-300">
+  const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200">
     <div className="relative max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
       <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
       <button type="button" onClick={()=>goHome()} className="absolute left-1/2 -translate-x-1/2 font-black text-2xl tracking-tight text-primary-700">براه</button>
@@ -647,7 +647,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     </div>
   </header>;
 
-  const BottomNav = () => <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-gray-300 bg-gray-200/95 backdrop-blur">
+  const BottomNav = () => <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-gray-200 bg-white/95 backdrop-blur">
     <div className="max-w-lg mx-auto grid grid-cols-4 h-[72px]">
       {[
         ['home','خانه',Home],['search','جستجو',Search],['calls','تماس‌ها',PhoneCall],['profile','حساب',User]
@@ -746,33 +746,39 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <><style>{`.home-quick-action,.home-quick-action:focus,.home-quick-action:active,.home-quick-action:focus-visible { box-shadow: none !important; outline: none !important; transform: none !important; -webkit-tap-highlight-color: transparent; } @keyframes brah-marquee { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } } @keyframes brah-search-marquee { 0%, 34% { transform: translateX(-50%); } 66%, 100% { transform: translateX(0); } }`}</style> <div className="flex min-h-0 flex-1 flex-col gap-3 w-full">
-      <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[136px] shrink-0 sm:h-[156px] overflow-hidden rounded-2xl bg-slate-900 shadow-md">
+    return <div className="flex min-h-0 flex-1 flex-col gap-3 w-full">
+      <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[120px] shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 sm:h-[140px]">
         <div className="absolute inset-0 grid grid-cols-3">
           <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1700716465891-9e5e9f501d7d?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون و تریلی در مسیر حمل بار" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1700716465891-9e5e9f501d7d?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" decoding="async" className="h-full w-full object-cover"/>
+          <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون و تریلی در مسیر حمل بار" loading="eager" decoding="async" className="h-full w-full object-cover"/>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-l from-slate-950/85 via-slate-900/35 to-transparent"/>
+        <div className="absolute inset-0 bg-gradient-to-l from-slate-950/75 via-slate-900/25 to-transparent"/>
         <div className="absolute inset-y-0 right-0 flex flex-col justify-center px-4 text-right text-white">
-          <span className="text-lg sm:text-xl font-black drop-shadow">براه</span>
-          <span className="mt-1 text-xs sm:text-sm font-bold text-white/90">همراه مسیرهای جاده‌ای</span>
+          <span className="text-lg font-black">براه</span>
+          <span className="mt-1 text-xs font-bold text-white/95">همراه مسیرهای جاده‌ای</span>
         </div>
       </section>
 
-      <section aria-label="جستجوی بار و اطراف من" className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-300 bg-gray-100 p-3 shadow-sm">
-        <div className="mt-auto grid grid-cols-2 gap-3 pb-5 pt-2">
-          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-blue-700 bg-blue-600 px-2 py-3 text-center shadow-sm transition-colors hover:bg-blue-700">
-            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-gray-900 bg-white text-black"><Search className="h-9 w-9 text-black" aria-hidden="true"/></span>
-            <b className="text-xl sm:text-2xl font-black text-white">جستجوی بار</b>
-          </button>
-          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-blue-700 bg-blue-600 px-2 py-3 text-center shadow-sm transition-colors hover:bg-blue-700">
-            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-gray-900 bg-white text-black"><Navigation className="h-9 w-9 text-black" aria-hidden="true"/></span>
-            <b className="text-xl sm:text-2xl font-black text-white">اطراف من</b>
-          </button>
-        </div>
+      <section aria-label="دسترسی سریع" className="grid grid-cols-2 gap-3 pb-2">
+        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Search className="h-6 w-6" aria-hidden="true"/></span>
+          <span className="text-sm font-black text-gray-900">جستجوی بار</span>
+        </button>
+        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-50 text-teal-700"><Navigation className="h-6 w-6" aria-hidden="true"/></span>
+          <span className="text-sm font-black text-gray-900">اطراف من</span>
+        </button>
+        <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><ReceiptText className="h-6 w-6" aria-hidden="true"/></span>
+          <span className="text-sm font-black text-gray-900">پیشنهادهای من</span>
+        </button>
+        <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><PhoneCall className="h-6 w-6" aria-hidden="true"/></span>
+          <span className="text-sm font-black text-gray-900">تماس‌ها و وضعیت‌ها</span>
+        </button>
       </section>
-    </div></>;
+    </div>;
   };
 
   const NearbyResultsPage = () => {
@@ -1742,7 +1748,7 @@ const ProfilePage = () => <div className="space-y-3">
     </div>;
   };
 
-  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'min-h-[100dvh] overflow-x-hidden overscroll-y-auto' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-gray-200 text-gray-900"}`}>
+  return <div dir="rtl" data-theme={effectiveDark ? "dark" : "light"} className={`${page === 'home' ? 'min-h-[100dvh] overflow-x-hidden overscroll-y-auto' : 'min-h-screen'} ${effectiveDark ? "bg-gray-950 text-gray-100" : "bg-[#f8faff] text-gray-900"}`}>
     {page==='home' ? <Header/> : <div className="max-w-lg mx-auto px-4 pt-4">
       <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
         <button type="button" onClick={()=>{if(page==='search'){goHome();}else if(page==='profile'){goHome();}else if(window.history.state?.bbberahPage){window.history.back();}else{goHome();}}} className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-gray-600 bg-white border border-gray-200" aria-label="بازگشت" title="بازگشت"><ArrowRight className="w-5 h-5"/></button>
