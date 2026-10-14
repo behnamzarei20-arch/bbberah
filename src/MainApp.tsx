@@ -760,28 +760,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
       </section>
 
-      <section aria-label="منوی دسترسی سریع" className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-black text-gray-900">منوی دسترسی سریع</h2>
-          <span className="h-1 w-8 rounded-full bg-primary-600" aria-hidden="true"/>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2.5">
-          <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><ReceiptText className="h-5 w-5" aria-hidden="true"/></span>
-            <span className="text-xs font-black leading-5 text-gray-900">پیشنهادهای من</span>
-          </button>
-          <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><PhoneCall className="h-5 w-5" aria-hidden="true"/></span>
-            <span className="text-xs font-black leading-5 text-gray-900">تماس‌های من</span>
-          </button>
-          <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Package className="h-5 w-5" aria-hidden="true"/></span>
-            <span className="text-xs font-black leading-5 text-gray-900">فروشگاه</span>
-          </button>
-        </div>
-
-        <div className="mt-auto grid grid-cols-2 gap-2.5 pt-3 pb-2">
+      <section aria-label="جستجوی بار و اطراف من" className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
+        <div className="mt-auto grid grid-cols-2 gap-2.5 py-2">
           <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex w-full flex-col items-center justify-center gap-1.5 bg-transparent p-1 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Search className="h-8 w-8" aria-hidden="true"/></span>
             <b className="text-xl sm:text-2xl font-black text-gray-950">جستجوی بار</b>
@@ -795,7 +775,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     </div></>;
   };
 
-  const NearbyResultsPage = () => {
+  const NearbyResultsPage  const NearbyResultsPage = () => {
     const nearbyFiltered = loads.filter(l => {
       if (l.status === 'delivered') return false;
       if (nearbyLocationStatus !== 'ready' || !nearbyUserLocation || !cityCoordinates[l.from]) return false;
