@@ -762,13 +762,13 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
       <section aria-label="جستجوی بار و اطراف من" className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-300 bg-gray-100 p-3 shadow-sm">
         <div className="mt-auto grid grid-cols-2 gap-3 pb-5 pt-2">
-          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-2 py-3 text-center shadow-sm">
-            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Search className="h-9 w-9" aria-hidden="true"/></span>
-            <b className="text-xl sm:text-2xl font-black text-gray-950">جستجوی بار</b>
+          <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-blue-700 bg-blue-600 px-2 py-3 text-center shadow-sm transition-colors hover:bg-blue-700">
+            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-gray-900 bg-white text-black"><Search className="h-9 w-9 text-black" aria-hidden="true"/></span>
+            <b className="text-xl sm:text-2xl font-black text-white">جستجوی بار</b>
           </button>
-          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-2 py-3 text-center shadow-sm">
-            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700"><Navigation className="h-9 w-9" aria-hidden="true"/></span>
-            <b className="text-xl sm:text-2xl font-black text-gray-950">اطراف من</b>
+          <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex min-h-[124px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-blue-700 bg-blue-600 px-2 py-3 text-center shadow-sm transition-colors hover:bg-blue-700">
+            <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-gray-900 bg-white text-black"><Navigation className="h-9 w-9 text-black" aria-hidden="true"/></span>
+            <b className="text-xl sm:text-2xl font-black text-white">اطراف من</b>
           </button>
         </div>
       </section>
