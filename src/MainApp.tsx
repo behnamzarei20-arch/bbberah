@@ -746,7 +746,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         notify('وضعیت تماس به «توافق نکردیم» تغییر کرد.');
       }
     };
-    return <div className="flex min-h-0 flex-1 flex-col gap-3 w-full">
+    return <div className="flex min-h-0 flex-1 flex-col gap-2 w-full">
       <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[120px] shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 sm:h-[140px]">
         <div className="absolute inset-0 grid grid-cols-3">
           <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
@@ -760,21 +760,21 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
       </section>
 
-      <section aria-label="دسترسی سریع" className="grid grid-cols-2 gap-3 pb-2">
-        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
-          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Search className="h-6 w-6" aria-hidden="true"/></span>
+      <section aria-label="دسترسی سریع" className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2 pb-0">
+        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Search className="h-6 w-6" aria-hidden="true"/></span>
           <span className="text-sm font-black text-gray-900">جستجوی بار</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
-          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-50 text-teal-700"><Navigation className="h-6 w-6" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-700"><Navigation className="h-6 w-6" aria-hidden="true"/></span>
           <span className="text-sm font-black text-gray-900">اطراف من</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
-          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><ReceiptText className="h-6 w-6" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><ReceiptText className="h-6 w-6" aria-hidden="true"/></span>
           <span className="text-sm font-black text-gray-900">پیشنهادهای من</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
-          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><PhoneCall className="h-6 w-6" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><PhoneCall className="h-6 w-6" aria-hidden="true"/></span>
           <span className="text-sm font-black text-gray-900">تماس‌ها و وضعیت‌ها</span>
         </button>
       </section>
