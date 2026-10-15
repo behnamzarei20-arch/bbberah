@@ -760,36 +760,32 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
       </section>
 
-      <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-2 content-start gap-x-4 gap-y-5 py-3">
-        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-blue-200 bg-blue-50/20 shadow-[0_2px_12px_rgba(29,78,216,0.06)] px-3 py-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
+      <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-4 grid-rows-2 gap-2 py-2">
+        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-2 row-span-2 flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-blue-200 bg-blue-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(29,78,216,0.06)] transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
           <Search className="h-12 w-12 shrink-0 text-blue-700" aria-hidden="true"/>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50/20 shadow-[0_2px_12px_rgba(15,118,110,0.06)] px-2 py-2 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
+        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-2 row-span-2 flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(15,118,110,0.06)] transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
           <Navigation className="h-12 w-12 shrink-0 text-teal-700" aria-hidden="true"/>
-          <span className="text-lg font-black text-gray-900">اطراف من</span>
-          <span className="text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
+          <span className="w-full text-center text-lg font-black text-gray-900">اطراف من</span>
+          <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
         </button>
-        <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50/20 shadow-[0_2px_12px_rgba(217,119,6,0.06)] px-2 py-2 text-center transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
-          <Store className="h-12 w-12 shrink-0 text-amber-600" aria-hidden="true"/>
-          <span className="text-lg font-black text-gray-900">فروشگاه</span>
-          <span className="text-sm font-medium leading-6 text-gray-500">خدمات و کالاهای موردنیاز</span>
+        <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-xl border border-amber-200 bg-amber-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(217,119,6,0.06)] transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
+          <Store className="h-6 w-6 shrink-0 text-amber-600" aria-hidden="true"/>
+          <span className="text-xs font-black leading-4 text-gray-900">فروشگاه</span>
         </button>
-        <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50/20 shadow-[0_2px_12px_rgba(109,40,217,0.06)] px-2 py-2 text-center transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
-          <Eye className="h-12 w-12 shrink-0 text-violet-700" aria-hidden="true"/>
-          <span className="text-lg font-black text-gray-900">بارهای مشاهده‌شده</span>
-          <span className="text-sm font-medium leading-6 text-gray-500">بازگشت به بارهای قبلی</span>
+        <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(109,40,217,0.06)] transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
+          <Eye className="h-6 w-6 shrink-0 text-violet-700" aria-hidden="true"/>
+          <span className="text-[11px] font-black leading-4 text-gray-900">بارهای مشاهده‌شده</span>
         </button>
-        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-50/20 shadow-[0_2px_12px_rgba(3,105,161,0.06)] px-2 py-2 text-center transition-colors hover:border-sky-300 hover:bg-sky-50/40 active:bg-sky-50">
-          <CreditCard className="h-12 w-12 shrink-0 text-sky-700" aria-hidden="true"/>
-          <span className="text-lg font-black text-gray-900">کارت هوشمند</span>
-          <span className="text-sm font-medium leading-6 text-gray-500">سامانه سازمان راهداری</span>
+        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-xl border border-sky-200 bg-sky-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(3,105,161,0.06)] transition-colors hover:border-sky-300 hover:bg-sky-50/40 active:bg-sky-50">
+          <CreditCard className="h-6 w-6 shrink-0 text-sky-700" aria-hidden="true"/>
+          <span className="text-xs font-black leading-4 text-gray-900">کارت هوشمند</span>
         </button>
-        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50/20 shadow-[0_2px_12px_rgba(190,24,93,0.06)] px-2 py-2 text-center transition-colors hover:border-rose-300 hover:bg-rose-50/40 active:bg-rose-50">
-          <HeartPulse className="h-12 w-12 shrink-0 text-rose-700" aria-hidden="true"/>
-          <span className="text-lg font-black text-gray-900">کارت سلامت</span>
-          <span className="text-sm font-medium leading-6 text-gray-500">سامانه سازمان راهداری</span>
+        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-xl border border-rose-200 bg-rose-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(190,24,93,0.06)] transition-colors hover:border-rose-300 hover:bg-rose-50/40 active:bg-rose-50">
+          <HeartPulse className="h-6 w-6 shrink-0 text-rose-700" aria-hidden="true"/>
+          <span className="text-xs font-black leading-4 text-gray-900">کارت سلامت</span>
         </button>
       </section>
     </div>;
@@ -1770,7 +1766,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
     </div>}
-    <main className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-4 min-h-0 overflow-y-auto flex flex-col' : 'pb-24'}`}>
+    <main className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-2 h-[calc(100dvh-8rem)] min-h-0 overflow-hidden flex flex-col' : 'pb-24'}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
