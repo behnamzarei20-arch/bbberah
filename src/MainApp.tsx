@@ -766,7 +766,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square h-full min-h-0 w-full self-stretch flex-col items-center justify-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(15,118,110,0.06)] transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
+        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(15,118,110,0.06)] transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
           <Navigation className="h-12 w-12 shrink-0 text-teal-700" aria-hidden="true"/>
           <span className="w-full text-center text-lg font-black text-gray-900">اطراف من</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
@@ -775,15 +775,15 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           <Store className="h-6 w-6 shrink-0 text-amber-600" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">فروشگاه</span>
         </button>
-        <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action col-span-1 flex aspect-[2/1] w-full flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(109,40,217,0.06)] transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
+        <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(109,40,217,0.06)] transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
           <Eye className="h-6 w-6 shrink-0 text-violet-700" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">بارهای مشاهده‌شده</span>
         </button>
-        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[2/1] w-full flex-col items-center justify-center gap-1 rounded-xl border border-sky-200 bg-sky-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(3,105,161,0.06)] transition-colors hover:border-sky-300 hover:bg-sky-50/40 active:bg-sky-50">
+        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl border border-sky-200 bg-sky-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(3,105,161,0.06)] transition-colors hover:border-sky-300 hover:bg-sky-50/40 active:bg-sky-50">
           <CreditCard className="h-6 w-6 shrink-0 text-sky-700" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">کارت هوشمند</span>
         </button>
-        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[2/1] w-full flex-col items-center justify-center gap-1 rounded-xl border border-rose-200 bg-rose-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(190,24,93,0.06)] transition-colors hover:border-rose-300 hover:bg-rose-50/40 active:bg-rose-50">
+        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl border border-rose-200 bg-rose-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(190,24,93,0.06)] transition-colors hover:border-rose-300 hover:bg-rose-50/40 active:bg-rose-50">
           <HeartPulse className="h-6 w-6 shrink-0 text-rose-700" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">کارت سلامت</span>
         </button>
