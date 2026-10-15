@@ -747,7 +747,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       }
     };
     return <div className="flex min-h-0 flex-1 flex-col gap-2 w-full">
-      <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[120px] shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 sm:h-[140px]">
+      <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[88px] shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 sm:h-[110px]">
         <div className="absolute inset-0 grid grid-cols-3">
           <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
           <img src="https://images.unsplash.com/photo-1700716465891-9e5e9f501d7d?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" decoding="async" className="h-full w-full object-cover"/>
