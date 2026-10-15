@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowLeft, ArrowRight, Bell, Gift, TrendingUp, TrendingDown, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
+  ArrowLeft, ArrowRight, Bell, Gift, TrendingUp, TrendingDown, Camera, Pencil, Image as ImageIcon, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
   Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info, Instagram, Send, MessageCircle
@@ -194,7 +194,7 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 }
 
 export function MainApp() {
-  const { profile, session, signOut } = useAuth();
+  const { profile, session, signOut, updateAvatar } = useAuth();
   const [page, setPage] = useState<Page>('home');
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
   const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
@@ -693,6 +693,9 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const AccountHome = () => {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+    const saveProfileAvatar = (file?:File) => { if (!file) return; if (!file.type.startsWith('image/')) { notify('لطفاً یک تصویر معتبر انتخاب کنید.'); return; } const reader = new FileReader(); reader.onload = () => { if (typeof reader.result === 'string') void updateAvatar(reader.result).then(() => notify('عکس پروفایل ذخیره شد.')); }; reader.readAsDataURL(file); };
+    const avatarChoices = ['Felix','Aneka','Jude','Khalid','Mason','Aidan'].map(seed => `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}&backgroundColor=fde68a,c0aede,b6e3f4,d1d4f9,ffd5dc`);
     const verificationLabel = identityVerified ? 'تأییدشده' : identityPending ? 'در انتظار تأیید' : 'تأییدنشده';
     const verificationClass = identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600';
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
@@ -707,8 +710,11 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="p-4 flex items-center justify-between gap-3" dir="rtl">
           <div className="min-w-0 flex flex-col items-start text-right gap-2">
-            <div className="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
-            <h2 className="font-black text-2xl text-gray-900">ادمین</h2>
+            <button type="button" onClick={()=>setShowAvatarPicker(true)} aria-label="تغییر عکس پروفایل" title="تغییر عکس پروفایل" className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-primary-100 bg-primary-50 flex items-center justify-center">
+              {profile?.avatar_url ? <img src={profile.avatar_url} alt="عکس پروفایل" className="h-full w-full object-cover"/> : <User className="w-7 h-7 text-primary-700"/>}
+              <span className="absolute bottom-0 right-0 rounded-full bg-white p-1 shadow"><Pencil className="h-3 w-3 text-primary-700"/></span>
+            </button>
+            <h2 className="font-black text-2xl text-gray-900">{profile?.full_name || 'کاربر براه'}</h2>
             <p className="text-base font-bold text-gray-900 dark:text-gray-900" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
           </div>
           <div className="shrink-0 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-center text-orange-700">
@@ -760,10 +766,28 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       <div className="rounded-lg border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
         <div className="flex items-center justify-center gap-4">
           <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-6 w-6"/></span>
-          <span aria-label="تلگرام؛ لینک به‌زودی اضافه می‌شود" title="تلگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#229ED9] text-white shadow-sm"><Send className="h-6 w-6"/></span>
+          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-9 w-9 object-contain" loading="lazy"/></span>
           <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-full w-full object-contain" loading="lazy"/></span>
         </div>
       </div>
+      <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span className="font-bold text-gray-500">نسخه برنامه</span>
+          <span className="font-black text-gray-800" dir="ltr">۱.۰.۱</span>
+        </div>
+      </div>
+      {showAvatarPicker && <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 px-4" onMouseDown={e=>{if(e.target===e.currentTarget)setShowAvatarPicker(false)}}>
+        <div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="main-avatar-picker-title" className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
+          <div className="mb-4 flex items-center justify-between"><h2 id="main-avatar-picker-title" className="text-lg font-black text-gray-900">تغییر عکس پروفایل</h2><button type="button" onClick={()=>setShowAvatarPicker(false)} aria-label="بستن" className="rounded-xl p-2 text-gray-500"><X className="h-5 w-5"/></button></div>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-orange-200 bg-orange-50 p-3 font-bold text-orange-700"><Camera className="h-5 w-5"/> دوربین<input className="hidden" type="file" accept="image/*" capture="user" onChange={e=>saveProfileAvatar(e.target.files?.[0])}/></label>
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-gray-200 p-3 font-bold text-gray-700"><ImageIcon className="h-5 w-5"/> گالری<input className="hidden" type="file" accept="image/*" onChange={e=>saveProfileAvatar(e.target.files?.[0])}/></label>
+          </div>
+          <p className="mb-3 mt-5 text-sm font-bold text-gray-500">یا یکی از آواتارهای آماده را انتخاب کنید</p>
+          <div className="grid grid-cols-3 gap-3">{avatarChoices.map((url,i)=><button key={url} type="button" onClick={()=>{void updateAvatar(url).then(()=>notify('عکس پروفایل ذخیره شد.'));setShowAvatarPicker(false)}} className="rounded-2xl border border-gray-200 p-1.5 hover:border-orange-400"><img src={url} alt={`آواتار ${i+1}`} loading="lazy" className="aspect-square w-full rounded-xl bg-orange-50"/></button>)}</div>
+          {profile?.avatar_url && <button type="button" onClick={()=>{void updateAvatar(null).then(()=>notify('عکس پروفایل به حالت پیش‌فرض برگشت.'));setShowAvatarPicker(false)}} className="mt-4 w-full rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-500">حذف عکس پروفایل</button>}
+        </div>
+      </div>}
       {showLogoutConfirm && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowLogoutConfirm(false)}}>
         <div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="main-logout-confirm-title" className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600"><LogOut className="h-7 w-7"/></div>
@@ -1534,7 +1558,7 @@ const ProfilePage = () => <div className="space-y-3">
                 <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-500"><Clock3 className="h-3.5 w-3.5 shrink-0"/><span>{new Date(item.at).toLocaleDateString('fa-IR')}</span></div>
                 {item.description && <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-600">{item.description}</p>}
               </div>
-              <b className={`shrink-0 text-sm font-black ${color}`} dir="rtl">{incoming?'+':'−'}{money(item.amount)} <span className="text-[10px]">تومان</span></b>
+              <b className={`shrink-0 text-sm font-black ${color}`} dir="rtl"><span>{money(item.amount)}</span><span>{incoming?'+':'−'}</span><span className="text-[10px]">تومان</span></b>
             </div>
           </CardBody></Card>;
         })}
