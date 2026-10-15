@@ -466,7 +466,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
             setFrequentRoute(null);
           }
         }
-        setPageWithTransition(next);
+        setPageWithTransition(next, 'back');
         
         window.scrollTo({top:0,behavior:'auto'});
       }
@@ -474,10 +474,16 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
-  const setPageWithTransition = (next: Page) => {
-    const transitionDocument = document as Document & { startViewTransition?: (callback: () => void) => unknown };
+  const setPageWithTransition = (next: Page, direction: 'forward' | 'back' = 'forward') => {
+    const transitionDocument = document as Document & {
+      startViewTransition?: (callback: () => void) => { finished: Promise<unknown> };
+    };
     if (transitionDocument.startViewTransition) {
-      transitionDocument.startViewTransition(() => setPage(next));
+      document.documentElement.dataset.navDirection = direction;
+      const transition = transitionDocument.startViewTransition(() => setPage(next));
+      transition.finished.finally(() => {
+        delete document.documentElement.dataset.navDirection;
+      });
     } else {
       setPage(next);
     }
@@ -502,7 +508,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   };
   const goHome = () => {
     window.history.replaceState({ bbberahPage: 'home' }, '', '#home');
-    setPageWithTransition('home');
+    setPageWithTransition('home', 'back');
     
     window.scrollTo({top:0,behavior:'auto'});
   };
