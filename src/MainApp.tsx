@@ -761,8 +761,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </section>
 
       <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-2 content-start gap-2 pt-1">
-        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl border border-primary-200 bg-primary-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(29,78,216,0.06)] transition-colors hover:border-primary-300 hover:bg-primary-50/40 active:bg-primary-50">
-          <Search className="h-12 w-12 shrink-0 text-primary-700" aria-hidden="true"/>
+        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl border border-orange-200 bg-orange-50/40 px-3 py-4 text-center shadow-[0_2px_12px_rgba(255,102,0,0.10)] transition-colors hover:border-orange-300 hover:bg-orange-50 active:bg-orange-100">
+          <Search className="h-12 w-12 shrink-0 text-accent-500" aria-hidden="true"/>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
