@@ -1,5 +1,5 @@
 name: Build and Deploy Vite App to GitHub Pages
-# Keep GitHub Pages deployment retriggerable after source updates.
+# Newer commits should supersede older pending or in-progress deployments.
 
 on:
   push:
@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
