@@ -778,29 +778,29 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
       <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-2 content-start gap-2 pt-1">
         <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-5 rounded-2xl bg-primary-200 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.08)] transition-colors hover:bg-primary-300 active:bg-primary-300">
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 shadow-sm"><Search className="h-8 w-8 shrink-0 text-accent-500" aria-hidden="true"/></span>
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-orange-300 bg-orange-100 shadow-sm"><Search className="h-8 w-8 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           
         </button>
-        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl bg-primary-100 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 shadow-sm"><Navigation className="h-8 w-8 shrink-0 text-accent-500" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-5 rounded-2xl bg-primary-200 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-300 active:bg-primary-300">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-orange-300 bg-orange-100 shadow-sm"><Navigation className="h-8 w-8 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="w-full text-center text-lg font-black text-gray-900">اطراف من</span>
           
         </button>
-        <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-3 rounded-xl bg-primary-200 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><Store className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-5 rounded-xl bg-primary-200 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-300 active:bg-primary-300">
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-300 bg-orange-100 shadow-sm"><Store className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">فروشگاه</span>
         </button>
-        <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><Eye className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-5 rounded-xl bg-primary-200 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-300 active:bg-primary-300">
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-300 bg-orange-100 shadow-sm"><Eye className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">بارهای مشاهده‌شده</span>
         </button>
-        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><CreditCard className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-5 rounded-xl bg-primary-200 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-300 active:bg-primary-300">
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-300 bg-orange-100 shadow-sm"><CreditCard className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">کارت هوشمند</span>
         </button>
-        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><HeartPulse className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
+        <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-5 rounded-xl bg-primary-200 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-300 active:bg-primary-300">
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-300 bg-orange-100 shadow-sm"><HeartPulse className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">کارت سلامت</span>
         </button>
       </section>
