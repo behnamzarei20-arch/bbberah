@@ -184,7 +184,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
         <div className="flex items-start justify-start gap-3 border-b border-gray-300 px-3 py-3 text-right"><FileText className="mt-1 h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><p className="min-w-0 text-right text-base font-bold leading-7 text-gray-900">{load.description}</p></div>
       </div>
 
-      <Button size="full" onClick={onOpen} className="h-12 min-h-0 w-full rounded-none border-0 bg-primary-600 py-1.5 text-lg font-black text-white shadow-none hover:bg-primary-700">
+      <Button size="full" onClick={onOpen} className="h-12 min-h-0 w-full rounded-none border-0 bg-accent-500 py-1.5 text-lg font-black text-white shadow-none hover:bg-accent-600">
         <PhoneCall className="ml-2 h-5 w-5" aria-hidden="true"/> تماس برای هماهنگی
       </Button>
     </div>;
@@ -627,7 +627,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200">
     <div className="relative max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
-      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
+      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-primary-300 bg-primary-50 text-primary-700 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
       <button type="button" onClick={()=>goHome()} className="absolute left-1/2 -translate-x-1/2 font-black text-2xl tracking-tight text-primary-700">براه</button>
       <div className="flex items-center gap-2">
         <button type="button"
@@ -767,24 +767,24 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
         <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(15,118,110,0.06)] transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
-          <Navigation className="h-12 w-12 shrink-0 text-teal-700" aria-hidden="true"/>
+          <Navigation className="h-12 w-12 shrink-0 text-accent-500" aria-hidden="true"/>
           <span className="w-full text-center text-lg font-black text-gray-900">اطراف من</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
         </button>
         <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl border border-amber-200 bg-amber-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(217,119,6,0.06)] transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
-          <Store className="h-6 w-6 shrink-0 text-amber-600" aria-hidden="true"/>
+          <Store className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">فروشگاه</span>
         </button>
         <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(109,40,217,0.06)] transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
-          <Eye className="h-6 w-6 shrink-0 text-violet-700" aria-hidden="true"/>
+          <Eye className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">بارهای مشاهده‌شده</span>
         </button>
         <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl border border-sky-200 bg-sky-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(3,105,161,0.06)] transition-colors hover:border-sky-300 hover:bg-sky-50/40 active:bg-sky-50">
-          <CreditCard className="h-6 w-6 shrink-0 text-sky-700" aria-hidden="true"/>
+          <CreditCard className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">کارت هوشمند</span>
         </button>
         <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl border border-rose-200 bg-rose-50/20 px-1 py-1 text-center shadow-[0_2px_12px_rgba(190,24,93,0.06)] transition-colors hover:border-rose-300 hover:bg-rose-50/40 active:bg-rose-50">
-          <HeartPulse className="h-6 w-6 shrink-0 text-rose-700" aria-hidden="true"/>
+          <HeartPulse className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
           <span className="text-sm font-black leading-5 text-gray-900">کارت سلامت</span>
         </button>
       </section>
