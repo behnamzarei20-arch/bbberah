@@ -196,6 +196,7 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
+  const pageSwipeStart = useRef<{ x:number; y:number } | null>(null);
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
   const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads].map((load, index) => ({
@@ -474,6 +475,26 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
+  const handlePageTouchStart = (e: React.TouchEvent<HTMLElement>) => {
+    if (!['home','search','calls','profile'].includes(page)) { pageSwipeStart.current = null; return; }
+    const target = e.target as HTMLElement;
+    if (target.closest('input, textarea, select, [role="slider"], [data-no-page-swipe="true"]')) { pageSwipeStart.current = null; return; }
+    const touch = e.touches[0];
+    pageSwipeStart.current = { x: touch.clientX, y: touch.clientY };
+  };
+  const handlePageTouchEnd = (e: React.TouchEvent<HTMLElement>) => {
+    const start = pageSwipeStart.current;
+    pageSwipeStart.current = null;
+    if (!start || !['home','search','calls','profile'].includes(page)) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < 85 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    const tabs: Page[] = ['home','search','calls','profile'];
+    const index = tabs.indexOf(page);
+    const nextIndex = dx < 0 ? Math.min(tabs.length - 1, index + 1) : Math.max(0, index - 1);
+    if (nextIndex !== index) { if (tabs[nextIndex] === 'search') openSearchPage(); else go(tabs[nextIndex]); }
+  };
   const go = (p:Page, preserveSearch = false) => {
     if (p === 'search' && !preserveSearch) {
       setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
@@ -762,29 +783,29 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
       <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-2 content-start gap-2 pt-1">
         <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl bg-primary-100 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.08)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <Search className="h-12 w-12 shrink-0 text-accent-500" aria-hidden="true"/>
+          <span className="flex h-16 w-16 items-center justify-center rounded-xl border border-primary-800 bg-primary-700 shadow-md shadow-primary-900/20"><Search className="h-8 w-8 shrink-0 text-white" aria-hidden="true"/></span>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
         <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl bg-primary-100 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <Navigation className="h-12 w-12 shrink-0 text-accent-500" aria-hidden="true"/>
+          <span className="flex h-16 w-16 items-center justify-center rounded-xl border border-primary-800 bg-primary-700 shadow-md shadow-primary-900/20"><Navigation className="h-8 w-8 shrink-0 text-white" aria-hidden="true"/></span>
           <span className="w-full text-center text-lg font-black text-gray-900">اطراف من</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
         </button>
         <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <Store className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><Store className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">فروشگاه</span>
         </button>
         <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <Eye className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><Eye className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">بارهای مشاهده‌شده</span>
         </button>
         <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <CreditCard className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><CreditCard className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">کارت هوشمند</span>
         </button>
         <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <HeartPulse className="h-6 w-6 shrink-0 text-accent-500" aria-hidden="true"/>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><HeartPulse className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">کارت سلامت</span>
         </button>
       </section>
@@ -1766,7 +1787,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
     </div>}
-    <main className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-2 h-[calc(100dvh-8rem)] min-h-0 overflow-hidden flex flex-col' : 'pb-24'}`}>
+    <main onTouchStart={handlePageTouchStart} onTouchEnd={handlePageTouchEnd} className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-2 h-[calc(100dvh-8rem)] min-h-0 overflow-hidden flex flex-col' : 'pb-24'}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
