@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowLeft, ArrowRight, Bell, Gift, TrendingUp, TrendingDown, Camera, Pencil, Image as ImageIcon, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
+  ArrowLeft, ArrowRight, Bell, Gift, TrendingUp, TrendingDown, MoveUpRight, MoveDownRight, Camera, Pencil, Image as ImageIcon, Wallet, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
   Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info, Instagram, Send, MessageCircle
@@ -695,7 +695,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [showAvatarPicker, setShowAvatarPicker] = useState(false);
     const saveProfileAvatar = (file?:File) => { if (!file) return; if (!file.type.startsWith('image/')) { notify('لطفاً یک تصویر معتبر انتخاب کنید.'); return; } const reader = new FileReader(); reader.onload = () => { if (typeof reader.result === 'string') void updateAvatar(reader.result).then(() => notify('عکس پروفایل ذخیره شد.')); }; reader.readAsDataURL(file); };
-    const avatarChoices = ['Felix','Aneka','Jude','Khalid','Mason','Aidan'].map(seed => `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}&backgroundColor=fde68a,c0aede,b6e3f4,d1d4f9,ffd5dc`);
+    const avatarChoices = ['#DCEAFE','#DDF7E8','#FCE7D8','#E9E2FF','#DDF4F7','#FCE7F3'].map(bg => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="${bg}"/><path d="M18 100c2-23 14-35 32-35s30 12 32 35" fill="#344B63"/><path d="M31 43c0-18 8-28 19-28s19 10 19 28v7c0 13-8 22-19 22s-19-9-19-22z" fill="#344B63"/><path d="M24 39c1-22 11-32 26-32 16 0 26 12 26 32-6-7-12-10-19-10-10 0-17 4-33 10z" fill="#26384B"/></svg>`)}`);
     const verificationLabel = identityVerified ? 'تأییدشده' : identityPending ? 'در انتظار تأیید' : 'تأییدنشده';
     const verificationClass = identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600';
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
@@ -719,7 +719,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           </div>
           <div className="shrink-0 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-center text-orange-700">
             <div className="flex items-center justify-center gap-1.5 text-sm font-bold"><Star className="h-4 w-4 fill-orange-500 text-orange-500"/> امتیاز شما</div>
-            <strong className="mt-1 block text-2xl font-black">۱۰۰</strong>
+            <strong className="mt-1 flex items-center justify-center gap-1.5 text-2xl font-black" dir="rtl"><MoveUpRight className="h-5 w-5 text-emerald-600"/><span>{money(driverScore)}</span></strong>
           </div>
         </div>
       </div>
@@ -765,9 +765,9 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </div>
       <div className="rounded-lg border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
         <div className="flex items-center justify-center gap-4">
-          <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-6 w-6"/></span>
-          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-9 w-9 object-contain" loading="lazy"/></span>
-          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-full w-full object-contain" loading="lazy"/></span>
+          <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-5 w-5"/></span>
+          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-5 w-5 object-contain" loading="lazy"/></span>
+          <span aria-label="روبیکا" title="روبیکا" className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-5 w-5 object-contain" loading="lazy"/></span>
         </div>
       </div>
       <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
@@ -1552,7 +1552,7 @@ const ProfilePage = () => <div className="space-y-3">
           const TransactionIcon = item.gift ? Gift : incoming ? TrendingUp : TrendingDown;
           return <Card key={item.id}><CardBody className="px-3 py-3">
             <div className="flex items-center gap-3">
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bg} ${color}`}><TransactionIcon className="h-5 w-5"/></span>
+              <span className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bg} ${color}`}>{item.gift ? <Gift className="h-5 w-5 fill-current stroke-current"/> : <Wallet className="h-5 w-5 fill-current stroke-white"/>}{!item.gift && <span className="absolute -bottom-1 -left-1 rounded-full bg-white p-0.5">{incoming ? <MoveUpRight className="h-3 w-3 text-emerald-600"/> : <MoveDownRight className="h-3 w-3 text-red-600"/>}</span>}</span>
               <div className="min-w-0 flex-1">
                 <b className="block truncate text-sm font-black text-gray-900">{item.title}</b>
                 <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-500"><Clock3 className="h-3.5 w-3.5 shrink-0"/><span>{new Date(item.at).toLocaleDateString('fa-IR')}</span></div>
