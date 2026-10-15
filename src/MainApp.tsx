@@ -761,22 +761,22 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </section>
 
       <section aria-label="دسترسی سریع" className="grid min-h-0 flex-1 grid-cols-2 content-center gap-x-4 gap-y-5 py-3">
-        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
+        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-blue-200 bg-blue-50/20 shadow-[0_2px_12px_rgba(29,78,216,0.06)] px-3 py-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
           <Search className="h-12 w-12 shrink-0 text-blue-700" aria-hidden="true"/>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
+        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50/20 shadow-[0_2px_12px_rgba(15,118,110,0.06)] px-2 py-2 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
           <Navigation className="h-12 w-12 shrink-0 text-teal-700" aria-hidden="true"/>
           <span className="text-lg font-black text-gray-900">اطراف من</span>
           <span className="text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
+        <button type="button" onClick={()=>animateHomeCard('offers',()=>go('offers'))} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50/20 shadow-[0_2px_12px_rgba(217,119,6,0.06)] px-2 py-2 text-center transition-colors hover:border-amber-300 hover:bg-amber-50/40 active:bg-amber-50">
           <ReceiptText className="h-12 w-12 shrink-0 text-amber-600" aria-hidden="true"/>
           <span className="text-lg font-black text-gray-900">پیشنهادهای من</span>
           <span className="text-sm font-medium leading-6 text-gray-500">پیگیری قیمت‌های ثبت‌شده</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
+        <button type="button" onClick={()=>animateHomeCard('calls',()=>go('calls'))} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50/20 shadow-[0_2px_12px_rgba(109,40,217,0.06)] px-2 py-2 text-center transition-colors hover:border-violet-300 hover:bg-violet-50/40 active:bg-violet-50">
           <PhoneCall className="h-12 w-12 shrink-0 text-violet-700" aria-hidden="true"/>
           <span className="text-lg font-black text-gray-900">تماس‌ها و وضعیت‌ها</span>
           <span className="text-sm font-medium leading-6 text-gray-500">سوابق تماس و نتیجه پیگیری</span>
