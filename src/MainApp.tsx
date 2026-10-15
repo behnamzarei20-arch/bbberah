@@ -763,8 +763,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       <section aria-label="دسترسی سریع" className="grid min-h-0 flex-1 grid-cols-2 content-center gap-x-4 gap-y-5 py-3">
         <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
           <Search className="h-12 w-12 shrink-0 text-blue-700" aria-hidden="true"/>
-          <span className="text-lg font-black text-gray-900">جستجوی بار</span>
-          <span className="text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
+          <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
+          <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
         <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action flex h-full min-h-0 w-full flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
           <Navigation className="h-12 w-12 shrink-0 text-teal-700" aria-hidden="true"/>
