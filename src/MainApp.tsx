@@ -466,7 +466,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
             setFrequentRoute(null);
           }
         }
-        setPage(next);
+        setPageWithTransition(next);
         
         window.scrollTo({top:0,behavior:'auto'});
       }
@@ -502,7 +502,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   };
   const goHome = () => {
     window.history.replaceState({ bbberahPage: 'home' }, '', '#home');
-    setPage('home');
+    setPageWithTransition('home');
     
     window.scrollTo({top:0,behavior:'auto'});
   };
