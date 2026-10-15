@@ -66,32 +66,31 @@
 [data-theme="dark"] main { background-color: transparent; }
 
 
-/* Real page-turn style transition when the active app page changes */
-.page-turn-enter {
-  transform-origin: right center;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  animation: pageTurnIn 460ms cubic-bezier(.22,.72,.22,1) both;
+/* Horizontal push transition: current page exits left, next page enters from right. */
+::view-transition-group(app-page) {
+  animation-duration: 360ms;
+  animation-timing-function: cubic-bezier(.22,.72,.22,1);
 }
-@keyframes pageTurnIn {
-  0% {
-    opacity: .78;
-    transform: perspective(1400px) rotateY(-68deg) translateX(10px);
-    filter: brightness(.78);
-    box-shadow: -18px 0 28px rgba(0, 30, 48, .20);
-  }
-  55% {
-    opacity: 1;
-    filter: brightness(.94);
-    box-shadow: -8px 0 16px rgba(0, 30, 48, .10);
-  }
-  100% {
-    opacity: 1;
-    transform: perspective(1400px) rotateY(0deg) translateX(0);
-    filter: brightness(1);
-    box-shadow: none;
-  }
+::view-transition-old(app-page) {
+  animation: pagePushOutLeft 360ms cubic-bezier(.22,.72,.22,1) both;
+  transform-origin: left center;
+}
+::view-transition-new(app-page) {
+  animation: pagePushInRight 360ms cubic-bezier(.22,.72,.22,1) both;
+  transform-origin: right center;
+}
+@keyframes pagePushOutLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-24%); opacity: .72; }
+}
+@keyframes pagePushInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .page-turn-enter { animation-duration: 1ms; }
+  ::view-transition-group(app-page),
+  ::view-transition-old(app-page),
+  ::view-transition-new(app-page) {
+    animation-duration: 1ms !important;
+  }
 }
