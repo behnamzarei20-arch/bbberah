@@ -269,8 +269,18 @@ export function MainApp() {
 });
 const [walletTransactions] = useState<Array<{id:string; type:'increase'|'decrease'; amount:number; at:number; title:string; description?:string; source?:string}>>(() => {
   try {
-    const saved = JSON.parse(window.localStorage.getItem('bbberah_wallet_transactions_v1') || '[]');
-    return Array.isArray(saved) ? saved.filter((x:any) => x && (x.type === 'increase' || x.type === 'decrease') && Number.isFinite(Number(x.amount)) && Number.isFinite(Number(x.at))).map((x:any) => ({id:String(x.id || x.at),type:x.type,amount:Number(x.amount),at:Number(x.at),title:String(x.title || (x.source === 'gift' ? 'هدیه افزایش موجودی' : x.type === 'increase' ? 'افزایش موجودی' : 'کاهش موجودی')),description:typeof x.description === 'string' ? x.description : '',source:typeof x.source === 'string' ? x.source : ''})) : [];
+    const raw = window.localStorage.getItem('bbberah_wallet_transactions_v1');
+    let saved = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(saved) || saved.length === 0) {
+      const now = Date.now();
+      saved = [
+        {id:'demo-increase-1',type:'increase',amount:2500000,at:now-86400000*2,title:'افزایش موجودی',description:'شارژ کیف پول',source:'demo'},
+        {id:'demo-gift-1',type:'increase',amount:500000,at:now-86400000,title:'هدیه افزایش موجودی',description:'هدیه خوش‌آمدگویی از طرف براه',source:'gift'},
+        {id:'demo-increase-2',type:'increase',amount:1000000,at:now-3600000*5,title:'افزایش موجودی',description:'افزایش آزمایشی موجودی کیف پول',source:'demo'},
+      ];
+      window.localStorage.setItem('bbberah_wallet_transactions_v1', JSON.stringify(saved));
+    }
+    return saved.filter((x:any) => x && (x.type === 'increase' || x.type === 'decrease') && Number.isFinite(Number(x.amount)) && Number.isFinite(Number(x.at))).map((x:any) => ({id:String(x.id || x.at),type:x.type,amount:Number(x.amount),at:Number(x.at),title:String(x.title || (x.source === 'gift' ? 'هدیه افزایش موجودی' : x.type === 'increase' ? 'افزایش موجودی' : 'کاهش موجودی')),description:typeof x.description === 'string' ? x.description : '',source:typeof x.source === 'string' ? x.source : ''}));
   } catch { return []; }
 });
 const [identityVerified, setIdentityVerified] = useState<boolean>(false);
