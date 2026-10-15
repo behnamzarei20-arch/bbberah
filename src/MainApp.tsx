@@ -267,6 +267,12 @@ export function MainApp() {
   const saved = window.localStorage.getItem('bbberah_wallet_balance_v1');
   return saved === null ? 5000000 : Number(saved);
 });
+const [walletTransactions] = useState<Array<{id:string; type:'increase'|'decrease'; amount:number; at:number; title:string; description?:string; source?:string}>>(() => {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem('bbberah_wallet_transactions_v1') || '[]');
+    return Array.isArray(saved) ? saved.filter((x:any) => x && (x.type === 'increase' || x.type === 'decrease') && Number.isFinite(Number(x.amount)) && Number.isFinite(Number(x.at))).map((x:any) => ({id:String(x.id || x.at),type:x.type,amount:Number(x.amount),at:Number(x.at),title:String(x.title || (x.source === 'gift' ? 'هدیه افزایش موجودی' : x.type === 'increase' ? 'افزایش موجودی' : 'کاهش موجودی')),description:typeof x.description === 'string' ? x.description : '',source:typeof x.source === 'string' ? x.source : ''})) : [];
+  } catch { return []; }
+});
 const [identityVerified, setIdentityVerified] = useState<boolean>(false);
 const [identityPending, setIdentityPending] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_pending_v1') === 'true');
 const [identityRejected, setIdentityRejected] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_rejected_v1') === 'true');
@@ -745,14 +751,14 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         <div className="flex items-center justify-center gap-4">
           <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-6 w-6"/></span>
           <span aria-label="تلگرام؛ لینک به‌زودی اضافه می‌شود" title="تلگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#229ED9] text-white shadow-sm"><Send className="h-6 w-6"/></span>
-          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6d28d9] to-[#d946ef] text-white shadow-sm"><svg viewBox="0 0 32 32" className="h-7 w-7" fill="none" aria-hidden="true"><path d="M8 7.5h10.5a6 6 0 0 1 0 12H13v5H8V7.5Z" fill="white"/><path d="M13 12h5.5a1.5 1.5 0 0 1 0 3H13v-3Z" fill="#8b2be2"/><path d="M17 19.5 23 25h-6l-4-5.5" fill="white"/></svg></span>
+          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-full w-full object-contain" loading="lazy"/></span>
         </div>
       </div>
       {showLogoutConfirm && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowLogoutConfirm(false)}}>
         <div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="main-logout-confirm-title" className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600"><LogOut className="h-7 w-7"/></div>
-          <h2 id="main-logout-confirm-title" className="text-center text-xl font-black text-gray-900">خروج از حساب کاربر</h2>
-          <p className="mt-2 text-center text-sm leading-6 text-gray-500">آیا از حساب کاربری خود خارج می شوید؟</p>
+          <h2 id="main-logout-confirm-title" className="text-center text-xl font-black text-gray-900">خروج از حساب کاربری</h2>
+          <p className="mt-2 text-center text-base font-bold leading-6 text-gray-900">آیا از حساب کاربری خود خارج می شوید؟</p>
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button type="button" onClick={()=>setShowLogoutConfirm(false)} className="rounded-xl border-2 border-orange-500 px-4 py-3 font-bold text-orange-600">انصراف</button>
             <button type="button" onClick={async()=>{setShowLogoutConfirm(false);await signOut()}} className="rounded-xl bg-red-600 px-4 py-3 font-black text-white hover:bg-red-700">خروج</button>
@@ -1496,22 +1502,33 @@ const ProfilePage = () => <div className="space-y-3">
       })() : <Card><CardBody className="p-5"><div className="flex items-center gap-3"><Truck className="w-7 h-7 text-primary-600"/><div><b>سفر جاری</b><p className="text-xs text-gray-400 mt-1">در حال حاضر حمل توافق‌شده‌ای برای تعیین تکلیف ندارید.</p></div></div></CardBody></Card>}
     </div>;
     if (page==='wallet') return <div className="space-y-4"><Card><CardBody className="p-6 text-center"><CircleDollarSign className="w-8 h-8 mx-auto text-primary-600"/><p className="text-sm text-gray-400 mt-3">موجودی کیف پول</p><b className={`text-3xl block mt-2 ${walletBalance < 0 ? 'text-red-600' : 'text-gray-900'}`}>{money(walletBalance)} تومان</b><Button className="w-full mt-5" onClick={()=>notify('درگاه پرداخت در فاز دوم متصل می‌شود.')}>افزایش موجودی</Button></CardBody></Card></div>;
-    if (page==='transactions') return <div className="space-y-3">
-      {shipmentHistory.length===0 ? <Card><CardBody><Empty title="سابقه‌ای وجود ندارد" text="پس از تعیین تکلیف هر بار، سابقه کمیسیون و امتیاز اینجا ثبت می‌شود."/></CardBody></Card> : [...shipmentHistory].reverse().map((item,idx)=>{
-        const load=loads.find(l=>l.id===item.loadId);
-        return <Card key={item.loadId+'-'+item.at+'-'+idx}><CardBody className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0"><b className="block">{load?.title || 'بار ثبت‌شده'}</b><p className="text-xs text-gray-500 mt-1">{load ? load.from+' ← '+load.to : ''}</p><p className="text-[11px] text-gray-400 mt-1">{new Date(item.at).toLocaleString('fa-IR')}</p></div>
-            <span className={item.outcome==='carried' ? 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-emerald-700 bg-emerald-50' : 'shrink-0 rounded-full px-3 py-1 text-xs font-black text-red-700 bg-red-50'}>{item.outcome==='carried'?'حمل انجام شد':'انصراف از حمل'}</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 mt-3">
-            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">کمیسیون</span><b className="block mt-1">{item.commission ? money(item.commission)+' تومان' : '۰ تومان'}</b></div>
-            <div className="rounded-xl bg-gray-50 p-3 text-center"><span className="block text-xs text-gray-400">تغییر امتیاز</span><b className="block mt-1">{item.scoreChange > 0 ? '+' : ''}{fa(item.scoreChange)}</b></div>
-          </div>
-          <div className="mt-3 rounded-xl border border-gray-100 bg-gray-50 p-3 text-xs font-bold text-gray-600">این بار یک‌بار تعیین تکلیف شده و ثبت مجدد کمیسیون یا امتیاز برای آن امکان‌پذیر نیست.</div>
-        </CardBody></Card>;
-      })}
-    </div>;
+    if (page==='transactions') {
+      const walletItems = [
+        ...walletTransactions.map(item => ({id:item.id, type:item.type, amount:item.amount, at:item.at, title:item.title, description:item.description || (item.source === 'gift' ? 'هدیه افزایش موجودی از طرف اپلیکیشن' : ''), gift:item.source === 'gift'})),
+        ...shipmentHistory.filter(item => item.outcome === 'carried' && item.commission > 0).map(item => {
+          const load = loads.find(l=>l.id===item.loadId);
+          return {id:'commission-'+item.loadId+'-'+item.at, type:'decrease' as const, amount:item.commission, at:item.at, title:'کسر کمیسیون حمل', description:load ? load.from+' ← '+load.to : 'کمیسیون بار', gift:false};
+        })
+      ].sort((a,b)=>b.at-a.at);
+      return <div className="space-y-2">
+        {walletItems.length===0 ? <Card><CardBody className="p-4"><Empty title="تراکنشی ثبت نشده" text="سوابق افزایش و کاهش موجودی کیف پول در این بخش نمایش داده می‌شود."/></CardBody></Card> : walletItems.map(item => {
+          const incoming = item.type === 'increase';
+          const color = incoming ? 'text-emerald-600' : 'text-red-600';
+          const bg = incoming ? 'bg-emerald-50' : 'bg-red-50';
+          return <Card key={item.id}><CardBody className="px-3 py-3">
+            <div className="flex items-center gap-3">
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bg} ${color}`}><WalletCards className="h-5 w-5"/></span>
+              <div className="min-w-0 flex-1">
+                <b className="block truncate text-sm font-black text-gray-900">{item.title}</b>
+                <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-500"><Clock3 className="h-3.5 w-3.5 shrink-0"/><span>{new Date(item.at).toLocaleDateString('fa-IR')}</span></div>
+                {item.description && <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-600">{item.description}</p>}
+              </div>
+              <b className={`shrink-0 text-sm font-black ${color}`} dir="rtl">{incoming?'+':'−'}{money(item.amount)} <span className="text-[10px]">تومان</span></b>
+            </div>
+          </CardBody></Card>;
+        })}
+      </div>;
+    }
     if (page==='vehicle-select') return <div className="space-y-4">
       <div className="px-1"><h2 className="font-black text-lg">نوع خودروی خود را انتخاب کنید</h2></div>
       <div className="space-y-3">
