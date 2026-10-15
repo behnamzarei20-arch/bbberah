@@ -121,7 +121,7 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
   const hasPriceIndex = typeof load.priceIndex === 'number' && Number.isFinite(load.priceIndex);
   const priceIndex = hasPriceIndex ? Math.max(0, Math.min(100, load.priceIndex as number)) : 0;
   return <div className="w-full overflow-hidden rounded-md border border-gray-400 bg-white shadow-sm">
-      <div className="flex min-h-11 items-center justify-between gap-2 border-b border-gray-300 bg-blue-50 px-3 py-2.5 text-base font-bold">
+      <div className="flex min-h-11 items-center justify-between gap-2 border-b border-gray-300 bg-primary-50 px-3 py-2.5 text-base font-bold">
         <div className="flex min-w-0 items-center gap-1.5 text-gray-600">
           <Clock3 className="h-5 w-5 shrink-0" aria-hidden="true"/>
           <span>{publishedTime}</span>
@@ -143,8 +143,8 @@ function LoadCard({ load, onOpen, onOffer }: { load:Load; onOpen:()=>void; onOff
           <b className="inline-block text-2xl font-black leading-8 text-gray-950">{money(load.price)} تومان</b>
           {hasPriceIndex && <div className="mt-3 w-full" aria-hidden="true">
             <div className="relative h-2 overflow-visible rounded-full bg-slate-100 shadow-inner">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-l from-blue-700 via-blue-500 to-sky-200" />
-              <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[3px] border-white bg-blue-700 shadow-[0_1px_5px_rgba(15,23,42,0.28)]" style={{right:`calc(${priceIndex}% - 8px)`}} />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-l from-primary-700 via-primary-500 to-sky-200" />
+              <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-[3px] border-white bg-primary-700 shadow-[0_1px_5px_rgba(15,23,42,0.28)]" style={{right:`calc(${priceIndex}% - 8px)`}} />
             </div>
           </div>}
         </div>
@@ -627,7 +627,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200">
     <div className="relative max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
-      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
+      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
       <button type="button" onClick={()=>goHome()} className="absolute left-1/2 -translate-x-1/2 font-black text-2xl tracking-tight text-primary-700">براه</button>
       <div className="flex items-center gap-2">
         <button type="button"
@@ -637,12 +637,12 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           onPointerLeave={endThemePress}
           onContextMenu={e=>e.preventDefault()}
           onClick={handleThemeClick}
-          className="w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center"
+          className="w-10 h-10 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 flex items-center justify-center"
           aria-label={displayMode==='auto'?'حالت نمایش خودکار':displayMode==='night'?'حالت شب':'حالت روز'}
           title="لمس کوتاه: روز/شب؛ نگه‌داشتن: خودکار">
           {displayMode==='auto' ? <Monitor className="w-5 h-5"/> : effectiveDark ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
         </button>
-        <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
+        <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl border border-primary-200 bg-primary-50 text-primary-700 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
       </div>
     </div>
   </header>;
@@ -664,7 +664,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const cardClass = 'w-full rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden';
     const rowClass = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-right';
     const labelClass = 'flex min-w-0 items-center gap-3 text-right text-xl font-black text-gray-900';
-    const statusClass = 'shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-base font-black text-blue-700';
+    const statusClass = 'shrink-0 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-base font-black text-primary-700';
     const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`;
     return <div className="space-y-3">
       <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -761,8 +761,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </section>
 
       <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-2 content-start gap-2 pt-1">
-        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl border border-blue-200 bg-blue-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(29,78,216,0.06)] transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50">
-          <Search className="h-12 w-12 shrink-0 text-blue-700" aria-hidden="true"/>
+        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl border border-primary-200 bg-primary-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(29,78,216,0.06)] transition-colors hover:border-primary-300 hover:bg-primary-50/40 active:bg-primary-50">
+          <Search className="h-12 w-12 shrink-0 text-primary-700" aria-hidden="true"/>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
@@ -1011,7 +1011,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-          <input value={query} onChange={e=>{const value=e.target.value; setQuery(value); if(isNearby){ const q=normalizeSearch(value).replace(/^شهرستان/,''); if(q){ const exactProvince=iranLocations.find(p=>normalizeSearch(p.name)===q); if(exactProvince){ chooseProvince(String(exactProvince.id)); return; } const exactCity=allDestinationCities.find(x=>normalizeSearch(x.city)===q); if(exactCity){ chooseCity(exactCity.city, exactCity.countyId); return; } } }}} placeholder={isOrigin ? 'مثال تهران' : 'مثال یزد'} className="w-full rounded-lg border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
+          <input value={query} onChange={e=>{const value=e.target.value; setQuery(value); if(isNearby){ const q=normalizeSearch(value).replace(/^شهرستان/,''); if(q){ const exactProvince=iranLocations.find(p=>normalizeSearch(p.name)===q); if(exactProvince){ chooseProvince(String(exactProvince.id)); return; } const exactCity=allDestinationCities.find(x=>normalizeSearch(x.city)===q); if(exactCity){ chooseCity(exactCity.city, exactCity.countyId); return; } } }}} placeholder={isOrigin ? 'مثال تهران' : 'مثال یزد'} className="w-full rounded-lg border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-700"/>
         </div>
         {isOrigin && <button type="button" onClick={chooseNearby} className="w-full mt-3 rounded-lg bg-primary-100 text-primary-900 border border-primary-200 p-4 flex items-center justify-center gap-2 font-black active:scale-[0.99]">
           <Navigation className="w-5 h-5" />
@@ -1057,7 +1057,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </div>
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-lg border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-blue-700"/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جستجو در همه استان‌ها و شهرها" className="w-full rounded-lg border-2 border-gray-400 bg-white pr-11 pl-4 py-4 outline-none focus:border-primary-700"/>
         </div>
         <div className="mt-5 space-y-3 max-h-[68vh] overflow-auto">
           {iranLocations.map(province => {
@@ -1164,7 +1164,7 @@ const ProfilePage = () => <div className="space-y-3">
         <div>
           <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-lg border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
         </div>
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800 leading-7">
+        <div className="rounded-lg border border-primary-200 bg-primary-50 p-4 text-sm font-bold text-primary-800 leading-7">
           مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
         </div>
         <Button size="full" onClick={submitNationalId} disabled={nationalId.length !== 10} className={nationalId.length === 10 ? '!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600' : '!bg-gray-300 !text-gray-500 !border-gray-300'}>ارسال</Button>
@@ -1590,7 +1590,7 @@ const ProfilePage = () => <div className="space-y-3">
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
           <span className="block text-xs font-bold text-gray-400 mb-3">شماره پلاک</span>
           <div className="mx-auto flex h-16 max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white" dir="ltr">
-            <div className="flex w-12 items-center justify-center bg-blue-700 text-white">
+            <div className="flex w-12 items-center justify-center bg-primary-700 text-white">
               <span className="text-[9px] font-black leading-3 text-center">IR<br/>IRAN</span>
             </div>
             <input aria-label="دو رقم پلاک" value={plateParts[0]} onChange={e=>updatePlatePart(0,e.target.value.replace(/\\D/g,'').slice(0,2))} inputMode="numeric" pattern="[0-9]*" maxLength={2} placeholder="۷۹" className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"/>
@@ -1744,7 +1744,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 pb-7 shadow-2xl" onClick={e=>e.stopPropagation()} dir="rtl">
         <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black text-gray-900">جزئیات پیشنهاد قیمت</h3><button type="button" onClick={closeOfferDetail} aria-label="بستن" className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center"><X className="w-5 h-5"/></button></div>
         <div className="mt-4 rounded-lg bg-gray-50 p-4">
-          <div className="text-center text-lg font-black text-gray-900"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-blue-600">🔵{detailLoad.to}</span></div>
+          <div className="text-center text-lg font-black text-gray-900"><span>⚫️{detailLoad.from}</span><span className="mx-2 text-gray-400">---&gt;</span><span className="text-primary-600">🔵{detailLoad.to}</span></div>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><WeightIcon className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">وزن بار</span><b className="block mt-1 text-sm font-black text-gray-900">{fa(detailLoad.weight)} کیلو</b></div>
             <div className="rounded-xl border border-gray-100 bg-white p-3 text-center"><Package className="mx-auto w-5 h-5 text-gray-500"/><span className="block mt-1 text-xs font-bold text-gray-400">نوع بار</span><b className="block mt-1 text-sm font-black text-gray-900">{detailLoad.type}</b></div>
@@ -1805,6 +1805,6 @@ const ProfilePage = () => <div className="space-y-3">
     <button type="button" aria-label="افزایش ۵۰ هزار تومان" className="w-10 h-10 shrink-0 rounded-xl border border-gray-200 bg-gray-50 text-2xl font-black text-gray-700 flex items-center justify-center" onClick={()=>adjustOfferPrice(50000)}>+</button>
   </div>
   
-</div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-blue-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
+</div></div>{!termsAccepted && <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-bold"><label className="flex items-center gap-3"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} className="w-5 h-5 accent-primary-600"/><span>قوانین و مقررات را مطالعه کردم و می‌پذیرم.</span></label><button type="button" className="mt-2 text-primary-600 font-black underline underline-offset-2" onClick={()=>{setOfferOpen(false);setOfferDragY(0);go('rules');}}>مشاهده قوانین و مقررات</button></div>}<Button size="full" className="mt-4 h-14 text-base font-black" disabled={actionBusy} onClick={submitOffer}>{actionBusy?'در حال ثبت...':'ارسال پیشنهاد'}</Button></div></div>}
   </div>;
 }
