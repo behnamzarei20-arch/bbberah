@@ -66,24 +66,45 @@
 [data-theme="dark"] main { background-color: transparent; }
 
 
-/* Horizontal push transition: current page exits left, next page enters from right. */
+/* Clean horizontal push: forward enters from left; back enters from right. */
 ::view-transition-group(app-page) {
-  animation-duration: 360ms;
-  animation-timing-function: cubic-bezier(.22,.72,.22,1);
+  animation: none;
+  overflow: clip;
+}
+::view-transition-image-pair(app-page) {
+  isolation: isolate;
+}
+::view-transition-old(app-page),
+::view-transition-new(app-page) {
+  height: 100%;
+  width: 100%;
+  backface-visibility: hidden;
 }
 ::view-transition-old(app-page) {
-  animation: pagePushOutLeft 360ms cubic-bezier(.22,.72,.22,1) both;
-  transform-origin: left center;
+  animation: pageExitRight 300ms cubic-bezier(.22,.75,.25,1) both;
 }
 ::view-transition-new(app-page) {
-  animation: pagePushInRight 360ms cubic-bezier(.22,.72,.22,1) both;
-  transform-origin: right center;
+  animation: pageEnterLeft 300ms cubic-bezier(.22,.75,.25,1) both;
 }
-@keyframes pagePushOutLeft {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(-24%); opacity: .72; }
+:root[data-nav-direction="back"]::view-transition-old(app-page) {
+  animation-name: pageExitLeft;
 }
-@keyframes pagePushInRight {
+:root[data-nav-direction="back"]::view-transition-new(app-page) {
+  animation-name: pageEnterRight;
+}
+@keyframes pageExitRight {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+@keyframes pageEnterLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes pageExitLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+@keyframes pageEnterRight {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
