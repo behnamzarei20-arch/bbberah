@@ -194,6 +194,20 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
 }
 
 
+
+function AccountMenuIcon({ kind, children }: { kind: 'identity' | 'vehicle' | 'transactions' | 'rules' | 'logout'; children: React.ReactElement }) {
+  const styles = {
+    identity: { color: '#07834F', border: '#9DDDB8', surface: '#E7F8ED' },
+    vehicle: { color: '#D97706', border: '#F4C98A', surface: '#FFF4DF' },
+    transactions: { color: '#1769AA', border: '#A8D2F0', surface: '#EAF5FF' },
+    rules: { color: '#6D4BC3', border: '#CBBBF2', surface: '#F2EDFF' },
+    logout: { color: '#D92D3A', border: '#F3A6AC', surface: '#FFF0F1' },
+  }[kind];
+  return <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border shadow-sm" style={{ color: styles.color, borderColor: styles.border, backgroundColor: styles.surface }}>
+    {React.cloneElement(children, { className: 'h-5 w-5', 'aria-hidden': true })}
+  </span>;
+}
+
 function WalletMovementIcon({ type }: { type: 'increase' | 'decrease' | 'gift' }) {
   const gift = type === 'gift';
   const red = type === 'decrease';
@@ -733,13 +747,13 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
     const vehicleTypeLabel = vehicleForm.type === 'وانت و نیسان' ? 'نیسان' : vehicleForm.type;
     const vehicleSummary = [vehicleTypeLabel, vehicleForm.usage, vehicleForm.feature].filter(Boolean).join(' · ');
-    const cardClass = 'w-full rounded-2xl border border-primary-300 bg-primary-200 shadow-sm overflow-hidden';
+    const cardClass = 'w-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden';
     const rowClass = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-right';
     const labelClass = 'flex min-w-0 items-center gap-3 text-right text-xl font-black text-gray-900';
     const statusClass = 'shrink-0 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-base font-black text-primary-700';
     const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`;
     return <div className="space-y-3">
-      <div className="rounded-2xl border border-primary-300 bg-primary-200 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="p-4 flex items-center justify-between gap-3" dir="rtl">
           <div className="min-w-0 flex flex-col items-start text-right gap-2">
             <div aria-label="آواتار پیش‌فرض" className="h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-primary-100 bg-primary-50"><FacelessAvatar className="h-full w-full"/></div>
@@ -755,51 +769,51 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('account')} className={rowClass} dir="rtl">
-          <span className={labelClass}><ShieldCheck className="h-5 w-5 shrink-0 text-primary-600"/>احراز هویت</span>
+          <span className={labelClass}><AccountMenuIcon kind="identity"><ShieldCheck/></AccountMenuIcon><span>احراز هویت</span></span>
           <span className={verificationStatusClass}>{verificationLabel}</span>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('vehicle-dashboard')} className={rowClass} dir="rtl">
-          <span className={labelClass}><CarFront className="h-5 w-5 shrink-0 text-primary-600"/>خودروی من</span>
-          <span className={`${statusClass} max-w-[55%] truncate`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
+          <span className={labelClass}><AccountMenuIcon kind="vehicle"><CarFront/></AccountMenuIcon><span>خودروی من</span></span>
+          <span className={`${statusClass} max-w-[55%] truncate text-orange-600`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('wallet')} className={rowClass} dir="rtl">
           <span className={labelClass}><WalletMovementIcon type="increase"/><span>کیف پول</span></span>
-          <span className={statusClass}>{money(walletBalance)} تومان</span>
+          <span className={`${statusClass} text-orange-600`}>{money(walletBalance)} تومان</span>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('transactions')} className={rowClass} dir="rtl">
-          <span className={labelClass}><ReceiptText className="h-5 w-5 shrink-0 text-primary-600"/>تراکنش‌ها</span>
+          <span className={labelClass}><AccountMenuIcon kind="transactions"><ReceiptText/></AccountMenuIcon><span>تراکنش‌ها</span></span>
           <ChevronLeft className="h-5 w-5 shrink-0 text-gray-400"/>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('rules')} className={rowClass} dir="rtl">
-          <span className={labelClass}><FileText className="h-5 w-5 shrink-0 text-black"/>قوانین و مقررات</span>
+          <span className={labelClass}><AccountMenuIcon kind="rules"><FileText/></AccountMenuIcon><span>قوانین و مقررات</span></span>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>setShowLogoutConfirm(true)} className={rowClass} dir="rtl">
-          <span className="flex min-w-0 items-center gap-3 text-xl font-black text-red-600"><LogOut className="h-5 w-5 shrink-0 text-red-600"/>خروج از حساب کاربری</span>
+          <span className="flex min-w-0 items-center gap-3 text-xl font-black text-red-600"><AccountMenuIcon kind="logout"><LogOut/></AccountMenuIcon><span>خروج از حساب کاربری</span></span>
         </button>
       </div>
-      <div className="rounded-2xl border border-primary-300 bg-primary-200 px-4 py-5 text-center shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
         <div className="flex items-center justify-center gap-4">
-          <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-5 w-5"/></span>
-          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-5 w-5 object-contain" loading="lazy"/></span>
-          <span aria-label="روبیکا" title="روبیکا" className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-5 w-5 object-contain" loading="lazy"/></span>
+          <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-7 w-7"/></span>
+          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-7 w-7 object-contain" loading="lazy"/></span>
+          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-7 w-7 object-contain" loading="lazy"/></span>
         </div>
       </div>
-      <div className="rounded-2xl border border-primary-300 bg-primary-200 px-4 py-3 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between gap-3 text-sm">
           <span className="font-bold text-gray-500">نسخه برنامه</span>
           <span className="font-black text-gray-800" dir="ltr">۱.۰.۱</span>
@@ -866,7 +880,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </section>
 
       <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-2 content-start gap-2 pt-1">
-        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-5 rounded-2xl bg-primary-200 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.08)] transition-colors hover:bg-primary-300 active:bg-primary-300">
+        <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-5 rounded-2xl bg-white px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.08)] transition-colors hover:bg-white active:bg-gray-50">
           <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-orange-300 bg-orange-100 shadow-sm"><Search className="h-8 w-8 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           
