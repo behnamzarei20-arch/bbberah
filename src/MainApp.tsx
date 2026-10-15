@@ -640,7 +640,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const Header = () => <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200">
     <div className="relative max-w-lg mx-auto h-16 px-4 flex items-center justify-between">
-      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-primary-800 bg-primary-700 text-white flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
+      <button type="button" onClick={()=>go('support')} className="w-10 h-10 rounded-xl border border-orange-200 bg-orange-50 text-accent-500 flex items-center justify-center" aria-label="پشتیبانی" title="پشتیبانی"><Headset className="w-5 h-5"/></button>
       <button type="button" onClick={()=>goHome()} className="absolute left-1/2 -translate-x-1/2 font-black text-2xl tracking-tight text-primary-700">براه</button>
       <div className="flex items-center gap-2">
         <button type="button"
@@ -650,21 +650,28 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           onPointerLeave={endThemePress}
           onContextMenu={e=>e.preventDefault()}
           onClick={handleThemeClick}
-          className="w-10 h-10 rounded-xl border border-primary-800 bg-primary-700 text-white flex items-center justify-center"
+          className="w-10 h-10 rounded-xl border border-orange-200 bg-orange-50 text-accent-500 flex items-center justify-center"
           aria-label={displayMode==='auto'?'حالت نمایش خودکار':displayMode==='night'?'حالت شب':'حالت روز'}
           title="لمس کوتاه: روز/شب؛ نگه‌داشتن: خودکار">
           {displayMode==='auto' ? <Monitor className="w-5 h-5"/> : effectiveDark ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
         </button>
-        <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl border border-primary-800 bg-primary-700 text-white flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
+        <button type="button" onClick={()=>go('notifications')} className="relative w-10 h-10 rounded-xl border border-orange-200 bg-orange-50 text-accent-500 flex items-center justify-center" aria-label="اعلان‌ها" title="اعلان‌ها"><Bell className="w-5 h-5"/>{unreadNotifications>0&&<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">{fa(unreadNotifications)}</span>}</button>
       </div>
     </div>
   </header>;
 
-  const BottomNav = () => <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-gray-200 bg-white/95 backdrop-blur">
+  const BottomNav = () => <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-orange-100 bg-white/95 backdrop-blur shadow-[0_-4px_16px_rgba(255,102,0,0.06)]">
     <div className="max-w-lg mx-auto grid grid-cols-4 h-[72px]">
       {[
         ['home','خانه',Home],['search','جستجو',Search],['calls','تماس‌ها',PhoneCall],['profile','حساب',User]
-      ].map(([p,l,I])=><button key={p as string} onClick={()=>p==='search' ? openSearchPage() : go(p as Page)} className={`flex flex-col items-center justify-center gap-1 text-[11px] ${(page===p || (p==='profile' && ['account','wallet','transactions','vehicle-dashboard','vehicle-select','vehicle','vehicle-loader','trailer-select','jooft-usage','jooft-feature','tak-usage','tak-feature','komionet-usage','komionet-feature','van-usage','van-feature','flatbed-size','rules','display'].includes(page)))?'text-primary-900 font-black':'text-gray-900 font-bold'}`}>{createElement(I as any,{className:"w-5 h-5"})}{String(l)}</button>)}
+      ].map(([p,l,I])=>{
+        const active = page===p || (p==='profile' && ['account','wallet','transactions','vehicle-dashboard','vehicle-select','vehicle','vehicle-loader','trailer-select','jooft-usage','jooft-feature','tak-usage','tak-feature','komionet-usage','komionet-feature','van-usage','van-feature','flatbed-size','rules','display'].includes(page));
+        return <button key={p as string} onClick={()=>p==='search' ? openSearchPage() : go(p as Page)} className={`relative flex flex-col items-center justify-center gap-1 text-[11px] transition-colors ${active?'font-black text-accent-500':'font-bold text-gray-500 hover:text-accent-500'}`}>
+          {active && <span className="absolute top-0 h-[3px] w-8 rounded-b-full bg-accent-500"/>}
+          {createElement(I as any,{className:`w-5 h-5 ${active?'text-accent-500':'text-gray-500'}`})}
+          {String(l)}
+        </button>
+      })}
     </div>
   </nav>;
 
@@ -775,29 +782,29 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
       <section aria-label="دسترسی سریع" className="grid flex-none grid-cols-2 content-start gap-2 pt-1">
         <button type="button" onClick={()=>animateHomeCard('search',openSearchPage)} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl bg-primary-100 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.08)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-16 w-16 items-center justify-center rounded-xl border border-primary-800 bg-primary-700 shadow-md shadow-primary-900/20"><Search className="h-8 w-8 shrink-0 text-white" aria-hidden="true"/></span>
+          <span className="flex h-16 w-16 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 shadow-sm"><Search className="h-8 w-8 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
         <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square h-auto min-h-0 w-full self-start flex-col items-center justify-center gap-3 rounded-2xl bg-primary-100 px-3 py-4 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-16 w-16 items-center justify-center rounded-xl border border-primary-800 bg-primary-700 shadow-md shadow-primary-900/20"><Navigation className="h-8 w-8 shrink-0 text-white" aria-hidden="true"/></span>
+          <span className="flex h-16 w-16 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 shadow-sm"><Navigation className="h-8 w-8 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="w-full text-center text-lg font-black text-gray-900">اطراف من</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
         </button>
         <button type="button" onClick={()=>notify('بخش فروشگاه به‌زودی فعال می‌شود.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><Store className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><Store className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">فروشگاه</span>
         </button>
         <button type="button" onClick={()=>notify('بخش بارهای مشاهده‌شده هنوز فعال نشده است.')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><Eye className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><Eye className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">بارهای مشاهده‌شده</span>
         </button>
         <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><CreditCard className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><CreditCard className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">کارت هوشمند</span>
         </button>
         <button type="button" onClick={()=>window.open('https://smartcard.rmto.ir','_blank','noopener,noreferrer')} className="home-quick-action col-span-1 flex aspect-[3/2] w-full flex-col items-center justify-center gap-1 rounded-xl bg-primary-100 px-1 py-1 text-center shadow-[0_2px_12px_rgba(0,57,88,0.06)] transition-colors hover:bg-primary-200 active:bg-primary-200">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary-800 bg-primary-700 shadow-sm"><HeartPulse className="h-5 w-5 shrink-0 text-white" aria-hidden="true"/></span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 shadow-sm"><HeartPulse className="h-5 w-5 shrink-0 text-accent-500" aria-hidden="true"/></span>
           <span className="text-sm font-black leading-5 text-gray-900">کارت سلامت</span>
         </button>
       </section>
