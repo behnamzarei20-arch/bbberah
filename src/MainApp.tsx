@@ -689,10 +689,16 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`;
     return <div className="space-y-3">
       <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="p-4 flex flex-col items-start text-right gap-2" dir="rtl">
-          <div className="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
-          <h2 className="font-black text-2xl text-gray-900">ادمین</h2>
-          <p className="text-base font-bold text-gray-900 dark:text-gray-900" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
+        <div className="p-4 flex items-center justify-between gap-3" dir="rtl">
+          <div className="min-w-0 flex flex-col items-start text-right gap-2">
+            <div className="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center"><User className="w-6 h-6 text-primary-700"/></div>
+            <h2 className="font-black text-2xl text-gray-900">ادمین</h2>
+            <p className="text-base font-bold text-gray-900 dark:text-gray-900" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
+          </div>
+          <div className="shrink-0 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-center text-orange-700">
+            <div className="flex items-center justify-center gap-1.5 text-sm font-bold"><Star className="h-4 w-4 fill-orange-500 text-orange-500"/> امتیاز شما</div>
+            <strong className="mt-1 block text-2xl font-black">۱۰۰</strong>
+          </div>
         </div>
       </div>
 
@@ -718,6 +724,13 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </div>
 
       <div className={cardClass}>
+        <button type="button" onClick={()=>go('transactions')} className={rowClass} dir="rtl">
+          <span className={labelClass}><ReceiptText className="h-5 w-5 shrink-0 text-primary-600"/>تراکنش‌ها</span>
+          <ChevronLeft className="h-5 w-5 shrink-0 text-gray-400"/>
+        </button>
+      </div>
+
+      <div className={cardClass}>
         <button type="button" onClick={()=>go('rules')} className={rowClass} dir="rtl">
           <span className={labelClass}><FileText className="h-5 w-5 shrink-0 text-black"/>قوانین و مقررات</span>
         </button>
@@ -729,21 +742,20 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
         </button>
       </div>
       <div className="rounded-lg border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
-        <p className="mb-4 text-sm font-bold text-gray-500">براه در شبکه‌های اجتماعی</p>
         <div className="flex items-center justify-center gap-4">
           <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-6 w-6"/></span>
           <span aria-label="تلگرام؛ لینک به‌زودی اضافه می‌شود" title="تلگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#229ED9] text-white shadow-sm"><Send className="h-6 w-6"/></span>
-          <span aria-label="روبیکا؛ لینک به‌زودی اضافه می‌شود" title="روبیکا — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7c3aed] to-[#ec4899] text-white shadow-sm"><MessageCircle className="h-6 w-6"/></span>
+          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6d28d9] to-[#d946ef] text-white shadow-sm"><svg viewBox="0 0 32 32" className="h-7 w-7" fill="none" aria-hidden="true"><path d="M8 7.5h10.5a6 6 0 0 1 0 12H13v5H8V7.5Z" fill="white"/><path d="M13 12h5.5a1.5 1.5 0 0 1 0 3H13v-3Z" fill="#8b2be2"/><path d="M17 19.5 23 25h-6l-4-5.5" fill="white"/></svg></span>
         </div>
       </div>
       {showLogoutConfirm && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowLogoutConfirm(false)}}>
         <div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="main-logout-confirm-title" className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600"><LogOut className="h-7 w-7"/></div>
-          <h2 id="main-logout-confirm-title" className="text-center text-xl font-black text-gray-900">از خروج از حساب مطمئن هستید؟</h2>
-          <p className="mt-2 text-center text-sm leading-6 text-gray-500">در صورت تأیید، از حساب کاربری خود خارج می‌شوید.</p>
+          <h2 id="main-logout-confirm-title" className="text-center text-xl font-black text-gray-900">خروج از حساب کاربر</h2>
+          <p className="mt-2 text-center text-sm leading-6 text-gray-500">آیا از حساب کاربری خود خارج می شوید؟</p>
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <button type="button" onClick={()=>setShowLogoutConfirm(false)} className="rounded-xl border border-gray-200 px-4 py-3 font-bold text-gray-700">انصراف</button>
-            <button type="button" onClick={async()=>{setShowLogoutConfirm(false);await signOut()}} className="rounded-xl bg-red-600 px-4 py-3 font-black text-white hover:bg-red-700">بله، خروج</button>
+            <button type="button" onClick={()=>setShowLogoutConfirm(false)} className="rounded-xl border-2 border-orange-500 px-4 py-3 font-bold text-orange-600">انصراف</button>
+            <button type="button" onClick={async()=>{setShowLogoutConfirm(false);await signOut()}} className="rounded-xl bg-red-600 px-4 py-3 font-black text-white hover:bg-red-700">خروج</button>
           </div>
         </div>
       </div>}
