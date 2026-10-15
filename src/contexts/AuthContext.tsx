@@ -10,6 +10,7 @@ interface AuthContextValue {
   signIn: (phone: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateAvatar: (avatarUrl: string | null) => Promise<void>;
 }
 
 type DemoUser = Profile & { email: string; password?: string };
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn=useCallback(async(phone:string)=>{const normalized=phone.trim();let user=readUsers().find(x=>x.phone===normalized);if(!user){const now=new Date().toISOString();user={id:makeId(),email:'',role:'driver',full_name:'',phone:normalized,avatar_url:null,status:'active',city:null,created_at:now,updated_at:now};writeUsers([...readUsers(),user]);}localStorage.setItem(CURRENT_KEY,user.id);setProfile(user);setSession(createSession(user));return{error:null}},[]);
   const signOut=useCallback(async()=>{localStorage.removeItem(CURRENT_KEY);setSession(null);setProfile(null)},[]);
   const refreshProfile=useCallback(async()=>{const id=session?.user.id;if(!id)return;const user=readUsers().find(x=>x.id===id);if(user){setProfile(user);setSession(createSession(user))}},[session]);
-  return <AuthContext.Provider value={{session,profile,loading,signUp,signIn,signOut,refreshProfile}}>{children}</AuthContext.Provider>;
+  const updateAvatar=useCallback(async(avatarUrl:string|null)=>{const id=session?.user.id;if(!id)return;const users=readUsers();const index=users.findIndex(x=>x.id===id);if(index<0)return;const updated={...users[index],avatar_url:avatarUrl,updated_at:new Date().toISOString()};users[index]=updated;writeUsers(users);setProfile(updated);setSession(createSession(updated))},[session]);
+  return <AuthContext.Provider value={{session,profile,loading,signUp,signIn,signOut,refreshProfile,updateAvatar}}>{children}</AuthContext.Provider>;
 }
 export function useAuth(){const ctx=useContext(AuthContext);if(!ctx)throw new Error('useAuth must be used within AuthProvider');return ctx;}
