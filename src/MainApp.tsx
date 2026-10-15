@@ -3,7 +3,7 @@ import {
   ArrowLeft, ArrowRight, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
-  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info
+  Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info, Instagram, Send, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -676,6 +676,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
   </nav>;
 
   const AccountHome = () => {
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const verificationLabel = identityVerified ? 'تأییدشده' : identityPending ? 'در انتظار تأیید' : 'تأییدنشده';
     const verificationClass = identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600';
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
@@ -723,10 +724,29 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </div>
 
       <div className={cardClass}>
-        <button type="button" onClick={()=>signOut()} className={rowClass} dir="rtl">
+        <button type="button" onClick={()=>setShowLogoutConfirm(true)} className={rowClass} dir="rtl">
           <span className="flex min-w-0 items-center gap-3 text-xl font-black text-red-600"><LogOut className="h-5 w-5 shrink-0 text-red-600"/>خروج از حساب کاربری</span>
         </button>
       </div>
+      <div className="rounded-lg border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
+        <p className="mb-4 text-sm font-bold text-gray-500">براه در شبکه‌های اجتماعی</p>
+        <div className="flex items-center justify-center gap-4">
+          <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-6 w-6"/></span>
+          <span aria-label="تلگرام؛ لینک به‌زودی اضافه می‌شود" title="تلگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#229ED9] text-white shadow-sm"><Send className="h-6 w-6"/></span>
+          <span aria-label="روبیکا؛ لینک به‌زودی اضافه می‌شود" title="روبیکا — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7c3aed] to-[#ec4899] text-white shadow-sm"><MessageCircle className="h-6 w-6"/></span>
+        </div>
+      </div>
+      {showLogoutConfirm && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowLogoutConfirm(false)}}>
+        <div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="main-logout-confirm-title" className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600"><LogOut className="h-7 w-7"/></div>
+          <h2 id="main-logout-confirm-title" className="text-center text-xl font-black text-gray-900">از خروج از حساب مطمئن هستید؟</h2>
+          <p className="mt-2 text-center text-sm leading-6 text-gray-500">در صورت تأیید، از حساب کاربری خود خارج می‌شوید.</p>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button type="button" onClick={()=>setShowLogoutConfirm(false)} className="rounded-xl border border-gray-200 px-4 py-3 font-bold text-gray-700">انصراف</button>
+            <button type="button" onClick={async()=>{setShowLogoutConfirm(false);await signOut()}} className="rounded-xl bg-red-600 px-4 py-3 font-black text-white hover:bg-red-700">بله، خروج</button>
+          </div>
+        </div>
+      </div>}
     </div>;
   };
 
