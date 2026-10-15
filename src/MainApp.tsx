@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowLeft, ArrowRight, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
+  ArrowLeft, ArrowRight, Bell, Gift, TrendingUp, TrendingDown, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
   Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info, Instagram, Send, MessageCircle
@@ -1525,9 +1525,10 @@ const ProfilePage = () => <div className="space-y-3">
           const incoming = item.type === 'increase';
           const color = incoming ? 'text-emerald-600' : 'text-red-600';
           const bg = incoming ? 'bg-emerald-50' : 'bg-red-50';
+          const TransactionIcon = item.gift ? Gift : incoming ? TrendingUp : TrendingDown;
           return <Card key={item.id}><CardBody className="px-3 py-3">
             <div className="flex items-center gap-3">
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bg} ${color}`}><WalletCards className="h-5 w-5"/></span>
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bg} ${color}`}><TransactionIcon className="h-5 w-5"/></span>
               <div className="min-w-0 flex-1">
                 <b className="block truncate text-sm font-black text-gray-900">{item.title}</b>
                 <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-500"><Clock3 className="h-3.5 w-3.5 shrink-0"/><span>{new Date(item.at).toLocaleDateString('fa-IR')}</span></div>
