@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowLeft, ArrowRight, Bell, Gift, TrendingUp, TrendingDown, MoveUpRight, MoveDownRight, Camera, Pencil, Image as ImageIcon, Wallet, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
+  ArrowLeft, ArrowRight, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
   Truck, Container, BusFront, User, WalletCards, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info, Instagram, Send, MessageCircle
@@ -193,8 +193,43 @@ function Empty({ title, text, action }: {title:string;text:string;action?:()=>vo
   return <div className="py-14 text-center"><Package className="w-10 h-10 mx-auto text-gray-300"/><h3 className="font-black mt-3">{title}</h3><p className="text-sm text-gray-400 mt-2">{text}</p>{action && <Button size="sm" variant="outline" className="mt-5" onClick={action}>تلاش دوباره</Button>}</div>;
 }
 
+
+function WalletMovementIcon({ type }: { type: 'increase' | 'decrease' | 'gift' }) {
+  const gift = type === 'gift';
+  const red = type === 'decrease';
+  const color = red ? '#D92D3A' : '#07834F';
+  const border = red ? '#F3A6AC' : '#9DDDB8';
+  const surface = red ? '#FFF0F1' : '#E7F8ED';
+  return <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border shadow-sm" style={{ backgroundColor: surface, borderColor: border }}>
+    {gift ? <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path d="M4.5 10h15v10.2h-15z" fill={color} stroke={border} strokeWidth="1.35" strokeLinejoin="round"/>
+      <path d="M3.5 7h17v4h-17z" fill={color} stroke={border} strokeWidth="1.35" strokeLinejoin="round"/>
+      <path d="M12 7v13" stroke={surface} strokeWidth="1.7"/>
+      <path d="M12 7C7.4 7 5.4 5.8 6.2 3.9 7.1 1.8 10.2 4 12 7Z" fill={color} stroke={border} strokeWidth="1.15" strokeLinejoin="round"/>
+      <path d="M12 7c4.6 0 6.6-1.2 5.8-3.1C16.9 1.8 13.8 4 12 7Z" fill={color} stroke={border} strokeWidth="1.15" strokeLinejoin="round"/>
+    </svg> : <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path d="M4.1 7.1V5.8c0-1 .8-1.8 1.8-1.8h11.2c1 0 1.8.8 1.8 1.8v1.4" fill={color} stroke={border} strokeWidth="1.35" strokeLinejoin="round"/>
+      <path d="M4.2 7h15.1c1.2 0 2.2 1 2.2 2.2v8.1c0 1.2-1 2.2-2.2 2.2H4.7c-1.2 0-2.2-1-2.2-2.2V9.2C2.5 8 3.4 7 4.2 7Z" fill={color} stroke={border} strokeWidth="1.35" strokeLinejoin="round"/>
+      <path d="M15.2 10.1h6.1v5.2h-6.1a2.6 2.6 0 0 1-2.6-2.6v0a2.6 2.6 0 0 1 2.6-2.6Z" fill={color} stroke={border} strokeWidth="1.35" strokeLinejoin="round"/>
+      <circle cx="16.1" cy="12.7" r="1" fill={surface}/>
+    </svg>}
+  </span>;
+}
+
+function FacelessAvatar({ className = 'h-16 w-16' }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 100 100" role="img" aria-label="آواتار پیش‌فرض بدون چهره">
+    <circle cx="50" cy="50" r="49" fill="#DCEAFE"/>
+    <path d="M12 100c2-23 15-36 38-36s36 13 38 36" fill="#344B63"/>
+    <path d="M42 59h16v15H42z" fill="#D8A27A"/>
+    <path d="M30 39c0-18 8-28 20-28s20 10 20 28v9c0 14-9 24-20 24S30 62 30 48z" fill="#E8BE98"/>
+    <path d="M27 42c-2-20 8-34 24-34 15 0 25 13 23 33-5-1-9-5-12-11-9 7-20 10-35 12Z" fill="#26384B"/>
+    <path d="M28 39c-1 9 0 16 3 22l5 3-2-19Z" fill="#26384B"/>
+    <path d="M67 39c1 8 0 15-3 21l-4 4 2-18Z" fill="#26384B"/>
+  </svg>;
+}
+
 export function MainApp() {
-  const { profile, session, signOut, updateAvatar } = useAuth();
+  const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>('home');
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
   const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
@@ -693,33 +728,27 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
   const AccountHome = () => {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-    const [showAvatarPicker, setShowAvatarPicker] = useState(false);
-    const saveProfileAvatar = (file?:File) => { if (!file) return; if (!file.type.startsWith('image/')) { notify('لطفاً یک تصویر معتبر انتخاب کنید.'); return; } const reader = new FileReader(); reader.onload = () => { if (typeof reader.result === 'string') void updateAvatar(reader.result).then(() => notify('عکس پروفایل ذخیره شد.')); }; reader.readAsDataURL(file); };
-    const avatarChoices = ['#DCEAFE','#DDF7E8','#FCE7D8','#E9E2FF','#DDF4F7','#FCE7F3'].map(bg => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="${bg}"/><path d="M18 100c2-23 14-35 32-35s30 12 32 35" fill="#344B63"/><path d="M31 43c0-18 8-28 19-28s19 10 19 28v7c0 13-8 22-19 22s-19-9-19-22z" fill="#344B63"/><path d="M24 39c1-22 11-32 26-32 16 0 26 12 26 32-6-7-12-10-19-10-10 0-17 4-33 10z" fill="#26384B"/></svg>`)}`);
-    const verificationLabel = identityVerified ? 'تأییدشده' : identityPending ? 'در انتظار تأیید' : 'تأییدنشده';
+        const verificationLabel = identityVerified ? 'تأییدشده' : identityPending ? 'در انتظار تأیید' : 'تأییدنشده';
     const verificationClass = identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600';
     const savedVehicle = Boolean(window.localStorage.getItem('bbberah_vehicle_v1') && vehicleForm.type && vehicleForm.feature);
     const vehicleTypeLabel = vehicleForm.type === 'وانت و نیسان' ? 'نیسان' : vehicleForm.type;
     const vehicleSummary = [vehicleTypeLabel, vehicleForm.usage, vehicleForm.feature].filter(Boolean).join(' · ');
-    const cardClass = 'w-full rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden';
+    const cardClass = 'w-full rounded-2xl border border-primary-300 bg-primary-200 shadow-sm overflow-hidden';
     const rowClass = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-right';
     const labelClass = 'flex min-w-0 items-center gap-3 text-right text-xl font-black text-gray-900';
     const statusClass = 'shrink-0 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-base font-black text-primary-700';
     const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`;
     return <div className="space-y-3">
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="rounded-2xl border border-primary-300 bg-primary-200 shadow-sm">
         <div className="p-4 flex items-center justify-between gap-3" dir="rtl">
           <div className="min-w-0 flex flex-col items-start text-right gap-2">
-            <button type="button" onClick={()=>setShowAvatarPicker(true)} aria-label="تغییر عکس پروفایل" title="تغییر عکس پروفایل" className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-primary-100 bg-primary-50 flex items-center justify-center">
-              {profile?.avatar_url ? <img src={profile.avatar_url} alt="عکس پروفایل" className="h-full w-full object-cover"/> : <User className="w-7 h-7 text-primary-700"/>}
-              <span className="absolute bottom-0 right-0 rounded-full bg-white p-1 shadow"><Pencil className="h-3 w-3 text-primary-700"/></span>
-            </button>
+            <div aria-label="آواتار پیش‌فرض" className="h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-primary-100 bg-primary-50"><FacelessAvatar className="h-full w-full"/></div>
             <h2 className="font-black text-2xl text-gray-900">{profile?.full_name || 'کاربر براه'}</h2>
             <p className="text-base font-bold text-gray-900 dark:text-gray-900" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
           </div>
-          <div className="shrink-0 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-center text-orange-700">
-            <div className="flex items-center justify-center gap-1.5 text-sm font-bold"><Star className="h-4 w-4 fill-orange-500 text-orange-500"/> امتیاز شما</div>
-            <strong className="mt-1 flex items-center justify-center gap-1.5 text-2xl font-black" dir="rtl"><MoveUpRight className="h-5 w-5 text-emerald-600"/><span>{money(driverScore)}</span></strong>
+          <div className="shrink-0 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-center text-orange-700">
+            <div className="flex items-center justify-center gap-1.5 text-sm font-bold"><Star className="h-5 w-5 fill-orange-500 text-orange-500"/> امتیاز شما</div>
+            <strong className="mt-1 block text-2xl font-black" dir="rtl">{money(driverScore)}</strong>
           </div>
         </div>
       </div>
@@ -740,7 +769,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('wallet')} className={rowClass} dir="rtl">
-          <span className={labelClass}><WalletCards className="h-5 w-5 shrink-0 text-primary-600"/>کیف پول</span>
+          <span className={labelClass}><WalletMovementIcon type="increase"/><span>کیف پول</span></span>
           <span className={statusClass}>{money(walletBalance)} تومان</span>
         </button>
       </div>
@@ -763,31 +792,19 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           <span className="flex min-w-0 items-center gap-3 text-xl font-black text-red-600"><LogOut className="h-5 w-5 shrink-0 text-red-600"/>خروج از حساب کاربری</span>
         </button>
       </div>
-      <div className="rounded-lg border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
+      <div className="rounded-2xl border border-primary-300 bg-primary-200 px-4 py-5 text-center shadow-sm">
         <div className="flex items-center justify-center gap-4">
           <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-5 w-5"/></span>
           <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-5 w-5 object-contain" loading="lazy"/></span>
           <span aria-label="روبیکا" title="روبیکا" className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-5 w-5 object-contain" loading="lazy"/></span>
         </div>
       </div>
-      <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
+      <div className="rounded-2xl border border-primary-300 bg-primary-200 px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between gap-3 text-sm">
           <span className="font-bold text-gray-500">نسخه برنامه</span>
           <span className="font-black text-gray-800" dir="ltr">۱.۰.۱</span>
         </div>
       </div>
-      {showAvatarPicker && <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 px-4" onMouseDown={e=>{if(e.target===e.currentTarget)setShowAvatarPicker(false)}}>
-        <div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="main-avatar-picker-title" className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
-          <div className="mb-4 flex items-center justify-between"><h2 id="main-avatar-picker-title" className="text-lg font-black text-gray-900">تغییر عکس پروفایل</h2><button type="button" onClick={()=>setShowAvatarPicker(false)} aria-label="بستن" className="rounded-xl p-2 text-gray-500"><X className="h-5 w-5"/></button></div>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-orange-200 bg-orange-50 p-3 font-bold text-orange-700"><Camera className="h-5 w-5"/> دوربین<input className="hidden" type="file" accept="image/*" capture="user" onChange={e=>saveProfileAvatar(e.target.files?.[0])}/></label>
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-gray-200 p-3 font-bold text-gray-700"><ImageIcon className="h-5 w-5"/> گالری<input className="hidden" type="file" accept="image/*" onChange={e=>saveProfileAvatar(e.target.files?.[0])}/></label>
-          </div>
-          <p className="mb-3 mt-5 text-sm font-bold text-gray-500">یا یکی از آواتارهای آماده را انتخاب کنید</p>
-          <div className="grid grid-cols-3 gap-3">{avatarChoices.map((url,i)=><button key={url} type="button" onClick={()=>{void updateAvatar(url).then(()=>notify('عکس پروفایل ذخیره شد.'));setShowAvatarPicker(false)}} className="rounded-2xl border border-gray-200 p-1.5 hover:border-orange-400"><img src={url} alt={`آواتار ${i+1}`} loading="lazy" className="aspect-square w-full rounded-xl bg-orange-50"/></button>)}</div>
-          {profile?.avatar_url && <button type="button" onClick={()=>{void updateAvatar(null).then(()=>notify('عکس پروفایل به حالت پیش‌فرض برگشت.'));setShowAvatarPicker(false)}} className="mt-4 w-full rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-500">حذف عکس پروفایل</button>}
-        </div>
-      </div>}
       {showLogoutConfirm && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowLogoutConfirm(false)}}>
         <div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="main-logout-confirm-title" className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600"><LogOut className="h-7 w-7"/></div>
@@ -1548,11 +1565,9 @@ const ProfilePage = () => <div className="space-y-3">
         {walletItems.length===0 ? <Card><CardBody className="p-4"><Empty title="تراکنشی ثبت نشده" text="سوابق افزایش و کاهش موجودی کیف پول در این بخش نمایش داده می‌شود."/></CardBody></Card> : walletItems.map(item => {
           const incoming = item.type === 'increase';
           const color = incoming ? 'text-emerald-600' : 'text-red-600';
-          const bg = incoming ? 'bg-emerald-50' : 'bg-red-50';
-          const TransactionIcon = item.gift ? Gift : incoming ? TrendingUp : TrendingDown;
           return <Card key={item.id}><CardBody className="px-3 py-3">
             <div className="flex items-center gap-3">
-              <span className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bg} ${color}`}>{item.gift ? <Gift className="h-5 w-5 fill-current stroke-current"/> : <Wallet className="h-5 w-5 fill-current stroke-white"/>}{!item.gift && <span className="absolute -bottom-1 -left-1 rounded-full bg-white p-0.5">{incoming ? <MoveUpRight className="h-3 w-3 text-emerald-600"/> : <MoveDownRight className="h-3 w-3 text-red-600"/>}</span>}</span>
+              <WalletMovementIcon type={item.gift ? 'gift' : incoming ? 'increase' : 'decrease'}/>
               <div className="min-w-0 flex-1">
                 <b className="block truncate text-sm font-black text-gray-900">{item.title}</b>
                 <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-500"><Clock3 className="h-3.5 w-3.5 shrink-0"/><span>{new Date(item.at).toLocaleDateString('fa-IR')}</span></div>
