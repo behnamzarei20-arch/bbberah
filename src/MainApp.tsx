@@ -493,7 +493,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     const tabs: Page[] = ['home','search','calls','profile'];
     const index = tabs.indexOf(page);
     const nextIndex = dx < 0 ? Math.min(tabs.length - 1, index + 1) : Math.max(0, index - 1);
-    if (nextIndex !== index) { if (tabs[nextIndex] === 'search') openSearchPage(); else go(tabs[nextIndex]); }
+    if (nextIndex !== index) { e.preventDefault(); if (tabs[nextIndex] === 'search') openSearchPage(); else go(tabs[nextIndex]); }
   };
   const go = (p:Page, preserveSearch = false) => {
     if (p === 'search' && !preserveSearch) {
