@@ -481,9 +481,8 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     if (transitionDocument.startViewTransition) {
       document.documentElement.dataset.navDirection = direction;
       const transition = transitionDocument.startViewTransition(() => setPage(next));
-      transition.finished.finally(() => {
-        delete document.documentElement.dataset.navDirection;
-      });
+      const clearDirection = () => { delete document.documentElement.dataset.navDirection; };
+      transition.finished.then(clearDirection, clearDirection);
     } else {
       setPage(next);
     }
