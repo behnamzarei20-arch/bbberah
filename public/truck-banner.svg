@@ -35,7 +35,7 @@
 <rect x="860" y="372" width="190" height="14" fill="#1e293b"/>
 <rect x="835" y="340" width="28" height="8" rx="3" fill="#64748b"/>
 <!-- wheels -->
-<g fill="#111827" stroke="#64748b" stroke-width="7"><circle cx="505" cy="390" r="31"/><circle cx="805" cy="390" r="31"/><circle cx="895" cy="390" r="31/><circle cx="1005" cy="390" r="31"/></g>
+<g fill="#111827" stroke="#64748b" stroke-width="7"><circle cx="505" cy="390" r="31"/><circle cx="805" cy="390" r="31"/><circle cx="895" cy="390" r="31"/><circle cx="1005" cy="390" r="31"/></g>
 <g fill="#cbd5e1"><circle cx="505" cy="390" r="12"/><circle cx="805" cy="390" r="12"/><circle cx="895" cy="390" r="12"/><circle cx="1005" cy="390" r="12"/></g>
 <path d="M870 330h-10v40h10" fill="#0c4a6e"/>
 </g>
