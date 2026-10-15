@@ -2,10 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 
-// Use relative asset URLs so the built app works correctly on GitHub Pages
-// regardless of whether it is opened at /bbberah/ or from a deployment path.
+// This repository is published at https://behnamzarei20-arch.github.io/bbberah/.
+// Use the explicit project path so production assets always resolve from that URL.
 export default defineConfig({
-  base: './',
+  base: '/bbberah/',
   plugins: [react()],
   resolve: {
     alias: {
