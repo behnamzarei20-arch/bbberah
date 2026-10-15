@@ -474,6 +474,14 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
+  const setPageWithTransition = (next: Page) => {
+    const transitionDocument = document as Document & { startViewTransition?: (callback: () => void) => unknown };
+    if (transitionDocument.startViewTransition) {
+      transitionDocument.startViewTransition(() => setPage(next));
+    } else {
+      setPage(next);
+    }
+  };
   const go = (p:Page, preserveSearch = false) => {
     if (p === 'search' && !preserveSearch) {
       setOrigin(''); setOriginText(''); setOriginProvince(''); setOriginCounty('');
@@ -482,13 +490,13 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     }
     if (p === page) {  return; }
     window.history.pushState({ bbberahPage: p }, '', '#' + p);
-    setPage(p);
+    setPageWithTransition(p);
     
     window.scrollTo({top:0,behavior:'auto'});
   };
   const replacePage = (p:Page) => {
     window.history.replaceState({ bbberahPage: p }, '', '#' + p);
-    setPage(p);
+    setPageWithTransition(p);
     
     window.scrollTo({top:0,behavior:'auto'});
   };
@@ -1766,7 +1774,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button type="button" onClick={()=>setShowPageHelp(true)} className="w-10 h-10 shrink-0 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary-600" aria-label="توضیحات این صفحه" title="توضیحات این صفحه"><Info className="w-5 h-5"/></button>
       </div>
     </div>}
-    <main key={page} className={`page-turn-enter max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-2 h-[calc(100dvh-8rem)] min-h-0 overflow-hidden flex flex-col' : 'pb-24'}`}>
+    <main key={page} style={{ viewTransitionName: "app-page" }} className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-2 h-[calc(100dvh-8rem)] min-h-0 overflow-hidden flex flex-col' : 'pb-24'}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
       {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
