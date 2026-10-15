@@ -809,8 +809,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       <div className="rounded-2xl border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
         <div className="flex items-center justify-center gap-4">
           <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-7 w-7"/></span>
-          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-7 w-7 object-contain" loading="lazy"/></span>
-          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-7 w-7 object-contain" loading="lazy"/></span>
+          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-8 w-8 object-contain" loading="lazy"/></span>
+          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-8 w-8 object-contain" loading="lazy"/></span>
         </div>
       </div>
       <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
