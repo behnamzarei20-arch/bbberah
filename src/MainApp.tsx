@@ -766,7 +766,7 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
           <span className="w-full text-center text-lg font-black text-gray-900">جستجوی بار</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">مسیر و بار مناسب را پیدا کن</span>
         </button>
-        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-2 flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(15,118,110,0.06)] transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
+        <button type="button" onClick={()=>animateHomeCard('nearby',()=>{setNearbyDestination('');setNearbyDestinationText('');setNearbyDestinationProvince('');setNearbyDestinationCounty('');requestNearbyLocation();go('nearby-destination-select')})} className="home-quick-action col-span-1 flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/20 px-3 py-4 text-center shadow-[0_2px_12px_rgba(15,118,110,0.06)] transition-colors hover:border-teal-300 hover:bg-teal-50/40 active:bg-teal-50">
           <Navigation className="h-12 w-12 shrink-0 text-teal-700" aria-hidden="true"/>
           <span className="w-full text-center text-lg font-black text-gray-900">اطراف من</span>
           <span className="w-full text-center text-sm font-medium leading-6 text-gray-500">بارهای نزدیک موقعیتت</span>
