@@ -115,3 +115,9 @@
     animation-duration: 1ms !important;
   }
 }
+
+
+/* Unified soft card surface across the app, based on the main account cards. */
+@layer utilities {
+  .bg-white { background-color: #F4F6FC; }
+}
