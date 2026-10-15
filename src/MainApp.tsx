@@ -768,12 +768,8 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     };
     return <div className="flex min-h-0 flex-1 flex-col gap-2 w-full">
       <section aria-label="بنر کامیون‌ها و تریلی‌ها" className="relative h-[120px] shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 sm:h-[140px]">
-        <div className="absolute inset-0 grid grid-cols-3">
-          <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون حمل بار در جاده" loading="eager" fetchPriority="high" decoding="async" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1700716465891-9e5e9f501d7d?auto=format&fit=crop&w=800&q=85" alt="تریلی حمل بار در بزرگراه" loading="eager" decoding="async" className="h-full w-full object-cover"/>
-          <img src="https://images.unsplash.com/photo-1594960598451-f8509775168b?auto=format&fit=crop&w=800&q=85" alt="کامیون و تریلی در مسیر حمل بار" loading="eager" decoding="async" className="h-full w-full object-cover"/>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-l from-slate-950/75 via-slate-900/25 to-transparent"/>
+        <img src="https://images.pexels.com/photos/37753989/pexels-photo-37753989/free-photo-of-blue-semi-truck-on-a-scenic-mountain-highway.jpeg?auto=compress&dpr=1&h=750&w=1260" alt="تریلی آبی در جاده" loading="eager" fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full object-cover object-center"/>
+        <div className="absolute inset-0 bg-gradient-to-l from-primary-900/75 via-primary-900/30 to-transparent"/>
         <div className="absolute inset-y-0 right-0 flex flex-col justify-center px-4 text-right text-white">
           <span className="text-lg font-black">براه</span>
           <span className="mt-1 text-xs font-bold text-white/95">همراه مسیرهای جاده‌ای</span>
