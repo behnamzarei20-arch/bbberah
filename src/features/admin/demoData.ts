@@ -31,3 +31,11 @@ export const tickets = [
  {id:'TK-500',subject:'گزارش رفتار نامناسب',category:'گزارش کاربر',from:'محمد کریمی',userId:'BR-1047',status:'در حال بررسی',priority:'متوسط',created:'۱۴۰۵/۰۷/۲۵ · ۰۹:۴۰',assigned:'admin2',message:'درخواست بررسی رفتار کاربر در گفتگو.'},
  {id:'TK-499',subject:'اصلاح شماره تماس',category:'حساب کاربری',from:'رضا محمدی',userId:'BR-1046',status:'بسته',priority:'کم',created:'۱۴۰۵/۰۷/۲۴ · ۱۶:۲۰',assigned:'admin1',message:'نیاز به اصلاح اطلاعات تماس حساب.'},
 ];
+
+
+/** Mock administrator identities for preview only; never use as production credentials. */
+export const demoAdminAccounts: {username:string;password:string;role:AdminRole;label:string;description:string;permissions:string[]}[] = [
+ {username:'admin1',password:'BR-admin-1405',role:'owner',label:'مدیر اصلی',description:'دسترسی کامل به داشبورد و تمام بخش‌ها',permissions:['نمودارهای کلی و حسابداری','کارکنان و سطح دسترسی','صاحبان کالا، رانندگان و بارها','گزارش‌ها و بخش امنیت']},
+ {username:'admin2',password:'BR-support-1405',role:'support',label:'مدیر پشتیبانی',description:'مدیریت کاربران و رسیدگی به تیکت‌ها',permissions:['صاحبان کالا و رانندگان','بارها و تاریخچه فعالیت','گزارش‌ها و تیکت‌های پشتیبانی']},
+ {username:'admin3',password:'BR-review-1405',role:'reviewer',label:'بازبین اطلاعات',description:'دسترسی محدود برای بررسی اطلاعات و فعالیت‌ها',permissions:['پرونده صاحبان کالا و رانندگان','فهرست بارها','مشاهده تاریخچه فعالیت']}
+];
