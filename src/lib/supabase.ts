@@ -7,7 +7,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // been attached to Actions yet. Keep the UI renderable instead of crashing at
 // module initialization; real auth automatically resumes once the variables
 // are supplied.
-const hasSupabaseConfig = Boolean(supabaseUrl && supabaseAnonKey);
+export const hasSupabaseConfig = Boolean(supabaseUrl && supabaseAnonKey);
 
 const fallbackSupabase = {
   auth: {
