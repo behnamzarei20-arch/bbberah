@@ -33,6 +33,40 @@ export const tickets = [
 ];
 
 
+
+/** Demo-only operational records. All mutations stay in page memory until a real API layer exists. */
+export const verificationRequests = [
+ {id:'VR-201',name:'رضا محمدی',userId:'BR-1046',role:'راننده',city:'مشهد',document:'گواهینامه پایه یک',status:'در انتظار',submitted:'۱۴۰۵/۰۷/۲۵'},
+ {id:'VR-202',name:'مهدی جعفری',userId:'BR-1044',role:'راننده',city:'شیراز',document:'کارت هوشمند راننده',status:'نیازمند اصلاح',submitted:'۱۴۰۵/۰۷/۲۴'},
+ {id:'VR-203',name:'محمد کریمی',userId:'BR-1047',role:'صاحب بار',city:'اصفهان',document:'مدارک هویتی',status:'در انتظار',submitted:'۱۴۰۵/۰۷/۲۴'},
+];
+
+export const financialTransactions = [
+ {id:'TX-801',title:'تسویه کرایه بار BR-2406',user:'حسین احمدی',amount:16400000,type:'واریز',status:'تکمیل شده',created:'۱۴۰۵/۰۷/۲۵'},
+ {id:'TX-800',title:'کسر کمیسیون سامانه',user:'علی رضایی',amount:820000,type:'کمیسیون',status:'تکمیل شده',created:'۱۴۰۵/۰۷/۲۵'},
+ {id:'TX-799',title:'درخواست تسویه راننده',user:'مهدی جعفری',amount:7200000,type:'تسویه',status:'در انتظار',created:'۱۴۰۵/۰۷/۲۴'},
+ {id:'TX-798',title:'پرداخت کرایه بار BR-2408',user:'علی رضایی',amount:24500000,type:'واریز',status:'در انتظار',created:'۱۴۰۵/۰۷/۲۴'},
+];
+
+export const demoVehicles = [
+ {id:'VH-301',plate:'ایران ۶۸ · ۴۲۱ ب ۱۱',driver:'علی رضایی',type:'کامیون تک',city:'تهران',status:'فعال',inspection:'تأیید شده'},
+ {id:'VH-302',plate:'ایران ۳۲ · ۸۱۹ ج ۴۵',driver:'رضا محمدی',type:'تریلی',city:'مشهد',status:'در انتظار بررسی',inspection:'در انتظار'},
+ {id:'VH-303',plate:'ایران ۷۷ · ۱۵۲ د ۶۲',driver:'مهدی جعفری',type:'خاور',city:'شیراز',status:'تعلیق',inspection:'نیازمند اصلاح'},
+];
+
+export const demoNotifications = [
+ {id:'NT-401',title:'درخواست‌های احراز هویت',detail:'۳ پرونده برای بررسی اولیه ثبت شده است.',date:'۱۴۰۵/۰۷/۲۵',read:false},
+ {id:'NT-402',title:'درخواست تسویه',detail:'یک درخواست تسویه در انتظار رسیدگی است.',date:'۱۴۰۵/۰۷/۲۴',read:false},
+ {id:'NT-403',title:'گزارش پشتیبانی',detail:'تیکت TK-501 همچنان باز است.',date:'۱۴۰۵/۰۷/۲۴',read:true},
+];
+
+export const initialSystemSettings = [
+ {id:'maintenance',label:'حالت تعمیر و نگهداری',description:'نمایش پیام تعمیرات به کاربران؛ فقط وضعیت نمایشی.',enabled:false},
+ {id:'newRegistrations',label:'ثبت‌نام کاربران جدید',description:'کنترل نمایشی پذیرش ثبت‌نام‌های جدید.',enabled:true},
+ {id:'verificationRequired',label:'الزام احراز هویت',description:'علامت‌گذاری احراز هویت به‌عنوان مرحله لازم.',enabled:true},
+ {id:'securityAlerts',label:'هشدارهای امنیتی',description:'نمایش اعلان برای رویدادهای حساس نمونه.',enabled:true},
+];
+
 type AdminRole = 'owner' | 'support' | 'reviewer';
 
 /** Mock administrator identities for preview only; never use as production credentials. */
