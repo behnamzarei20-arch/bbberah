@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ADMIN_DEMO_MODE } from '@/features/admin/demoMode';
-import { admins, users, events, tickets, adminSessions } from '@/features/admin/demoData';
-import { Activity, BarChart3, CalendarDays, Clock3, Download, Eye, FileText, LayoutDashboard, Package, Search, ShieldAlert, ShieldCheck, Ticket, Truck, Users, X } from 'lucide-react';
+import { admins, users, events, tickets, adminSessions, verificationRequests, financialTransactions } from '@/features/admin/demoData';
+import { Activity, BarChart3, CalendarDays, Clock3, Download, Eye, FileText, LayoutDashboard, Package, Search, ShieldAlert, ShieldCheck, Ticket, Truck, Users, X, CircleDollarSign, FileCheck2, Check, XCircle, Wallet } from 'lucide-react';
 
-type Section = 'overview' | 'admins' | 'sessions' | 'users' | 'drivers' | 'loads' | 'activity' | 'tickets' | 'reports' | 'security';
+type Section = 'overview' | 'admins' | 'sessions' | 'users' | 'drivers' | 'loads' | 'activity' | 'tickets' | 'reports' | 'security' | 'finance' | 'verification';
 
 
 
 
 const nav: {id:Section;label:string;icon:typeof LayoutDashboard}[] = [
- {id:'overview',label:'نمای کلی',icon:LayoutDashboard},{id:'admins',label:'کارکنان و دسترسی‌ها',icon:ShieldCheck},{id:'sessions',label:'نشست‌های مدیران',icon:Clock3},{id:'users',label:'صاحبان کالا',icon:Users},{id:'drivers',label:'رانندگان',icon:Truck},{id:'loads',label:'بارها و حذف‌ها',icon:Package},{id:'activity',label:'ردیابی فعالیت',icon:Activity},{id:'tickets',label:'گزارش‌ها و تیکت‌ها',icon:Ticket},{id:'reports',label:'گزارش‌های آماری',icon:BarChart3},{id:'security',label:'امنیت و رویدادها',icon:ShieldAlert}
+ {id:'overview',label:'نمای کلی',icon:LayoutDashboard},{id:'admins',label:'کارکنان و دسترسی‌ها',icon:ShieldCheck},{id:'sessions',label:'نشست‌های مدیران',icon:Clock3},{id:'users',label:'صاحبان کالا',icon:Users},{id:'drivers',label:'رانندگان',icon:Truck},{id:'loads',label:'بارها و حذف‌ها',icon:Package},{id:'finance',label:'امور مالی',icon:Wallet},{id:'verification',label:'صف احراز هویت',icon:FileCheck2},{id:'activity',label:'ردیابی فعالیت',icon:Activity},{id:'tickets',label:'گزارش‌ها و تیکت‌ها',icon:Ticket},{id:'reports',label:'گزارش‌های آماری',icon:BarChart3},{id:'security',label:'امنیت و رویدادها',icon:ShieldAlert}
 ];
 const num = (v:number) => new Intl.NumberFormat('fa-IR').format(v);
 function Pill({value}:{value:string}) {
@@ -21,9 +21,11 @@ function Card({title,sub,children,action}:{title:string;sub?:string;children:Rea
 }
 type AdminRole = 'owner' | 'support' | 'reviewer';
 const roleConfig: Record<AdminRole, {label:string; allowed:Section[]}> = {
- owner: {label:'مدیر اصلی',allowed:['overview','admins','sessions','users','drivers','loads','activity','tickets','reports','security']},
+ owner: {label:'مدیر اصلی',allowed:['overview','admins','sessions','users','drivers','loads','finance','verification','activity','tickets','reports','security']},
  support: {label:'مدیر پشتیبانی',allowed:['users','drivers','loads','activity','tickets','reports']},
- reviewer: {label:'بازبین اطلاعات',allowed:['users','drivers','loads','activity']},
+ reviewer: {label:'بازبین اطلاعات',allowed:['users','drivers','loads','verification','activity']},
+ //
+
 };
 export function AdminWorkspace({role='owner',onExit}:{role?:AdminRole;onExit?:()=>void}) {
  const allowedNav = nav.filter(n=>roleConfig[role].allowed.includes(n.id));
@@ -55,6 +57,8 @@ export function AdminWorkspace({role='owner',onExit}:{role?:AdminRole;onExit?:()
  const [status,setStatus]=useState('همه وضعیت‌ها');
  const [ticketStatus,setTicketStatus]=useState('همه وضعیت‌ها');
  const [ticketRecords,setTicketRecords]=useState(tickets);
+ const [verificationRecords,setVerificationRecords]=useState(verificationRequests);
+ const [financialRecords,setFinancialRecords]=useState(financialTransactions);
  const [ticketCategory,setTicketCategory]=useState('همه دسته‌ها');
  const [eventType,setEventType]=useState('همه رویدادها');
  const [fromDate,setFromDate]=useState('');
@@ -66,7 +70,7 @@ export function AdminWorkspace({role='owner',onExit}:{role?:AdminRole;onExit?:()
  const [ticketProfile,setTicketProfile]=useState<typeof tickets[number]|null>(null);
  const [managedAdmins,setManagedAdmins]=useState(()=>admins.map(a=>({...a,managedStatus:a.status,managedRole:a.id==='ADM-001'?'owner':a.id==='ADM-002'?'support':'reviewer',accessPermissions:a.id==='ADM-001'?['overview','admins','sessions','users','drivers','loads','activity','tickets','reports','security']:a.id==='ADM-002'?['users','drivers','loads','activity','tickets','reports']:['users','drivers','loads','activity']})));
  const [sessionRecords,setSessionRecords]=useState(adminSessions);
- const permissionOptions:{id:Section;label:string}[]=[{id:'users',label:'کاربران'},{id:'drivers',label:'رانندگان'},{id:'loads',label:'بارها'},{id:'activity',label:'فعالیت‌ها'},{id:'tickets',label:'تیکت‌ها'},{id:'reports',label:'گزارش‌ها'},{id:'sessions',label:'نشست‌ها'},{id:'admins',label:'مدیریت مدیران'},{id:'security',label:'امنیت'}];
+ const permissionOptions:{id:Section;label:string}[]=[{id:'users',label:'کاربران'},{id:'drivers',label:'رانندگان'},{id:'loads',label:'بارها'},{id:'finance',label:'امور مالی'},{id:'verification',label:'احراز هویت'},{id:'activity',label:'فعالیت‌ها'},{id:'tickets',label:'تیکت‌ها'},{id:'reports',label:'گزارش‌ها'},{id:'sessions',label:'نشست‌ها'},{id:'admins',label:'مدیریت مدیران'},{id:'security',label:'امنیت'}];
  const changeManagedAdminStatus=(id:string,nextStatus:string)=>{if(role!=='owner'||id==='ADM-001')return;setManagedAdmins(current=>current.map(a=>a.id===id?{...a,managedStatus:nextStatus}:a));if(nextStatus!=='فعال')setSessionRecords(current=>current.map(session=>session.adminId===id&&session.id!=='SES-701'&&session.status==='فعال'?{...session,status:'لغوشده'}:session));};
  const changeManagedAdminRole=(id:string,nextRole:'support'|'reviewer')=>{if(role!=='owner'||id==='ADM-001')return;const defaults:Record<'support'|'reviewer',string[]>={support:['users','drivers','loads','activity','tickets','reports'],reviewer:['users','drivers','loads','activity']};setManagedAdmins(current=>current.map(a=>a.id===id?{...a,managedRole:nextRole,accessPermissions:defaults[nextRole]}:a));};
  const toggleManagedPermission=(id:string,permission:Section,checked:boolean)=>{if(role!=='owner'||id==='ADM-001')return;setManagedAdmins(current=>current.map(a=>a.id===id?{...a,accessPermissions:checked?Array.from(new Set([...a.accessPermissions,permission])):a.accessPermissions.filter(p=>p!==permission)}:a));};
@@ -78,6 +82,8 @@ export function AdminWorkspace({role='owner',onExit}:{role?:AdminRole;onExit?:()
   setTicketRecords(current=>current.map(ticket=>ticket.id===id?{...ticket,status:nextStatus}:ticket));
   setTicketProfile(current=>current?.id===id?{...current,status:nextStatus}:current);
  };
+ const updateVerificationStatus=(id:string,nextStatus:string)=>{if(role!=='owner'&&role!=='reviewer')return;setVerificationRecords(current=>current.map(item=>item.id===id?{...item,status:nextStatus}:item));};
+ const updateFinancialStatus=(id:string,nextStatus:string)=>{if(role!=='owner')return;setFinancialRecords(current=>current.map(item=>item.id===id?{...item,status:nextStatus}:item));};
  useEffect(()=>{
   const keepPanel=()=>window.history.pushState({bbberahAdminPanel:true},'',window.location.href);
   window.history.pushState({bbberahAdminPanel:true},'',window.location.href);
