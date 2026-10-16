@@ -40,15 +40,10 @@ BEGIN
   END IF;
 
   IF NEW.role = 'admin'
-     AND NEW.id IS DISTINCT FROM configured_primary_admin
-     AND COALESCE(auth.role(), '') <> 'service_role' THEN
-    RAISE EXCEPTION 'Only the configured primary administrator may hold the admin role'
-      USING ERRCODE = '42501';
-  END IF;
-
-  IF NEW.role = 'admin'
-     AND NEW.id IS DISTINCT FROM configured_primary_admin
-     AND configured_primary_admin IS NOT NULL THEN
+     AND (
+       configured_primary_admin IS NULL
+       OR NEW.id IS DISTINCT FROM configured_primary_admin
+     ) THEN
     RAISE EXCEPTION 'Only the configured primary administrator may hold the admin role'
       USING ERRCODE = '42501';
   END IF;
