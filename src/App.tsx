@@ -2,10 +2,15 @@ import { useState } from 'react';
 import { AuthPage } from '@/pages/auth/AuthPage';
 import { useAuth } from '@/contexts/AuthContext';
 import { MainApp } from '@/MainApp';
+import { AdminPanel } from '@/pages/admin/AdminPanel';
 
 export default function App() {
   const { session, profile, loading } = useAuth();
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+
+  // The sample admin workspace is intentionally available only during local development.
+  // Production access must be backed by the authenticated admin policy and database RLS.
+  if (import.meta.env.DEV && window.location.pathname === '/admin') return <AdminPanel />;
 
   if (loading) {
     return (
