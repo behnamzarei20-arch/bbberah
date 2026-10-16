@@ -1223,6 +1223,13 @@ const ProfilePage = () => <div className="space-y-3">
   </div>;
 
   const normalizeNationalId = (value:string) => value.split('').map(ch => { const i='۰۱۲۳۴۵۶۷۸۹'.indexOf(ch); return i>=0 ? String(i) : ch; }).filter(ch => ch>='0' && ch<='9').join('').slice(0,10);
+  const isValidIranianNationalId = (value:string) => {
+    if (!/^\d{10}$/.test(value) || /^(\d)\1{9}$/.test(value)) return false;
+    const sum = value.slice(0, 9).split('').reduce((total, digit, index) => total + Number(digit) * (10 - index), 0);
+    const remainder = sum % 11;
+    const checkDigit = Number(value[9]);
+    return remainder < 2 ? checkDigit === remainder : checkDigit === 11 - remainder;
+  };
 
   const VerificationPage = () => {
     const [verificationStep, setVerificationStep] = useState<1 | 2 | 3>(1);
@@ -1239,6 +1246,7 @@ const ProfilePage = () => <div className="space-y-3">
 
     const submitNationalId = () => {
       if (nationalId.length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      if (!isValidIranianNationalId(nationalId)) return notify('کد ملی واردشده از نظر ساختار معتبر نیست.');
       setVerificationStep(2);
     };
 
@@ -1259,12 +1267,16 @@ const ProfilePage = () => <div className="space-y-3">
 
     const sourceInputs = (type: 'license' | 'face') => (
       <>
-        <input id={`verification-${type}-gallery`} type="file" accept="image/*" className="hidden" onChange={e => {
+        <input id={`verification-${type}-gallery`} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e => {
           const file = e.target.files?.[0] || null;
+          if (file && file.size > 10 * 1024 * 1024) { notify('حجم هر تصویر باید حداکثر ۱۰ مگابایت باشد.'); e.currentTarget.value = ''; return; }
+          if (file && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { notify('فقط تصویر JPG، PNG یا WebP قابل انتخاب است.'); e.currentTarget.value = ''; return; }
           if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
         }}/>
-        <input id={`verification-${type}-camera`} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+        <input id={`verification-${type}-camera`} type="file" accept="image/jpeg,image/png,image/webp" capture={type === 'face' ? 'user' : 'environment'} className="hidden" onChange={e => {
           const file = e.target.files?.[0] || null;
+          if (file && file.size > 10 * 1024 * 1024) { notify('حجم هر تصویر باید حداکثر ۱۰ مگابایت باشد.'); e.currentTarget.value = ''; return; }
+          if (file && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { notify('فقط تصویر JPG، PNG یا WebP قابل انتخاب است.'); e.currentTarget.value = ''; return; }
           if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
         }}/>
       </>
