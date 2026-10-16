@@ -26,7 +26,9 @@ function AdminLogin({onSuccess}:{onSuccess:(role:AdminRole)=>void}) {
   function choose(account:typeof DEMO_ADMINS[number]) { setUsername(account.username); setPassword(account.password); setError(''); }
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const account=DEMO_ADMINS.find(item=>item.username===username&&item.password===password);
+    const cleanUsername=username.trim().replace(/[\u200B-\u200D\uFEFF]/g,'');
+    const cleanPassword=password.trim().replace(/[\u200B-\u200D\uFEFF]/g,'');
+    const account=DEMO_ADMINS.find(item=>item.username===cleanUsername&&item.password===cleanPassword);
     if(account) { setError(''); onSuccess(account.role); }
     else setError('نام کاربری یا رمز عبور صحیح نیست.');
   }
