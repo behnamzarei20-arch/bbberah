@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ADMIN_DEMO_MODE } from '@/features/admin/demoMode';
 import { admins, users, events, tickets, adminSessions } from '@/features/admin/demoData';
-import { Activity, BarChart3, CalendarDays, CheckCircle2, Clock3, Download, Eye, FileText, Filter, LayoutDashboard, LogOut, Package, Search, ShieldAlert, ShieldCheck, Ticket, Truck, Users, X } from 'lucide-react';
+import { Activity, BarChart3, CalendarDays, Clock3, Download, Eye, FileText, LayoutDashboard, Package, Search, ShieldAlert, ShieldCheck, Ticket, Truck, Users, X } from 'lucide-react';
 
 type Section = 'overview' | 'admins' | 'sessions' | 'users' | 'drivers' | 'loads' | 'activity' | 'tickets' | 'reports' | 'security';
 
