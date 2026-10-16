@@ -49,6 +49,14 @@ Deno.serve(async (request: Request) => {
   const { data: isPrimary, error: roleError } = await caller.rpc("is_primary_admin");
   if (roleError || isPrimary !== true) return reply(403, { error: "primary_admin_only" });
 
+  // Require a fully verified MFA session (AAL2) for staff security operations.
+  // Password-only sessions must enroll/complete MFA before reaching this endpoint.
+  const { data: assurance, error: assuranceError } =
+    await caller.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (assuranceError || assurance?.currentLevel !== "aal2") {
+    return reply(403, { error: "mfa_required", required_assurance_level: "aal2" });
+  }
+
   const admin = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
