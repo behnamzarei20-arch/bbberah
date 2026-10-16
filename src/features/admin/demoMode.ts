@@ -1,10 +1,15 @@
 /**
- * One switch controls whether the admin demo login and mock dashboard are shown.
+ * Central switch for the mock admin login and dashboard data.
  *
- * Local development defaults to enabled for convenience.
- * Production builds default to disabled unless explicitly opted in.
- * Never use this flag as an authorization mechanism; real admin access must be
- * authenticated and authorized by the server.
+ * If VITE_ENABLE_ADMIN_DEMO_DATA is explicitly set, that value wins.
+ * Otherwise demos are enabled only during local Vite development.
+ *
+ * This is a UI/build flag, NOT an authorization boundary. Real admin access
+ * must be authenticated and authorized on the server.
  */
+const configuredDemoFlag = import.meta.env.VITE_ENABLE_ADMIN_DEMO_DATA;
+
 export const ADMIN_DEMO_MODE =
-  import.meta.env.DEV || import.meta.env.VITE_ENABLE_ADMIN_DEMO_DATA === 'true';
+  configuredDemoFlag === undefined
+    ? import.meta.env.DEV
+    : configuredDemoFlag === 'true';
