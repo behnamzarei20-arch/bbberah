@@ -8,3 +8,7 @@ export const events: never[] = [];
 export const tickets: never[] = [];
 export const adminSessions: never[] = [];
 export const demoAdminAccounts: never[] = [];
+
+// Keep the production replacement API-compatible with the demo-only data module.
+export const verificationRequests: never[] = [];
+export const financialTransactions: never[] = [];
