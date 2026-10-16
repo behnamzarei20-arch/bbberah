@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { ShieldCheck, ShieldAlert, KeyRound, ArrowRight, LoaderCircle } from 'lucide-react';
 import { hasSupabaseConfig, supabase } from '@/lib/supabase';
 
@@ -32,7 +32,7 @@ export function AdminLoginPage() {
     setNotice({ text: 'هویت مدیر اصلی تأیید شد. رابط مدیریت و دسترسی‌های عملیاتی هنوز باید جداگانه متصل و آزموده شوند.', ok: true });
   };
 
-  const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
+  const signIn = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!hasSupabaseConfig) {
       setNotice({ text: 'اتصال Supabase تنظیم نشده است؛ ورود واقعی در این نسخه فعال نیست.' });
