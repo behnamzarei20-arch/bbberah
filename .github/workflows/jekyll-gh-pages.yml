@@ -3,7 +3,7 @@ name: Build and Deploy Vite App to GitHub Pages
 on:
   push:
     branches:
-      - frontend-phase1
+      - main
   workflow_dispatch:
 
 permissions:
