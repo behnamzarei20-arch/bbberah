@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - frontend-phase1
   workflow_dispatch:
 
 permissions:
