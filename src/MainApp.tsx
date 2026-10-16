@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { iranLocations } from '@/data/iranLocations';
+import { readDemoVerificationStatus, writeDemoVerificationStatus, type IdentityVerificationStatus } from '@/features/verification/verificationStatus';
 
 type Page =
   | 'home' | 'search' | 'nearby' | 'calls' | 'profile' | 'account' | 'vehicle' | 'vehicle-dashboard' | 'vehicle-select'
   | 'wallet' | 'transactions' | 'support' | 'rules' | 'notifications' | 'display'
-  | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'jooft-usage' | 'jooft-feature' | 'tak-usage' | 'tak-feature' | 'komionet-usage' | 'komionet-feature' | 'van-usage' | 'van-feature' | 'flatbed-size' | 'report' | 'offers' | 'verification' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
+  | 'cargo-detail' | 'vehicle-loader' | 'trailer-select' | 'jooft-usage' | 'jooft-feature' | 'tak-usage' | 'tak-feature' | 'komionet-usage' | 'komionet-feature' | 'van-usage' | 'van-feature' | 'flatbed-size' | 'report' | 'offers' | 'verification' | 'verification-intro' | 'shipment' | 'origin-select' | 'destination-select' | 'nearby-destination-select' | 'nearby-results' | 'destination-all' | 'frequent-route' | 'contact-report';
 
 type LoadStatus = 'open' | 'reserved' | 'delivered';
 type Load = {
@@ -244,7 +245,18 @@ function FacelessAvatar({ className = 'h-16 w-16' }: { className?: string }) {
 
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
-  const [page, setPage] = useState<Page>('home');
+  const [page, setPage] = useState<Page>(() => {
+    try { return window.localStorage.getItem('bbberah-open-verification-once') === 'true' ? 'verification' : 'home'; }
+    catch { return 'home'; }
+  });
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem('bbberah-open-verification-once') === 'true') {
+        window.localStorage.removeItem('bbberah-open-verification-once');
+        window.history.replaceState({ bbberahPage: 'verification' }, '', '#verification');
+      }
+    } catch { /* Local storage may be unavailable. */ }
+  }, []);
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
   const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads].map((load, index) => ({
@@ -332,9 +344,12 @@ const [walletTransactions] = useState<Array<{id:string; type:'increase'|'decreas
     return saved.filter((x:any) => x && (x.type === 'increase' || x.type === 'decrease') && Number.isFinite(Number(x.amount)) && Number.isFinite(Number(x.at))).map((x:any) => ({id:String(x.id || x.at),type:x.type,amount:Number(x.amount),at:Number(x.at),title:String(x.title || (x.source === 'gift' ? 'هدیه افزایش موجودی' : x.type === 'increase' ? 'افزایش موجودی' : 'کاهش موجودی')),description:typeof x.description === 'string' ? x.description : '',source:typeof x.source === 'string' ? x.source : ''}));
   } catch { return []; }
 });
-const [identityVerified, setIdentityVerified] = useState<boolean>(false);
-const [identityPending, setIdentityPending] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_pending_v1') === 'true');
-const [identityRejected, setIdentityRejected] = useState<boolean>(() => window.localStorage.getItem('bbberah_identity_rejected_v1') === 'true');
+const [identityStatus, setIdentityStatus] = useState<IdentityVerificationStatus>(() => readDemoVerificationStatus(profile?.id));
+const identityVerified = identityStatus === 'verified';
+const identityPending = identityStatus === 'pending';
+const identityRejected = identityStatus === 'needs_correction' || identityStatus === 'rejected';
+const [showIdentityGate, setShowIdentityGate] = useState(false);
+useEffect(() => { writeDemoVerificationStatus(profile?.id, identityStatus); }, [profile?.id, identityStatus]);
 const [reportedLoadIds, setReportedLoadIds] = useState<string[]>(() => { try { const v=JSON.parse(window.localStorage.getItem('bbberah_reported_load_ids_v1') || '[]'); return Array.isArray(v) ? v.filter((x:any)=>typeof x==='string') : []; } catch { return []; } });
 const [shipmentHistory, setShipmentHistory] = useState<Array<{loadId:string; outcome:'carried'|'withdrawn'; commission:number; scoreChange:number; at:number}>>(() => {
   try {
@@ -635,7 +650,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   }), [loads, origin, originProvince, originCounty, destination, destinationProvince, destinationCounty, nearbyUserLocation]);
   const title:Record<Page,string> = {
     home:'براه', search:'جستجوی بار', nearby:'اطراف من', calls:'تماس‌های من', profile:'حساب کاربری',
-    account:'اطلاعات حساب', verification:'احراز هویت', vehicle:'خودروی من', 'vehicle-dashboard':'خودروی من', 'vehicle-select':'نوع خودرو', wallet:'کیف پول', transactions:'تراکنش‌ها',
+    account:'اطلاعات حساب', verification:'احراز هویت', 'verification-intro':'چرا احراز هویت ضروری است؟', vehicle:'خودروی من', 'vehicle-dashboard':'خودروی من', 'vehicle-select':'نوع خودرو', wallet:'کیف پول', transactions:'تراکنش‌ها',
     support:'پشتیبانی', rules:'قوانین و مقررات', notifications:'اعلان‌ها', display:'تنظیمات ظاهری', 'cargo-detail':'جزئیات بار',
 offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 'trailer-select':'نوع کاربری را انتخاب کنید', 'jooft-usage':'نوع کاربری خودرو خود را انتخاب کنید', 'jooft-feature':'ویژگی کاربری', 'tak-usage':'نوع کاربری خودرو خود را انتخاب کنید', 'tak-feature':'ویژگی کاربری', 'komionet-usage':'نوع بارگیر خود را انتخاب کنید', 'komionet-feature':'ویژگی بارگیر خود را انتخاب کنید', 'van-usage':'نوع کاربری خود را انتخاب کنید', 'van-feature':'ویژگی بارگیر خود را انتخاب کنید', 'flatbed-size':'ویژگی کاربری', report:'گزارش تخلف', shipment:'سفر جاری', 'origin-select':'انتخاب مبدأ', 'destination-select':'انتخاب مقصد', 'destination-all':'انتخاب شهر مقصد', 'frequent-route':'بارهای مسیر', 'contact-report':'نتیجه تماس', 'nearby-destination-select':'انتخاب مقصد', 'nearby-results':'اطراف من'
   };
@@ -1211,6 +1226,13 @@ const ProfilePage = () => <div className="space-y-3">
   </div>;
 
   const normalizeNationalId = (value:string) => value.split('').map(ch => { const i='۰۱۲۳۴۵۶۷۸۹'.indexOf(ch); return i>=0 ? String(i) : ch; }).filter(ch => ch>='0' && ch<='9').join('').slice(0,10);
+  const isValidIranianNationalId = (value:string) => {
+    if (!/^\d{10}$/.test(value) || /^(\d)\1{9}$/.test(value)) return false;
+    const sum = value.slice(0, 9).split('').reduce((total, digit, index) => total + Number(digit) * (10 - index), 0);
+    const remainder = sum % 11;
+    const checkDigit = Number(value[9]);
+    return remainder < 2 ? checkDigit === remainder : checkDigit === 11 - remainder;
+  };
 
   const VerificationPage = () => {
     const [verificationStep, setVerificationStep] = useState<1 | 2 | 3>(1);
@@ -1227,32 +1249,37 @@ const ProfilePage = () => <div className="space-y-3">
 
     const submitNationalId = () => {
       if (nationalId.length !== 10) return notify('لطفاً کد ملی ۱۰ رقمی خود را وارد کنید.');
+      if (!isValidIranianNationalId(nationalId)) return notify('کد ملی واردشده از نظر ساختار معتبر نیست.');
       setVerificationStep(2);
     };
 
     const submitLicense = () => {
-      if (!licensePhoto) return notify('لطفاً تصویر گواهینامه را انتخاب کنید.');
+      if (!licensePhoto) return notify('لطفاً تصویر مدرک شناسایی را انتخاب کنید.');
       setVerificationStep(3);
     };
 
     const submitVerification = () => {
-      if (!licenseFacePhoto) return notify('لطفاً تصویر چهره همراه با گواهینامه را انتخاب کنید.');
-      setIdentityPending(true);
-      setIdentityRejected(false);
-      window.localStorage.setItem('bbberah_identity_pending_v1', 'true');
-      window.localStorage.removeItem('bbberah_identity_rejected_v1');
-      notify('مدارک با موفقیت ارسال شد و منتظر تایید است.');
+      if (!licensePhoto) return notify('لطفاً تصویر مدرک شناسایی را انتخاب کنید.');
+      if (!licenseFacePhoto) return notify('لطفاً تصویر سلفی خود را انتخاب کنید.');
+      if (!profile?.id) return notify('ابتدا وارد حساب کاربری شوید.');
+      setIdentityStatus('pending');
+      setNationalId('');
+      notify('وضعیت در نسخه آزمایشی ثبت شد؛ تصاویر و کد ملی به سرور ارسال نشده‌اند و بررسی واقعی نیازمند اتصال امن سرور است.');
       go('account');
     };
 
     const sourceInputs = (type: 'license' | 'face') => (
       <>
-        <input id={`verification-${type}-gallery`} type="file" accept="image/*" className="hidden" onChange={e => {
+        <input id={`verification-${type}-gallery`} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e => {
           const file = e.target.files?.[0] || null;
+          if (file && file.size > 10 * 1024 * 1024) { notify('حجم هر تصویر باید حداکثر ۱۰ مگابایت باشد.'); e.currentTarget.value = ''; return; }
+          if (file && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { notify('فقط تصویر JPG، PNG یا WebP قابل انتخاب است.'); e.currentTarget.value = ''; return; }
           if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
         }}/>
-        <input id={`verification-${type}-camera`} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+        <input id={`verification-${type}-camera`} type="file" accept="image/jpeg,image/png,image/webp" capture={type === 'face' ? 'user' : 'environment'} className="hidden" onChange={e => {
           const file = e.target.files?.[0] || null;
+          if (file && file.size > 10 * 1024 * 1024) { notify('حجم هر تصویر باید حداکثر ۱۰ مگابایت باشد.'); e.currentTarget.value = ''; return; }
+          if (file && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { notify('فقط تصویر JPG، PNG یا WebP قابل انتخاب است.'); e.currentTarget.value = ''; return; }
           if (type === 'license') setLicensePhoto(file); else setLicenseFacePhoto(file);
         }}/>
       </>
@@ -1270,12 +1297,11 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
 
-
     if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
 
-    if (identityRejected) return <Card><CardBody className="p-5 text-center space-y-4"><div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center"><XCircle className="w-8 h-8 text-red-500"/></div><h3 className="font-black text-lg text-red-600">احراز هویت تأیید نشد</h3><p className="text-sm text-gray-500 leading-7">مدارک ارسالی شما نیاز به اصلاح دارد. پس از اصلاح می‌توانید دوباره مدارک را ارسال کنید.</p><div className="rounded-lg bg-red-50 border border-red-100 p-4 text-right space-y-2"><div className="text-sm font-black text-red-700">دلیل عدم تأیید</div><div className="text-sm text-gray-600 leading-7">تصویر مدارک واضح نیست یا نیاز به بررسی و اصلاح دارد.</div></div><Button size="full" onClick={() => { setIdentityRejected(false); setIdentityPending(false); setVerificationStep(1); window.localStorage.removeItem('bbberah_identity_rejected_v1'); window.localStorage.removeItem('bbberah_identity_pending_v1'); }} className="!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600">اصلاح و ارسال مجدد</Button></CardBody></Card>;
+    if (identityRejected) return <Card><CardBody className="p-5 text-center space-y-4"><div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center"><XCircle className="w-8 h-8 text-red-500"/></div><h3 className="font-black text-lg text-red-600">مدارک نیازمند اصلاح است</h3><p className="text-sm text-gray-500 leading-7">در صورت دریافت نتیجه بررسی واقعی، توضیح مدیر در این بخش نمایش داده می‌شود. در نمونه فعلی تأیید یا رد واقعی فعال نیست.</p><div className="rounded-lg bg-red-50 border border-red-100 p-4 text-right space-y-2"><div className="text-sm font-black text-red-700">نتیجه بررسی</div><div className="text-sm text-gray-600 leading-7">برای اصلاح اطلاعات، دوباره فرم را باز کنید.</div></div><Button size="full" onClick={() => { setIdentityStatus('unverified'); setVerificationStep(1); }} className="!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600">اصلاح و ارسال مجدد</Button></CardBody></Card>;
 
-    if (identityPending) return <Card><CardBody className="p-5 text-center space-y-3"><Clock3 className="w-12 h-12 mx-auto text-orange-500"/><h3 className="font-black text-lg text-orange-600">در انتظار تایید احراز هویت</h3><p className="text-sm text-gray-500 leading-7">مدارک شما ارسال شده و تا زمان بررسی نهایی قابل ویرایش یا ارسال مجدد نیست.</p><div className="rounded-lg bg-orange-50 border border-orange-100 p-4 text-sm font-bold text-orange-700">لطفاً منتظر نتیجه بررسی بمانید.</div></CardBody></Card>;
+    if (identityPending) return <Card><CardBody className="p-5 text-center space-y-3"><Clock3 className="w-12 h-12 mx-auto text-orange-500"/><h3 className="font-black text-lg text-orange-600">وضعیت آزمایشی: در انتظار بررسی</h3><p className="text-sm text-gray-500 leading-7">وضعیت این درخواست فقط در مرورگر ذخیره شده است. تصاویر و کد ملی به سرور ارسال نشده‌اند؛ بنابراین مدیر هنوز پرونده‌ای برای بررسی دریافت نکرده است.</p><div className="rounded-lg bg-orange-50 border border-orange-100 p-4 text-sm font-bold text-orange-700">برای فعال‌شدن بررسی واقعی، باید ورود امن، فضای خصوصی مدارک و اتصال سمت سرور تکمیل شود.</div><Button size="full" variant="outline" onClick={() => { setIdentityStatus('unverified'); setVerificationStep(1); }}>بازگشت به فرم آزمایشی</Button></CardBody></Card>;
 
     if (verificationStep === 1) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
@@ -1284,7 +1310,7 @@ const ProfilePage = () => <div className="space-y-3">
           <input value={nationalId} onChange={e => setNationalId(normalizeNationalId(e.target.value))} inputMode="numeric" maxLength={10} placeholder="کد ملی" className="w-full rounded-lg border border-gray-200 px-4 py-4 text-base font-black outline-none focus:border-primary-500" dir="ltr"/>
         </div>
         <div className="rounded-lg border border-primary-200 bg-primary-50 p-4 text-sm font-bold text-primary-800 leading-7">
-          مدارک شما محرمانه حفظ می‌شود و در هیچ جای اپلیکیشن نمایش داده نخواهد شد. این اطلاعات فقط برای افزایش اعتماد و اطمینان صاحب کالا دریافت می‌شود.
+          در نسخه آزمایشی، فایل‌ها و کد ملی به سرور ارسال یا ذخیره نمی‌شوند. پیش از انتشار عمومی باید اتصال امن به فضای خصوصی مدارک و بررسی دستی مدیر فعال شود. مدارک هویتی نباید در localStorage یا لاگ‌ها ذخیره شوند.
         </div>
         <Button size="full" onClick={submitNationalId} disabled={nationalId.length !== 10} className={nationalId.length === 10 ? '!bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600' : '!bg-gray-300 !text-gray-500 !border-gray-300'}>ارسال</Button>
       </CardBody></Card>
@@ -1292,38 +1318,64 @@ const ProfilePage = () => <div className="space-y-3">
 
     if (verificationStep === 2) return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-black">ارسال عکس گواهینامه</h2><button type="button" onClick={()=>setVerificationStep(1)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">تصویر مدرک شناسایی</h2><button type="button" onClick={()=>setVerificationStep(1)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر گواهینامه</div>
-          <p className="text-xs font-bold text-gray-500 mt-3 text-center">نمونه را فقط برای راهنمایی نحوه قرارگیری تصویر ببینید.</p>
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه تصویر مدرک شناسایی</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">کارت ملی یا مدرک شناسایی عکس‌دار را واضح و بدون بازتاب نور ثبت کنید.</p>
         </div>
         <button type="button" onClick={() => setPicker('license')} className="w-full rounded-lg border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
-          {licensePhoto ? <img src={URL.createObjectURL(licensePhoto)} alt="تصویر گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
+          {licensePhoto ? <img src={URL.createObjectURL(licensePhoto)} alt="تصویر مدرک شناسایی" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
         </button>
         {sourceInputs('license')}
         {licensePhoto && <button type="button" onClick={() => setPicker('license')} className="w-full rounded-lg border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
-        <Button size="full" onClick={submitLicense}>بعدی</Button>
+        <Button size="full" onClick={submitLicense} disabled={!licensePhoto}>بعدی</Button>
       </CardBody></Card>
       {pickerMenu}
     </div>;
 
     return <div className="space-y-4">
       <Card><CardBody className="p-5 space-y-4">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس گواهینامه همراه با چهره</h2><button type="button" onClick={()=>setVerificationStep(2)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-black">عکس چهره (سلفی)</h2><button type="button" onClick={()=>setVerificationStep(2)} className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600" aria-label="بازگشت"><ArrowRight className="w-5 h-5"/></button></div>
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه چهره با گواهینامه</div>
-          <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره و گواهینامه را همزمان و واضح داخل کادر قرار دهید.</p>
+          <div className="h-32 rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-sm font-black text-gray-400">نمونه عکس سلفی</div>
+          <p className="text-xs font-bold text-gray-500 mt-3 text-center">چهره کامل، روبه‌دوربین، با نور مناسب و بدون فیلتر؛ مدرک را در مرحله قبل جداگانه ثبت کنید.</p>
         </div>
         <button type="button" onClick={() => setPicker('face')} className="w-full rounded-lg border-2 border-primary-200 bg-primary-50 p-5 text-center font-black text-primary-700">
           {licenseFacePhoto ? <img src={URL.createObjectURL(licenseFacePhoto)} alt="چهره همراه گواهینامه" className="w-full h-48 object-contain rounded-xl" /> : <span>انتخاب تصویر</span>}
         </button>
         {sourceInputs('face')}
         {licenseFacePhoto && <button type="button" onClick={() => setPicker('face')} className="w-full rounded-lg border border-gray-200 bg-white p-3 text-sm font-black text-gray-700">تغییر تصویر</button>}
-        <Button size="full" onClick={submitVerification}>ارسال و منتظر تایید</Button>
+        <Button size="full" onClick={submitVerification} disabled={!licensePhoto || !licenseFacePhoto}>ثبت درخواست آزمایشی</Button>
       </CardBody></Card>
       {pickerMenu}
     </div>;
   };
+
+  const requireIdentityForContact = (load: Load) => {
+    if (identityVerified) return true;
+    setSelected(load);
+    setShowIdentityGate(true);
+    return false;
+  };
+
+  const VerificationIntroPage = () => <div className="space-y-4">
+    <Card><CardBody className="p-5 space-y-4">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><ShieldCheck className="h-9 w-9"/></div>
+      <h2 className="text-center text-xl font-black">چرا احراز هویت ضروری است؟</h2>
+      <p className="text-sm leading-7 text-gray-600">براه راننده‌ها و صاحبان بار را به هم متصل می‌کند. تأیید هویت به اعتماد متقابل کمک می‌کند و امکان پیگیری مسئولانه‌تر تعامل‌ها را فراهم می‌سازد.</p>
+      <div className="space-y-3">
+        {[
+          ['اعتماد بیشتر','اطمینان بهتر از هویت طرف‌های معامله و کاهش حساب‌های جعلی.'],
+          ['امنیت ارتباط','محدودشدن تماس‌های داخل برنامه به حساب‌هایی که هویتشان بررسی شده است.'],
+          ['مسئولیت‌پذیری','امکان بررسی و پیگیری درخواست‌ها در صورت بروز اختلاف.'],
+          ['حفاظت از اطلاعات','مدارک فقط برای بررسی هویت استفاده می‌شوند و نباید عمومی باشند.'],
+        ].map(([heading, body]) => <div key={heading} className="flex gap-3 rounded-xl border border-gray-100 p-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600"/><div><b className="block text-sm">{heading}</b><p className="mt-1 text-xs leading-6 text-gray-500">{body}</p></div></div>)}
+      </div>
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900">در نسخه آزمایشی فعلی، فرم فقط برای نمایش فرایند آماده است؛ مدارک به سرور ارسال نمی‌شوند و تأیید واقعی تا اتصال امن بک‌اند فعال نیست.</div>
+      <Button size="full" onClick={() => go('verification')}>ادامه</Button>
+      <button type="button" onClick={() => goHome()} className="w-full rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600">فعلاً بازگشت</button>
+    </CardBody></Card>
+  </div>;
 
   const DetailPage = () => selected ? (() => { const commission = Math.round(selected.price * 0.05); return <div className="space-y-4">
     <Card><CardBody className="p-5"><h2 className="text-xl font-black">{selected.title}</h2><div className="flex items-center gap-4 mt-5" dir="rtl"><div className="flex-1 text-center"><b className="block text-lg">{selected.from}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.from)}</span></div><div className="w-24 relative flex items-center justify-center"><div className="w-full border-t-2 border-dashed border-primary-300"/><div className="absolute flex flex-col items-center bg-white px-1"><Route className="w-5 h-5 text-primary-500 rotate-180"/><span className="text-xs font-black text-primary-700 mt-0.5">{fa(selected.routeDistance)} کیلومتر</span></div></div><div className="flex-1 text-center"><b className="block text-lg">{selected.to}</b><span className="block text-sm font-bold text-gray-500 mt-1">استان {cityProvinceName(selected.to)}</span></div></div></CardBody></Card>
@@ -1334,7 +1386,7 @@ const ProfilePage = () => <div className="space-y-3">
       <div className="bg-gray-50 rounded-xl p-3"><div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center"><CircleDollarSign className="w-5 h-5 text-emerald-600"/></div><span className="block text-gray-500 mt-2 text-base font-bold">کرایه اعلامی</span><b className="block mt-1 text-base font-black">{money(selected.price)} تومان</b></div>
     </div><div className="flex items-center gap-3 text-sm"><Clock3 className="w-5 h-5 text-primary-600"/><span>بارگیری: <b>{selected.pickup}</b></span></div><div className="flex items-center gap-3 text-sm"><MapPin className="w-5 h-5 text-primary-600"/><span>تحویل: <b>{selected.delivery}</b></span></div></CardBody></Card>
     <Card><CardBody className="p-5"><h3 className="font-black">توضیحات</h3><p className="text-sm text-gray-600 mt-2 leading-7">{selected.description}</p></CardBody></Card>
-    <Card><CardBody className="p-5"><div className="flex items-center gap-3"><PhoneCall className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><div className="min-w-0 flex-1"><span className="block text-sm font-bold text-gray-500">شماره تماس بار</span><a href={`tel:${selected.phone}`} dir="ltr" className="mt-1 inline-block text-lg font-black text-primary-700">{selected.phone}</a></div></div></CardBody></Card>
+    <Card><CardBody className="p-5"><div className="flex items-center gap-3"><PhoneCall className="h-6 w-6 shrink-0 text-primary-600" aria-hidden="true"/><div className="min-w-0 flex-1"><span className="block text-sm font-bold text-gray-500">شماره تماس بار</span><a href={identityVerified ? `tel:${selected.phone}` : undefined} onClick={event => { if (!requireIdentityForContact(selected)) event.preventDefault(); }} dir="ltr" className="mt-1 inline-block text-lg font-black text-primary-700">{selected.phone}</a></div></div></CardBody></Card>
   </div> })() : <Empty title="بار انتخاب نشده" text="از جستجو یک بار را انتخاب کنید." action={()=>go('search')}/>;
 
   const saveContactResult = (loadId:string, status:'agreed'|'declined'|'uncertain'|'carried') => {
@@ -1471,6 +1523,7 @@ const ProfilePage = () => <div className="space-y-3">
   };
 
   const SimplePage = () => {
+    if (page==='verification-intro') return <VerificationIntroPage/>;
     if (page==='verification') return <VerificationPage/>;
     if (page==='nearby') return <div className="space-y-4">{loads.filter(l=>!l.id.startsWith('s') && l.status==='open' && l.distance<=50).sort((a,b)=>a.distance-b.distance).map(l=>{return <LoadCard key={l.id} load={l} onOpen={()=>{setSelected(l);go('cargo-detail')}} onOffer={()=>requestOffer(l)}/>;})}</div>;
     if (page==='calls') return <div className="space-y-5">
@@ -1496,7 +1549,7 @@ const ProfilePage = () => <div className="space-y-3">
               <div className="mt-2 flex items-center justify-between text-[10px] font-bold text-sky-800"><span>تماس</span><span>{expanded?'بستن منو':'لمس برای عملیات'}</span></div>
             </button>
             {expanded && <div className={"grid "+(needsStatus ? "grid-cols-3" : "grid-cols-2")+" gap-2 border-t border-sky-200 bg-white p-3"}>
-              <a href={'tel:'+load.phone} onClick={()=>{setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-2.5 text-sm font-black text-emerald-800"><Phone className="h-4 w-4"/>تماس</a>
+              <a href={identityVerified ? 'tel:'+load.phone : undefined} onClick={event=>{if(!requireIdentityForContact(load)){event.preventDefault();return;}setSelected(load);contactCallStartedAt.current=Date.now();setPendingContactReturn(true);}} className="flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-2.5 text-sm font-black text-emerald-800"><Phone className="h-4 w-4"/>تماس</a>
               {needsStatus && <button type="button" onClick={()=>{setSelected(load);setContactReport(null);go('contact-report');}} className="flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-2.5 text-sm font-black text-amber-800">تعیین وضعیت</button>}
               <button type="button" onClick={()=>{setSelected(load);go('cargo-detail');}} className="flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-2 py-2.5 text-sm font-black text-gray-800"><FileText className="h-4 w-4"/>جزئیات</button>
             </div>}
@@ -1897,10 +1950,11 @@ const ProfilePage = () => <div className="space-y-3">
     </div>}
     <main key={page} style={{ viewTransitionName: "app-page" }} className={`max-w-lg mx-auto px-4 pt-3 ${page === 'home' ? 'pb-2 h-[calc(100dvh-8rem)] min-h-0 overflow-hidden flex flex-col' : 'pb-24'}`}>
       {pendingContactLoadId && page!=='contact-report' && <button type="button" onClick={()=>{const load=loads.find(l=>l.id===pendingContactLoadId); if(load){setSelected(load);go('contact-report');}}} className="w-full mb-4 rounded-lg border-2 border-amber-200 bg-amber-50 p-4 text-right text-amber-900 shadow-sm"><b className="block">⚠️ این بار هنوز تعیین تکلیف نشده است</b><span className="block text-xs font-bold mt-1">نتیجه تماس را ثبت کنید تا این یادآوری بسته شود.</span></button>}
-      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
+      {page==='home' ? <HomePage/> : page==='search' ? <SearchPage/> : page==='profile' ? <AccountHome/> : page==='cargo-detail' ? <DetailPage/> : page==='verification-intro' ? <VerificationIntroPage/> : page==='verification' ? <VerificationPage/> : page==='vehicle-dashboard' ? <SimplePage/> : page==='vehicle-select' ? <SimplePage/> : page==='vehicle' ? <SimplePage/> : page==='vehicle-loader' ? <SimplePage/> : page==='trailer-select' ? <SimplePage/> : page==='jooft-usage' ? <SimplePage/> : page==='jooft-feature' ? <SimplePage/> : page==='tak-usage' ? <SimplePage/> : page==='tak-feature' ? <SimplePage/> : page==='komionet-usage' ? <SimplePage/> : page==='komionet-feature' ? <SimplePage/> : page==='van-usage' ? <SimplePage/> : page==='van-feature' ? <SimplePage/> : page==='flatbed-size' ? <SimplePage/> : page==='report' ? <ViolationReportPage/> : page==='origin-select' ? <LocationSelectPage mode="origin"/> : page==='destination-select' ? <LocationSelectPage mode="destination"/> : page==='nearby-destination-select' ? <LocationSelectPage mode="nearby-destination"/> : page==='nearby-results' ? <NearbyResultsPage/> : page==='destination-all' ? <AllDestinationCitiesPage/> : page==='frequent-route' ? <FrequentRoutePage/> : page==='contact-report' ? <ContactReportPage/> : <SimplePage/>}
     </main>
     <BottomNav />
     <Toast message={toast} onClose={()=>setToast('')} />
+    {showIdentityGate && <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 px-4" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setShowIdentityGate(false); }}><div dir="rtl" role="dialog" aria-modal="true" aria-labelledby="identity-gate-title" className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"><div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-orange-600"><ShieldCheck className="h-7 w-7"/></div><h2 id="identity-gate-title" className="text-center text-xl font-black text-gray-900">{identityPending ? 'احراز هویت در انتظار بررسی است' : identityRejected ? 'مدارک نیاز به اصلاح دارد' : 'ابتدا احراز هویت کنید'}</h2><p className="mt-3 text-center text-sm leading-7 text-gray-600">{identityPending ? 'تا زمانی که بررسی و تأیید نهایی انجام نشود، تماس با صاحب بار فعال نمی‌شود.' : identityRejected ? 'برای ادامه ارتباط با صاحب بار، اطلاعات و مدارک خود را اصلاح کنید.' : 'برای حفظ اعتماد و امنیت راننده‌ها و صاحبان بار، پیش از اولین تماس باید هویت شما بررسی و تأیید شود.'}</p><Button className="w-full mt-5" onClick={() => { setShowIdentityGate(false); go(identityPending || identityRejected ? 'verification' : 'verification-intro'); }}>{identityPending ? 'مشاهده وضعیت' : identityRejected ? 'اصلاح مدارک' : 'متوجه شدم'}</Button><button type="button" onClick={() => setShowIdentityGate(false)} className="mt-3 w-full rounded-xl border border-gray-200 py-3 font-bold text-gray-600">فعلاً نه</button></div></div>}
     {showPageHelp && <div className="fixed inset-0 z-[90] bg-black/40 flex items-center justify-center p-5" onClick={()=>setShowPageHelp(false)}><div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl text-gray-900" onClick={e=>e.stopPropagation()}><div className="flex items-center justify-between gap-3"><h3 className="font-black text-lg">درباره {currentPageTitle}</h3><button type="button" onClick={()=>setShowPageHelp(false)} className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center" aria-label="بستن"><X className="w-4 h-4"/></button></div><p className="mt-3 text-sm leading-7 text-gray-600">{pageHelpText[page] || `این بخش برای مشاهده و مدیریت «${currentPageTitle}» در برنامه براه استفاده می‌شود.`}</p><Button className="w-full mt-4" onClick={()=>setShowPageHelp(false)}>متوجه شدم</Button></div></div>}
     <OfferDetailModal/>
     {shipmentRewardSummary && <div className="fixed inset-0 z-[75] bg-black/40 flex items-center justify-center p-5">
