@@ -31,3 +31,10 @@ jobs:
         run: npm run build
         env:
           VITE_ENABLE_ADMIN_DEMO_DATA: "false"
+      - name: Verify demo credentials are absent from production assets
+        shell: bash
+        run: |
+          if grep -R -E "BR-admin-1405|BR-support-1405|BR-review-1405" dist/assets; then
+            echo "Demo credentials leaked into production assets."
+            exit 1
+          fi
