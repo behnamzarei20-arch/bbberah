@@ -246,14 +246,17 @@ function FacelessAvatar({ className = 'h-16 w-16' }: { className?: string }) {
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>(() => {
+    try { return window.localStorage.getItem('bbberah-open-verification-once') === 'true' ? 'verification' : 'home'; }
+    catch { return 'home'; }
+  });
+  useEffect(() => {
     try {
       if (window.localStorage.getItem('bbberah-open-verification-once') === 'true') {
         window.localStorage.removeItem('bbberah-open-verification-once');
-        return 'verification';
+        window.history.replaceState({ bbberahPage: 'verification' }, '', '#verification');
       }
     } catch { /* Local storage may be unavailable. */ }
-    return 'home';
-  });
+  }, []);
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
   const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads].map((load, index) => ({
@@ -1251,7 +1254,7 @@ const ProfilePage = () => <div className="space-y-3">
     };
 
     const submitLicense = () => {
-      if (!licensePhoto) return notify('لطفاً تصویر گواهینامه را انتخاب کنید.');
+      if (!licensePhoto) return notify('لطفاً تصویر مدرک شناسایی را انتخاب کنید.');
       setVerificationStep(3);
     };
 
@@ -1293,7 +1296,6 @@ const ProfilePage = () => <div className="space-y-3">
     </div>;
 
     if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
-
 
     if (identityVerified) return <Card><CardBody className="p-5 text-center"><CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500"/><h3 className="font-black text-lg mt-3 text-emerald-700">احراز هویت تایید شده</h3><p className="text-sm text-gray-500 mt-2">مدارک هویتی شما تایید شده است.</p></CardBody></Card>;
 
