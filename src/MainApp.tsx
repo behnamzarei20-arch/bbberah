@@ -3,7 +3,7 @@ import {
   ArrowLeft, ArrowRight, Bell, Car, CarFront, CheckCircle2, ChevronLeft, Clock3, Weight as WeightIcon, Percent, Eye, Store, CreditCard, HeartPulse,
   FileText, Headset, Home, LogOut, MapPin, Navigation, Package,
   Phone, PhoneCall, ReceiptText, Search, ShieldCheck,
-  Truck, Container, BusFront, User, X, RefreshCw, Plus, Star, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info, Instagram, MessageCircle
+  Truck, Container, BusFront, User, X, RefreshCw, Plus, Star, Award, Route, CircleDollarSign, Coins, Target, Globe2, AlertTriangle, XCircle, Sun, Moon, Monitor, Info, Instagram, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -750,18 +750,18 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
     const cardClass = 'w-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden';
     const rowClass = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-right';
     const labelClass = 'flex min-w-0 items-center gap-3 text-right text-xl font-black text-gray-900';
-    const statusClass = 'shrink-0 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-base font-black text-primary-700';
+    const statusClass = 'shrink-0 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-base font-black text-orange-700';
     const verificationStatusClass = `shrink-0 rounded-full border px-2.5 py-1 text-base font-black ${identityVerified ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : identityPending ? 'border-orange-200 bg-orange-50 text-orange-700' : identityRejected ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`;
     return <div className="space-y-3">
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="p-4 flex items-center justify-between gap-3" dir="rtl">
           <div className="min-w-0 flex flex-col items-start text-right gap-2">
             <div aria-label="آواتار پیش‌فرض" className="h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-primary-100 bg-primary-50"><FacelessAvatar className="h-full w-full"/></div>
-            <h2 className="font-black text-2xl text-gray-900">{profile?.full_name || 'کاربر براه'}</h2>
+            <h2 className="font-black text-2xl text-gray-900">{profile?.full_name === 'د' ? 'بهنام' : (profile?.full_name || 'کاربر براه')}</h2>
             <p className="text-base font-bold text-gray-900 dark:text-gray-900" dir="ltr">{profile?.phone || 'شماره موبایل ثبت نشده'}</p>
           </div>
           <div className="shrink-0 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-center text-orange-700">
-            <div className="flex items-center justify-center gap-1.5 text-sm font-bold"><Star className="h-5 w-5 fill-orange-500 text-orange-500"/> امتیاز شما</div>
+            <div className="flex items-center justify-center gap-1.5 text-sm font-bold"><Award className="h-5 w-5 text-orange-600"/> امتیاز شما</div>
             <strong className="mt-1 block text-2xl font-black" dir="rtl">{money(driverScore)}</strong>
           </div>
         </div>
@@ -777,14 +777,14 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('vehicle-dashboard')} className={rowClass} dir="rtl">
           <span className={labelClass}><AccountMenuIcon kind="vehicle"><CarFront/></AccountMenuIcon><span>خودروی من</span></span>
-          <span className={`${statusClass} max-w-[55%] truncate text-orange-600`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
+          <span className={`${statusClass} max-w-[55%] truncate`}>{savedVehicle ? vehicleSummary : 'ثبت نشده'}</span>
         </button>
       </div>
 
       <div className={cardClass}>
         <button type="button" onClick={()=>go('wallet')} className={rowClass} dir="rtl">
           <span className={labelClass}><WalletMovementIcon type="increase"/><span>کیف پول</span></span>
-          <span className={`${statusClass} text-orange-600`}>{money(walletBalance)} تومان</span>
+          <span className={`${statusClass}`}>{money(walletBalance)} تومان</span>
         </button>
       </div>
 
@@ -808,9 +808,9 @@ offers:'پیشنهادهای من', 'vehicle-loader':'ویژگی کاربری', 
       </div>
       <div className="rounded-2xl border border-gray-200 bg-white px-4 py-5 text-center shadow-sm">
         <div className="flex items-center justify-center gap-4">
-          <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm"><Instagram className="h-7 w-7"/></span>
-          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-8 w-8 object-contain" loading="lazy"/></span>
-          <span aria-label="روبیکا" title="روبیکا" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-8 w-8 object-contain" loading="lazy"/></span>
+          <span aria-label="اینستاگرام؛ لینک به‌زودی اضافه می‌شود" title="اینستاگرام — لینک به‌زودی اضافه می‌شود" className="flex h-14 w-14 items-center justify-center rounded-xl bg-white shadow-sm"><Instagram className="h-9 w-9 text-[#d62976]" strokeWidth={2.2}/></span>
+          <span aria-label="لوگوی تلگرام" title="تلگرام" className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://telegram.org/img/t_logo.png" alt="لوگوی تلگرام" className="h-9 w-9 object-contain" loading="lazy"/></span>
+          <span aria-label="روبیکا" title="روبیکا" className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rubika_Icon.png" alt="لوگوی روبیکا" className="h-9 w-9 object-contain" loading="lazy"/></span>
         </div>
       </div>
       <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
