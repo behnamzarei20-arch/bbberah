@@ -113,7 +113,7 @@ Deno.serve(async (request: Request) => {
       return reply(500, { error: "invitation_setup_failed" });
     }
 
-    await admin.from("admin_staff_audit_log").insert({
+    const { error: auditError } = await admin.from("admin_staff_audit_log").insert({
       actor_id: userData.user.id,
       target_user_id: data.user.id,
       action: "invite_created",
@@ -121,6 +121,11 @@ Deno.serve(async (request: Request) => {
       display_title: displayTitle,
       permission_keys: permissions,
     });
+    if (auditError) {
+      await admin.from("admin_staff_permissions").delete().eq("user_id", data.user.id);
+      await admin.auth.admin.deleteUser(data.user.id);
+      return reply(500, { error: "invitation_audit_failed_and_invite_cancelled" });
+    }
     return reply(201, { ok: true, staff_user_id: data.user.id });
   }
 
