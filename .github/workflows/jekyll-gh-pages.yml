@@ -3,7 +3,6 @@ name: Build and Deploy Vite App to GitHub Pages
 on:
   push:
     branches:
-      - main
       - frontend-phase1
   workflow_dispatch:
 
@@ -14,7 +13,7 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
