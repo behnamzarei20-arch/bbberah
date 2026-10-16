@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS public.admin_staff_audit_log (
 
 ALTER TABLE public.admin_staff_audit_log ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.admin_staff_audit_log FROM PUBLIC, anon, authenticated;
+GRANT ALL ON TABLE public.admin_staff_audit_log TO service_role;
 
 DROP POLICY IF EXISTS "primary_admin_read_staff_audit" ON public.admin_staff_audit_log;
 CREATE POLICY "primary_admin_read_staff_audit"
