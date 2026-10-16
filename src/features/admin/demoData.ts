@@ -41,3 +41,11 @@ export const demoAdminAccounts: {username:string;password:string;role:AdminRole;
  {username:'admin2',password:'BR-support-1405',role:'support',label:'مدیر پشتیبانی',description:'مدیریت کاربران و رسیدگی به تیکت‌ها',permissions:['صاحبان کالا و رانندگان','بارها و تاریخچه فعالیت','گزارش‌ها و تیکت‌های پشتیبانی']},
  {username:'admin3',password:'BR-review-1405',role:'reviewer',label:'بازبین اطلاعات',description:'دسترسی محدود برای بررسی اطلاعات و فعالیت‌ها',permissions:['پرونده صاحبان کالا و رانندگان','فهرست بارها','مشاهده تاریخچه فعالیت']}
 ];
+
+/** Fake administrator sessions for the admin-console UI preview only. */
+export const adminSessions = [
+ {id:'SES-701',adminId:'ADM-001',username:'admin1',name:'مدیر اصلی',device:'Chrome · Windows',started:'۱۴۰۵/۰۷/۲۵ · ۰۸:۱۲',last:'۱۴۰۵/۰۷/۲۵ · ۱۰:۴۲',ip:'192.0.2.14',status:'فعال'},
+ {id:'SES-702',adminId:'ADM-002',username:'admin2',name:'اپراتور پشتیبانی',device:'Safari · iPhone',started:'۱۴۰۵/۰۷/۲۵ · ۰۹:۰۳',last:'۱۴۰۵/۰۷/۲۵ · ۰۹:۱۸',ip:'192.0.2.28',status:'فعال'},
+ {id:'SES-703',adminId:'ADM-002',username:'admin2',name:'اپراتور پشتیبانی',device:'Firefox · Windows',started:'۱۴۰۵/۰۷/۲۴ · ۱۶:۴۰',last:'۱۴۰۵/۰۷/۲۴ · ۱۷:۰۱',ip:'192.0.2.31',status:'فعال'},
+ {id:'SES-704',adminId:'ADM-003',username:'admin3',name:'بازبین احراز هویت',device:'Chrome · Android',started:'۱۴۰۵/۰۷/۲۴ · ۱۷:۱۰',last:'۱۴۰۵/۰۷/۲۴ · ۱۷:۳۱',ip:'192.0.2.46',status:'منقضی'},
+];
