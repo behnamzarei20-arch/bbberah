@@ -33,6 +33,8 @@ export const tickets = [
 ];
 
 
+type AdminRole = 'owner' | 'support' | 'reviewer';
+
 /** Mock administrator identities for preview only; never use as production credentials. */
 export const demoAdminAccounts: {username:string;password:string;role:AdminRole;label:string;description:string;permissions:string[]}[] = [
  {username:'admin1',password:'BR-admin-1405',role:'owner',label:'مدیر اصلی',description:'دسترسی کامل به داشبورد و تمام بخش‌ها',permissions:['نمودارهای کلی و حسابداری','کارکنان و سطح دسترسی','صاحبان کالا، رانندگان و بارها','گزارش‌ها و بخش امنیت']},
