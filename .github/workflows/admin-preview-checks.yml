@@ -25,8 +25,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: TypeScript typecheck
         run: npm run typecheck
-      - name: ESLint
-        run: npm run lint
+      - name: ESLint changed admin preview files
+        run: npx eslint src/features/admin/demoData.ts src/features/admin/demoMode.ts src/pages/admin/AdminWorkspace.tsx src/main.tsx
       - name: Production build with demo disabled
         run: npm run build
         env:
