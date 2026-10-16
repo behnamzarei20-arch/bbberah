@@ -99,37 +99,65 @@ export function AdminLoginPage() {
     window.location.href = './';
   };
 
-  return <main dir="rtl" className="min-h-screen bg-slate-50 px-4 py-10 flex items-center justify-center">
-    <section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-sky-800">
-        {stage === 'verified' ? <ShieldCheck className="h-7 w-7"/> : <KeyRound className="h-7 w-7"/>}
-      </div>
-      <h1 className="text-center text-2xl font-black text-slate-900">ورود امن مدیر براه</h1>
-      <p className="mt-2 text-center text-sm leading-7 text-slate-500">ورود فقط برای حساب مدیر اصلی از پیش تأییدشده مجاز است. ساخت حساب مدیر از این صفحه امکان‌پذیر نیست.</p>
-      {!hasSupabaseConfig && <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900"><ShieldAlert className="mb-1 inline h-4 w-4"/> اتصال Supabase تنظیم نشده است؛ ورود امن تا زمان تنظیم متغیرهای محیطی غیرفعال می‌ماند.</div>}
-      {stage === 'credentials' && <form className="mt-6 space-y-4" onSubmit={signIn}>
-        <label className="block text-sm font-bold text-slate-700">ایمیل مدیر
-          <input required type="email" autoComplete="username" value={email} onChange={(e)=>setEmail(e.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-left outline-none focus:border-sky-700 focus:ring-2 focus:ring-sky-100" dir="ltr" />
-        </label>
-        <label className="block text-sm font-bold text-slate-700">رمز عبور
-          <input required type="password" autoComplete="current-password" value={password} onChange={(e)=>setPassword(e.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-left outline-none focus:border-sky-700 focus:ring-2 focus:ring-sky-100" dir="ltr" />
-        </label>
-        <button disabled={busy || !hasSupabaseConfig} className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-800 px-4 py-3 font-black text-white disabled:opacity-50">{busy && <LoaderCircle className="h-4 w-4 animate-spin"/>}ادامه با تأیید دومرحله‌ای</button>
-      </form>}
-      {(stage === 'mfa' || stage === 'enroll') && <form className="mt-6 space-y-4" onSubmit={verifyCode}>
-        {stage === 'enroll' && <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-center">
-          {qrCode && <img src={qrCode} alt="کد QR برای راه‌اندازی تأیید دومرحله‌ای" className="mx-auto h-48 w-48 object-contain"/>}
-          <p className="text-xs leading-6 text-slate-600">اگر امکان اسکن QR ندارید، کلید زیر را در برنامهٔ تأیید هویت وارد کنید.</p>
-          <code dir="ltr" className="block break-all rounded-lg bg-white p-3 text-sm">{secret}</code>
-        </div>}
-        <label className="block text-sm font-bold text-slate-700">کد شش‌رقمی برنامهٔ تأیید هویت
-          <input required inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={code} onChange={(e)=>setCode(e.target.value.replace(/\D/g,'').slice(0,6))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-xl tracking-[0.35em] outline-none focus:border-sky-700 focus:ring-2 focus:ring-sky-100" dir="ltr"/>
-        </label>
-        <button disabled={busy || code.length !== 6} className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-800 px-4 py-3 font-black text-white disabled:opacity-50">{busy && <LoaderCircle className="h-4 w-4 animate-spin"/>}تأیید و ادامه</button>
-      </form>}
-      {stage === 'verified' && <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-7 text-emerald-900"><ShieldCheck className="mb-1 inline h-4 w-4"/> ورود و MFA تأیید شده‌اند؛ برای ایمنی، پنل داده‌ها تا زمان اتصال کامل مجوزهای رابط نمایش داده نمی‌شود.</div>}
-      {notice && <p role="status" className={`mt-4 rounded-xl border px-3 py-3 text-sm leading-6 ${notice.ok ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>{notice.text}</p>}
-      <button type="button" onClick={returnToApp} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600"><ArrowRight className="h-4 w-4"/> بازگشت به برنامه</button>
-    </section>
+  return <main dir="rtl" className="min-h-screen bg-[#f3f7f8] px-4 py-8 text-slate-900 sm:px-8 lg:py-12">
+    <div className="mx-auto grid min-h-[min(760px,calc(100vh-4rem))] w-full max-w-5xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_80px_-32px_rgba(15,42,57,0.25)] lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-[#102f3b] p-10 text-white lg:flex">
+        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full border border-white/10" />
+        <div className="absolute -left-12 -top-12 h-48 w-48 rounded-full border border-white/10" />
+        <div className="relative flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-300 text-[#102f3b]"><ShieldCheck className="h-6 w-6"/></div>
+          <div><p className="text-lg font-black">براه</p><p className="text-xs text-teal-100/70">مدیریت امن سامانه</p></div>
+        </div>
+        <div className="relative py-10">
+          <p className="mb-4 text-sm font-bold tracking-wide text-teal-200">پنل مدیریت</p>
+          <h2 className="max-w-sm text-4xl font-black leading-[1.5]">همه‌چیز از یک ورود امن شروع می‌شود.</h2>
+          <p className="mt-5 max-w-sm text-sm leading-8 text-slate-300">دسترسی مدیر اصلی با رمز عبور و تأیید دومرحله‌ای محافظت می‌شود. این صفحه حساب مدیریتی جدید ایجاد نمی‌کند.</p>
+          <div className="mt-8 space-y-4 text-sm text-slate-200">
+            <div className="flex items-center gap-3"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10"><KeyRound className="h-4 w-4"/></span> احراز هویت دومرحله‌ای</div>
+            <div className="flex items-center gap-3"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10"><ShieldCheck className="h-4 w-4"/></span> بررسی مجوز مدیر اصلی</div>
+          </div>
+        </div>
+        <p className="relative text-xs text-slate-400">دسترسی محدود به حساب‌های مجاز</p>
+      </section>
+      <section className="flex flex-col justify-center px-6 py-8 sm:px-10 lg:px-12">
+        <div className="mb-8 flex items-center gap-3 lg:hidden">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#102f3b] text-teal-200"><ShieldCheck className="h-5 w-5"/></div>
+          <div><p className="font-black">براه</p><p className="text-xs text-slate-500">مدیریت امن سامانه</p></div>
+        </div>
+        <div className="mb-7">
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-800 ring-1 ring-teal-100">
+            {stage === 'verified' ? <ShieldCheck className="h-7 w-7"/> : <KeyRound className="h-7 w-7"/>}
+          </div>
+          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">{stage === 'verified' ? 'ورود تأیید شد' : stage === 'mfa' ? 'تأیید هویت شما' : stage === 'enroll' ? 'راه‌اندازی ورود امن' : 'ورود به پنل مدیریت'}</h1>
+          <p className="mt-3 text-sm leading-7 text-slate-500">{stage === 'credentials' ? 'برای ادامه، با حساب مدیر اصلی وارد شوید.' : stage === 'verified' ? 'هویت شما تأیید شده است.' : 'برای محافظت از حساب، تأیید دومرحله‌ای را کامل کنید.'}</p>
+          <p className="mt-2 text-xs leading-6 text-slate-400">ساخت حساب مدیر از این صفحه امکان‌پذیر نیست.</p>
+        </div>
+        {!hasSupabaseConfig && <div className="mb-5 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900"><ShieldAlert className="mt-1 h-4 w-4 shrink-0"/>اتصال Supabase تنظیم نشده است؛ ورود واقعی تا زمان تنظیم متغیرهای محیطی غیرفعال می‌ماند.</div>}
+        {stage === 'credentials' && <form className="space-y-5" onSubmit={signIn}>
+          <label className="block text-sm font-bold text-slate-700">ایمیل مدیر
+            <input required type="email" autoComplete="username" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="admin@example.com" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-left placeholder:text-slate-400 outline-none transition focus:border-teal-700 focus:bg-white focus:ring-4 focus:ring-teal-700/10" dir="ltr" />
+          </label>
+          <label className="block text-sm font-bold text-slate-700">رمز عبور
+            <input required type="password" autoComplete="current-password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="رمز عبور حساب مدیر" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-left placeholder:text-slate-400 outline-none transition focus:border-teal-700 focus:bg-white focus:ring-4 focus:ring-teal-700/10" dir="ltr" />
+          </label>
+          <button disabled={busy || !hasSupabaseConfig} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#102f3b] px-4 py-3.5 font-black text-white shadow-sm transition hover:bg-[#194555] disabled:cursor-not-allowed disabled:opacity-50">{busy && <LoaderCircle className="h-4 w-4 animate-spin"/>}ادامه و تأیید هویت<ArrowRight className="h-4 w-4 rotate-180"/></button>
+        </form>}
+        {(stage === 'mfa' || stage === 'enroll') && <form className="space-y-5" onSubmit={verifyCode}>
+          {stage === 'enroll' && <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
+            {qrCode && <img src={qrCode} alt="کد QR برای راه‌اندازی تأیید دومرحله‌ای" className="mx-auto h-48 w-48 object-contain"/>}
+            <p className="text-xs leading-6 text-slate-600">کد QR را با برنامه تأیید هویت اسکن کنید؛ یا کلید زیر را دستی وارد کنید.</p>
+            <code dir="ltr" className="block break-all rounded-lg border border-slate-200 bg-white p-3 text-sm">{secret}</code>
+          </div>}
+          <label className="block text-sm font-bold text-slate-700">کد شش‌رقمی
+            <input required inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={code} onChange={(e)=>setCode(e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="000000" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-center text-2xl tracking-[0.5em] outline-none focus:border-teal-700 focus:bg-white focus:ring-4 focus:ring-teal-700/10" dir="ltr"/>
+          </label>
+          <button disabled={busy || code.length !== 6} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#102f3b] px-4 py-3.5 font-black text-white disabled:opacity-50">{busy && <LoaderCircle className="h-4 w-4 animate-spin"/>}تأیید کد و ادامه</button>
+        </form>}
+        {stage === 'verified' && <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-7 text-emerald-900"><ShieldCheck className="mb-1 inline h-4 w-4"/> هویت مدیر اصلی تأیید شده است؛ رابط عملیاتی پنل هنوز باید جداگانه متصل و آزموده شود.</div>}
+        {notice && <p role="status" className={`mt-5 rounded-xl border px-4 py-3 text-sm leading-7 ${notice.ok ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>{notice.text}</p>}
+        <button type="button" onClick={returnToApp} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50"><ArrowRight className="h-4 w-4"/>بازگشت به برنامه</button>
+        <p className="mt-7 text-center text-xs text-slate-400">ورود امن · دسترسی محدود · بدون ثبت‌نام عمومی</p>
+      </section>
+    </div>
   </main>;
 }
