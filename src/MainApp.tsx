@@ -1800,16 +1800,16 @@ const ProfilePage = () => <div className="space-y-3">
           <div className="relative mx-auto flex h-16 w-full max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white text-gray-900" dir="ltr" ref={plateWrapperRef} onClick={()=>{if(!plateEntryOpen)openPlateEntry();}}>
             <span className={`relative flex min-w-0 flex-1 items-center justify-center border-r border-gray-300 text-xl font-black tracking-wider ${plateEntryOpen && plateField==='p1'?'bg-blue-50':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('p1')}}>
               {plateParts[0] ? fa(plateParts[0]) : '--'}
-              {plateEntryOpen && plateField==='p1' && <input ref={el=>{plateInputRefs.current.p1=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="دو رقم اول پلاک" value={plateParts[0] || ''} onChange={e=>handlePlateNumericChange('p1',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
+              <input ref={el=>{plateInputRefs.current.p1=el;}} type="tel" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="دو رقم اول پلاک" tabIndex={plateEntryOpen && plateField==='p1'?0:-1} value={plateParts[0] || ''} onFocus={()=>{setPlateField('p1');setPlateEntryOpen(true);}} onChange={e=>handlePlateNumericChange('p1',e.target.value)} onClick={e=>e.stopPropagation()} style={{display:plateEntryOpen && plateField==='p1'?'block':'none'}} className="absolute inset-0 h-full w-full cursor-text opacity-0" />
             </span>
             <span className={`flex w-12 items-center justify-center border-r border-gray-300 text-xl font-black ${plateEntryOpen && plateField==='letter'?'bg-blue-50':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('letter')}}>{plateParts[2] || 'ع'}</span>
             <span className={`relative flex min-w-0 flex-[1.35] items-center justify-center border-r border-gray-300 text-xl font-black tracking-wider ${plateEntryOpen && plateField==='p2'?'bg-blue-50':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('p2')}}>
               {plateParts[1] ? fa(plateParts[1]) : '---'}
-              {plateEntryOpen && plateField==='p2' && <input ref={el=>{plateInputRefs.current.p2=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="سه رقم پلاک" value={plateParts[1] || ''} onChange={e=>handlePlateNumericChange('p2',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
+              <input ref={el=>{plateInputRefs.current.p2=el;}} type="tel" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="سه رقم پلاک" tabIndex={plateEntryOpen && plateField==='p2'?0:-1} value={plateParts[1] || ''} onFocus={()=>{setPlateField('p2');setPlateEntryOpen(true);}} onChange={e=>handlePlateNumericChange('p2',e.target.value)} onClick={e=>e.stopPropagation()} style={{display:plateEntryOpen && plateField==='p2'?'block':'none'}} className="absolute inset-0 h-full w-full cursor-text opacity-0" />
             </span>
             <span className={`relative flex w-16 flex-col items-center justify-center bg-primary-700 text-white leading-none ${plateEntryOpen && plateField==='iran'?'ring-2 ring-inset ring-blue-300':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('iran')}}>
               <span className="flex h-3.5 w-7 flex-col overflow-hidden rounded-[1px] border border-white/50" aria-label="پرچم ایران"><span className="h-1/3 bg-[#239f40]"/><span className="h-1/3 bg-white"/><span className="h-1/3 bg-[#da0000]"/></span><span className="mt-0.5 text-[8px] font-black">IRAN</span><b className="mt-0.5 text-lg">{plateParts[3] ? fa(plateParts[3]) : '--'}</b>
-              {plateEntryOpen && plateField==='iran' && <input ref={el=>{plateInputRefs.current.iran=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="کد ایران" value={plateParts[3] || ''} onChange={e=>handlePlateNumericChange('iran',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
+              <input ref={el=>{plateInputRefs.current.iran=el;}} type="tel" inputMode="numeric" enterKeyHint="done" autoComplete="off" aria-label="کد ایران" tabIndex={plateEntryOpen && plateField==='iran'?0:-1} value={plateParts[3] || ''} onFocus={()=>{setPlateField('iran');setPlateEntryOpen(true);}} onChange={e=>handlePlateNumericChange('iran',e.target.value)} onClick={e=>e.stopPropagation()} style={{display:plateEntryOpen && plateField==='iran'?'block':'none'}} className="absolute inset-0 h-full w-full cursor-text opacity-0" />
             </span>
           </div>
           <Button size="full" className="mt-4 h-12 text-base font-black" onClick={()=>{
@@ -1823,11 +1823,11 @@ const ProfilePage = () => <div className="space-y-3">
           }}>ثبت خودرو</Button>
         </div>
 
-        {plateEntryOpen && plateField==='letter' && <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/35" onClick={closePlateEntry}>
-          <div dir="rtl" role="dialog" aria-label="انتخاب حرف پلاک" onClick={e=>e.stopPropagation()} className="max-h-[82dvh] w-full max-w-lg overflow-y-auto rounded-t-[24px] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl">
-            <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300"/>
-            <div className="grid grid-cols-5 gap-2 pb-2">
-              {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>{updatePlatePart(2,letter);setPlateField('p2');window.requestAnimationFrame(()=>plateInputRefs.current.p2?.focus());}} className={`min-h-14 rounded-xl border-2 text-xl font-black ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-gray-50 text-gray-900'}`}>{letter}</button>)}
+        {plateEntryOpen && plateField==='letter' && <div className="fixed inset-x-0 top-0 bottom-[72px] z-[120] flex items-end justify-center bg-black/35" onClick={closePlateEntry}>
+          <div dir="rtl" role="dialog" aria-label="انتخاب حرف پلاک" onClick={e=>e.stopPropagation()} className="max-h-[calc(100dvh-72px-env(safe-area-inset-bottom))] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[24px] bg-white px-4 pt-3 pb-3 shadow-2xl">
+            <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-gray-300"/>
+            <div className="grid grid-cols-5 gap-2 pb-1">
+              {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>{updatePlatePart(2,letter);setPlateField('p2');window.requestAnimationFrame(()=>{const input=plateInputRefs.current.p2;input?.focus();});}} className={`min-h-12 rounded-xl border-2 text-xl font-black ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-gray-50 text-gray-900'}`}>{letter}</button>)}
             </div>
           </div>
         </div>}
