@@ -449,6 +449,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   });
   const [plateEntryOpen, setPlateEntryOpen] = useState(false);
   const [plateField, setPlateField] = useState<'p1'|'letter'|'p2'|'iran'>('p1');
+  const plateInputRef = useRef<HTMLInputElement | null>(null);
   const plateLetters = ['ج','د','س','ص','ب','ط','ع','ق','ک','ل','م','ن','و','ه','ی'];
   const updatePlatePart = (index:number, value:string) => {
     const next = [...plateParts];
@@ -466,20 +467,26 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     setPlateField(nextField);
     setPlateEntryOpen(true);
   };
-  const enterPlateKey = (key:string) => {
-    const index = plateField === 'p1' ? 0 : plateField === 'p2' ? 1 : 3;
+  const handlePlateNumericChange = (value:string) => {
+    const ascii = value
+      .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+      .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+      .replace(/[^0-9]/g, '');
     const limit = plateField === 'p2' ? 3 : 2;
-    const current = plateParts[index] || '';
-    if (key === '⌫') { updatePlatePart(index, current.slice(0, -1)); return; }
-    if (key === 'پاک‌کردن') { updatePlatePart(index, ''); return; }
-    const next = (current + key).slice(0, limit);
+    const next = fa(ascii.slice(0, limit));
+    const index = plateField === 'p1' ? 0 : plateField === 'p2' ? 1 : 3;
     updatePlatePart(index, next);
-    if (next.length >= limit) {
+    if (next.length === limit) {
       if (plateField === 'p1') setPlateField('letter');
       else if (plateField === 'p2') setPlateField('iran');
       else if (plateField === 'iran') setPlateEntryOpen(false);
     }
   };
+  useEffect(() => {
+    if (!plateEntryOpen || plateField === 'letter') return;
+    const frame = window.requestAnimationFrame(() => plateInputRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [plateEntryOpen, plateField]);
   const [accountName, setAccountName] = useState(profile?.full_name || '');
   const [expandedCallId, setExpandedCallId] = useState<string | null>(null);
   const [shipmentRewardSummary, setShipmentRewardSummary] = useState<null | {scoreChange:number; commission:number; discount:number; walletBefore:number; walletAfter:number}>(null);
@@ -1789,10 +1796,19 @@ const ProfilePage = () => <div className="space-y-3">
             <span className="flex w-16 flex-col items-center justify-center bg-primary-700 text-white leading-none"><span className="text-[9px] font-black">IRAN</span><b className="mt-1 text-lg">{plateParts[3] ? fa(plateParts[3]) : '--'}</b></span>
           </button>
           <p className="mt-2 text-center text-[10px] font-bold text-gray-400">برای ورود، پلاک را لمس کنید؛ ابتدا دو رقم، سپس حرف، سه رقم و در پایان کد ایران را وارد کنید.</p>
+          <Button size="full" className="mt-4 h-12 text-base font-black" onClick={()=>{
+            const plateComplete = plateParts[0].length===2 && plateParts[2] && plateParts[1].length===3 && plateParts[3].length===2;
+            if (!plateComplete) { notify('ابتدا تمام بخش‌های شماره پلاک را کامل کنید.'); openPlateEntry(); return; }
+            if (!vehicleForm.type || !vehicleForm.feature) { notify('ابتدا نوع و ویژگی خودرو را تکمیل کنید.'); go('vehicle-select'); return; }
+            const savedVehicle = {...vehicleForm, plate:plateParts.join('-')};
+            window.localStorage.setItem('bbberah_vehicle_v1', JSON.stringify(savedVehicle));
+            notify('خودرو با موفقیت ثبت و ذخیره شد.');
+            goHome();
+          }}>ثبت خودرو</Button>
         </div>
 
         {plateEntryOpen && <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/50" role="presentation">
-          <div dir="rtl" role="dialog" aria-modal="true" aria-label="ورود شماره پلاک" className="w-full max-w-lg rounded-t-[28px] bg-white px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl">
+          <div dir="rtl" role="dialog" aria-modal="true" aria-label="ورود شماره پلاک" className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-[28px] bg-white px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl">
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-300"/>
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-lg font-black text-gray-900">{plateField==='letter'?'حرف پلاک را انتخاب کنید':plateField==='p1'?'دو رقم اول پلاک':plateField==='p2'?'سه رقم پلاک':'کد ایران'}</h3>
@@ -1804,10 +1820,26 @@ const ProfilePage = () => <div className="space-y-3">
               <span className={plateField==='p2'?'text-primary-700':''}>سه رقم</span><span>›</span>
               <span className={plateField==='iran'?'text-primary-700':''}>کد ایران</span>
             </div>
-            {plateField==='letter' ? <div className="grid grid-cols-5 gap-2">
-              {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>{updatePlatePart(2,letter);setPlateField('p2')}} className={`h-12 rounded-xl border-2 text-lg font-black ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-gray-50 text-gray-900'}`}>{letter}</button>)}
-            </div> : <div className="grid grid-cols-3 gap-2" dir="ltr">
-              {['۱','۲','۳','۴','۵','۶','۷','۸','۹','⌫','۰','پاک‌کردن'].map((key,i)=><button key={key} type="button" onClick={()=>enterPlateKey(key)} className={`h-12 rounded-xl border border-gray-200 font-black ${i===11?'bg-gray-100 text-sm text-gray-700':'bg-gray-50 text-xl text-gray-900'}`}>{key}</button>)}
+            {plateField==='letter' ? <div className="grid grid-cols-5 gap-2 pb-2">
+              {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>{updatePlatePart(2,letter);setPlateField('p2')}} className={`min-h-12 rounded-xl border-2 text-lg font-black ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-gray-50 text-gray-900'}`}>{letter}</button>)}
+            </div> : <div className="space-y-3">
+              <label htmlFor="vehicle-plate-numeric-input" className="block text-sm font-bold text-gray-700">{plateField==='p1'?'دو رقم اول':plateField==='p2'?'سه رقم پلاک':'کد ایران'}</label>
+              <input
+                ref={plateInputRef}
+                id="vehicle-plate-numeric-input"
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9۰-۹٠-٩]*"
+                autoComplete="off"
+                dir="ltr"
+                value={plateParts[plateField==='p1'?0:plateField==='p2'?1:3] || ''}
+                onChange={e=>handlePlateNumericChange(e.target.value)}
+                maxLength={plateField==='p2'?3:2}
+                placeholder={plateField==='p2'?'---':'--'}
+                aria-label="ورود عدد پلاک با صفحه‌کلید گوشی"
+                className="h-14 w-full rounded-xl border-2 border-primary-500 bg-white px-4 text-center text-2xl font-black tracking-[0.3em] text-gray-900 outline-none focus:ring-2 focus:ring-primary-200"
+              />
+              <p className="text-center text-xs text-gray-500">صفحه‌کلید عددی گوشی را برای ورود اعداد استفاده کنید.</p>
             </div>}
             <p className="mt-4 text-center text-xs text-gray-400">ورود تا تکمیل پلاک باز می‌ماند؛ فقط «انصراف» آن را لغو می‌کند.</p>
           </div>
