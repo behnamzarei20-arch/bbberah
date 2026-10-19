@@ -451,7 +451,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   const [plateField, setPlateField] = useState<'p1'|'letter'|'p2'|'iran'>('p1');
   const plateInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const plateWrapperRef = useRef<HTMLDivElement | null>(null);
-  const plateLetters = ['ج','د','س','ص','ب','ط','ع','ق','ک','ل','م','ن','و','ه','ی'];
+  const plateLetters = ['الف','ب','پ','ت','ج','د','س','ص','ط','ع','ق','ک','گ','ل','م','ن','و','ه','ی'];
   const updatePlatePart = (index:number, value:string) => {
     const next = [...plateParts];
     next[index] = value;
@@ -484,6 +484,14 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
         setPlateField('iran');
         window.requestAnimationFrame(() => plateInputRefs.current.iran?.focus());
       } else setPlateEntryOpen(false);
+    } else {
+      // Keep the native mobile numeric keyboard open while this segment is incomplete.
+      window.requestAnimationFrame(() => {
+        if (plateEntryOpen && plateField === field) {
+          const input = plateInputRefs.current[field];
+          if (input && document.activeElement !== input) input.focus();
+        }
+      });
     }
   };
   const closePlateEntry = () => setPlateEntryOpen(false);
@@ -1800,16 +1808,16 @@ const ProfilePage = () => <div className="space-y-3">
           <div className="relative mx-auto flex h-16 w-full max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white text-gray-900" dir="ltr" ref={plateWrapperRef} onClick={()=>{if(!plateEntryOpen)openPlateEntry();}}>
             <span className={`relative flex min-w-0 flex-1 items-center justify-center border-r border-gray-300 text-xl font-black tracking-wider ${plateEntryOpen && plateField==='p1'?'bg-blue-50':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('p1')}}>
               {plateParts[0] ? fa(plateParts[0]) : '--'}
-              {plateEntryOpen && plateField==='p1' && <input ref={el=>{plateInputRefs.current.p1=el;}} type="tel" inputMode="numeric" pattern="[0-9۰-۹٠-٩]*" autoComplete="off" aria-label="دو رقم اول پلاک" value={plateParts[0] || ''} onChange={e=>handlePlateNumericChange('p1',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
+              {plateEntryOpen && plateField==='p1' && <input ref={el=>{plateInputRefs.current.p1=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="دو رقم اول پلاک" value={plateParts[0] || ''} onChange={e=>handlePlateNumericChange('p1',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
             </span>
             <span className={`flex w-12 items-center justify-center border-r border-gray-300 text-xl font-black ${plateEntryOpen && plateField==='letter'?'bg-blue-50':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('letter')}}>{plateParts[2] || 'ع'}</span>
             <span className={`relative flex min-w-0 flex-[1.35] items-center justify-center border-r border-gray-300 text-xl font-black tracking-wider ${plateEntryOpen && plateField==='p2'?'bg-blue-50':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('p2')}}>
               {plateParts[1] ? fa(plateParts[1]) : '---'}
-              {plateEntryOpen && plateField==='p2' && <input ref={el=>{plateInputRefs.current.p2=el;}} type="tel" inputMode="numeric" pattern="[0-9۰-۹٠-٩]*" autoComplete="off" aria-label="سه رقم پلاک" value={plateParts[1] || ''} onChange={e=>handlePlateNumericChange('p2',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
+              {plateEntryOpen && plateField==='p2' && <input ref={el=>{plateInputRefs.current.p2=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="سه رقم پلاک" value={plateParts[1] || ''} onChange={e=>handlePlateNumericChange('p2',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
             </span>
             <span className={`relative flex w-16 flex-col items-center justify-center bg-primary-700 text-white leading-none ${plateEntryOpen && plateField==='iran'?'ring-2 ring-inset ring-blue-300':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('iran')}}>
               <span className="text-[9px] font-black">IRAN</span><b className="mt-1 text-lg">{plateParts[3] ? fa(plateParts[3]) : '--'}</b>
-              {plateEntryOpen && plateField==='iran' && <input ref={el=>{plateInputRefs.current.iran=el;}} type="tel" inputMode="numeric" pattern="[0-9۰-۹٠-٩]*" autoComplete="off" aria-label="کد ایران" value={plateParts[3] || ''} onChange={e=>handlePlateNumericChange('iran',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
+              {plateEntryOpen && plateField==='iran' && <input ref={el=>{plateInputRefs.current.iran=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="کد ایران" value={plateParts[3] || ''} onChange={e=>handlePlateNumericChange('iran',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
             </span>
           </div>
           <Button size="full" className="mt-4 h-12 text-base font-black" onClick={()=>{
