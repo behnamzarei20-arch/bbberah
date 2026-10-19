@@ -3,10 +3,11 @@ import { ArrowRight, CarFront, ChevronLeft, Moon, ShieldCheck, Sun, User, Wallet
 import { useAuth } from '@/contexts/AuthContext';
 import { readDemoVerificationStatus } from '@/features/verification/verificationStatus';
 
+type VehicleData={vehicleType:string;bodyType:string;bodyFeature:string;p1:string;letter:string;p2:string;iran:string};
 type Props={onBack:()=>void}; type Section='home'|'user'|'vehicle'|'wallet'|'identity'|'road'|'settings'|'support'|'rules'; type VehicleStep='type'|'body'|'feature'|'plate';
 const VEHICLES=['تریلی','جفت','تک','کامیونت و خاور','وانت و نیسان']; const BODIES=['روباز','مسقف','یخچال','کمپرسی']; const BODY_FEATURES=['بغل بازشو','معمولی','چادری','فلزی']; const LETTERS=['الف','ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
 const en=(v:string)=>v.replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))); const fa=(v:string)=>v.replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]||d); const PLATE_LETTERS=['ج','د','س','ص','ب','ط','ع','ق','ک','ل','م','ن','و','ه','ی'];
-function loadVehicle(id?:string){try{return JSON.parse(localStorage.getItem(`bbberah-fleet-${id}`)||'null')||{vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'',p2:'',iran:''}}catch{return{vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'',p2:'',iran:''}}}
+function loadVehicle(id?:string):VehicleData{try{return JSON.parse(localStorage.getItem(`bbberah-fleet-${id}`)||'null')||{vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'',p2:'',iran:''}}catch{return{vehicleType:'',bodyType:'',bodyFeature:'',p1:'',letter:'',p2:'',iran:''}}}
 export function ProfilePage({onBack}:Props){
  const{profile,signOut}=useAuth(); const[section,setSection]=useState<Section>('home'); const[showLogoutConfirm,setShowLogoutConfirm]=useState(false); const[vehicleStep,setVehicleStep]=useState<VehicleStep>('type'); const[theme,setTheme]=useState<'system'|'light'|'dark'>(()=>(localStorage.getItem('bbberah-theme') as any)||'system'); const[vehicle,setVehicle]=useState(()=>loadVehicle(profile?.id)); const[saved,setSaved]=useState(''); const[plateEntryOpen,setPlateEntryOpen]=useState(false); const[plateField,setPlateField]=useState<'p1'|'letter'|'p2'|'iran'>('p1'); const isDriver=profile?.role==='driver'; const roleLabel=isDriver?'راننده':profile?.role==='carrier'?'باربری':'صاحب بار';
  useEffect(()=>{document.documentElement.classList.toggle('dark',theme==='dark');localStorage.setItem('bbberah-theme',theme)},[theme]);
