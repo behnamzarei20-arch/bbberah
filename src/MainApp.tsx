@@ -245,23 +245,8 @@ function FacelessAvatar({ className = 'h-16 w-16' }: { className?: string }) {
 
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
-  const [page, setPage] = useState<Page>(() => {
-    try {
-      if (window.localStorage.getItem('bbberah-open-verification-once') === 'true') return 'verification';
-      // Preserve the original refresh behavior: reload starts at the home page.
-      return 'home';
-    } catch {
-      return 'home';
-    }
-  });
-  useEffect(() => {
-    try {
-      if (window.localStorage.getItem('bbberah-open-verification-once') === 'true') {
-        window.localStorage.removeItem('bbberah-open-verification-once');
-        window.history.replaceState({ bbberahPage: 'verification' }, '', '#verification');
-      }
-    } catch { /* Local storage may be unavailable. */ }
-  }, []);
+  // A full browser refresh always starts at the home page, regardless of the current section or URL hash.
+  const [page, setPage] = useState<Page>('home');
   const demoPublicationAges = [3, 15, 30, 60, 120, 180, 240, 15, 30, 60, 120, 180, 240, 5, 45, 90];
   const demoPriceIndexes = [72, 64, 83, 51, 76, 69, 58, 81, 62, 74, 68, 55, 77, 60, 88, 71];
   const [loads, setLoads] = useState<Load[]>([...seedLoads, ...searchOnlyLoads].map((load, index) => ({
