@@ -1943,7 +1943,7 @@ const ProfilePage = () => <div className="space-y-3">
         <button onClick={()=>{setTermsAccepted(v=>!v);notify(!termsAccepted?'پذیرش قوانین ثبت شد.':'پذیرش قوانین لغو شد.')}} className={`w-full mt-4 rounded-xl px-4 py-3 text-sm font-black ${termsAccepted?'bg-emerald-100 text-emerald-700':'bg-primary-600 text-white'}`}>{termsAccepted?'✓ قوانین پذیرفته شده است':'مطالعه کردم و می‌پذیرم'}</button>
       </CardBody></Card>
     </div>;
-    return <ProfilePage/>;
+    return ProfilePage();
   };
 
   const currentPageTitle = title[page] || 'براه';
