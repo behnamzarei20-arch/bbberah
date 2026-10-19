@@ -248,11 +248,10 @@ export function MainApp() {
   const [page, setPage] = useState<Page>(() => {
     try {
       if (window.localStorage.getItem('bbberah-open-verification-once') === 'true') return 'verification';
-      // Honor the shared dashboard URL when the app is opened directly.
-      if (window.location.hash === '#vehicle-dashboard') return 'vehicle-dashboard';
+      // Preserve the original refresh behavior: reload starts at the home page.
       return 'home';
     } catch {
-      return window.location.hash === '#vehicle-dashboard' ? 'vehicle-dashboard' : 'home';
+      return 'home';
     }
   });
   useEffect(() => {
