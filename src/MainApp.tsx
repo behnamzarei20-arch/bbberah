@@ -246,8 +246,14 @@ function FacelessAvatar({ className = 'h-16 w-16' }: { className?: string }) {
 export function MainApp() {
   const { profile, session, signOut } = useAuth();
   const [page, setPage] = useState<Page>(() => {
-    try { return window.localStorage.getItem('bbberah-open-verification-once') === 'true' ? 'verification' : 'home'; }
-    catch { return 'home'; }
+    try {
+      if (window.localStorage.getItem('bbberah-open-verification-once') === 'true') return 'verification';
+      // Honor the shared dashboard URL when the app is opened directly.
+      if (window.location.hash === '#vehicle-dashboard') return 'vehicle-dashboard';
+      return 'home';
+    } catch {
+      return window.location.hash === '#vehicle-dashboard' ? 'vehicle-dashboard' : 'home';
+    }
   });
   useEffect(() => {
     try {
