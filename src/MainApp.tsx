@@ -451,7 +451,7 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
   const [plateField, setPlateField] = useState<'p1'|'letter'|'p2'|'iran'>('p1');
   const plateInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const plateWrapperRef = useRef<HTMLDivElement | null>(null);
-  const plateLetters = ['الف','ب','پ','ت','ج','د','س','ص','ط','ع','ق','ک','گ','ل','م','ن','و','ه','ی'];
+  const plateLetters = ['ب','ج','د','س','ص','ط','ع','ق','ک','ل','م','ن','و','ه','ی'];
   const updatePlatePart = (index:number, value:string) => {
     const next = [...plateParts];
     next[index] = value;
@@ -484,14 +484,6 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
         setPlateField('iran');
         window.requestAnimationFrame(() => plateInputRefs.current.iran?.focus());
       } else setPlateEntryOpen(false);
-    } else {
-      // Keep the native mobile numeric keyboard open while this segment is incomplete.
-      window.requestAnimationFrame(() => {
-        if (plateEntryOpen && plateField === field) {
-          const input = plateInputRefs.current[field];
-          if (input && document.activeElement !== input) input.focus();
-        }
-      });
     }
   };
   const closePlateEntry = () => setPlateEntryOpen(false);
@@ -1816,7 +1808,7 @@ const ProfilePage = () => <div className="space-y-3">
               {plateEntryOpen && plateField==='p2' && <input ref={el=>{plateInputRefs.current.p2=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="سه رقم پلاک" value={plateParts[1] || ''} onChange={e=>handlePlateNumericChange('p2',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
             </span>
             <span className={`relative flex w-16 flex-col items-center justify-center bg-primary-700 text-white leading-none ${plateEntryOpen && plateField==='iran'?'ring-2 ring-inset ring-blue-300':''}`} onClick={e=>{e.stopPropagation();openPlateEntry('iran')}}>
-              <span className="text-[9px] font-black">IRAN</span><b className="mt-1 text-lg">{plateParts[3] ? fa(plateParts[3]) : '--'}</b>
+              <span className="flex h-3.5 w-7 flex-col overflow-hidden rounded-[1px] border border-white/50" aria-label="پرچم ایران"><span className="h-1/3 bg-[#239f40]"/><span className="h-1/3 bg-white"/><span className="h-1/3 bg-[#da0000]"/></span><span className="mt-0.5 text-[8px] font-black">IRAN</span><b className="mt-0.5 text-lg">{plateParts[3] ? fa(plateParts[3]) : '--'}</b>
               {plateEntryOpen && plateField==='iran' && <input ref={el=>{plateInputRefs.current.iran=el;}} type="text" inputMode="numeric" enterKeyHint="next" autoComplete="off" aria-label="کد ایران" value={plateParts[3] || ''} onChange={e=>handlePlateNumericChange('iran',e.target.value)} onClick={e=>e.stopPropagation()} className="absolute inset-0 h-full w-full cursor-text opacity-0" />}
             </span>
           </div>
@@ -1834,7 +1826,7 @@ const ProfilePage = () => <div className="space-y-3">
         {plateEntryOpen && plateField==='letter' && <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/35" onClick={closePlateEntry}>
           <div dir="rtl" role="dialog" aria-label="انتخاب حرف پلاک" onClick={e=>e.stopPropagation()} className="max-h-[82dvh] w-full max-w-lg overflow-y-auto rounded-t-[24px] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl">
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300"/>
-            <div className="grid grid-cols-3 gap-2 pb-2">
+            <div className="grid grid-cols-5 gap-2 pb-2">
               {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>{updatePlatePart(2,letter);setPlateField('p2');window.requestAnimationFrame(()=>plateInputRefs.current.p2?.focus());}} className={`min-h-14 rounded-xl border-2 text-xl font-black ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-gray-50 text-gray-900'}`}>{letter}</button>)}
             </div>
           </div>
