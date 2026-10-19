@@ -445,9 +445,11 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
     const saved = window.localStorage.getItem('bbberah_vehicle_v1');
     const plate = saved ? (() => { try { return JSON.parse(saved).plate || ''; } catch { return ''; } })() : '';
     const parts = plate.split('-');
-    return [parts[0] || '', parts[1] || '', parts[2] || '', parts[3] || ''];
+    return [fa(parts[0] || ''), fa(parts[1] || ''), parts[2] || '', fa(parts[3] || '')];
   });
-  const plateLetters = ['الف','ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
+  const [plateEntryOpen, setPlateEntryOpen] = useState(false);
+  const [plateField, setPlateField] = useState<'p1'|'letter'|'p2'|'iran'>('p1');
+  const plateLetters = ['ج','د','س','ص','ب','ط','ع','ق','ک','ل','م','ن','و','ه','ی'];
   const updatePlatePart = (index:number, value:string) => {
     const next = [...plateParts];
     next[index] = value;
@@ -458,6 +460,25 @@ useEffect(() => { window.localStorage.setItem('bbberah_contact_history_v2', JSON
       const current = saved ? JSON.parse(saved) : {};
       window.localStorage.setItem('bbberah_vehicle_v1', JSON.stringify({...current, plate: next.join('-')}));
     } catch {}
+  };
+  const openPlateEntry = () => {
+    const nextField = plateParts[0].length < 2 ? 'p1' : !plateParts[2] ? 'letter' : plateParts[1].length < 3 ? 'p2' : plateParts[3].length < 2 ? 'iran' : 'p1';
+    setPlateField(nextField);
+    setPlateEntryOpen(true);
+  };
+  const enterPlateKey = (key:string) => {
+    const index = plateField === 'p1' ? 0 : plateField === 'p2' ? 1 : 3;
+    const limit = plateField === 'p2' ? 3 : 2;
+    const current = plateParts[index] || '';
+    if (key === '⌫') { updatePlatePart(index, current.slice(0, -1)); return; }
+    if (key === 'پاک‌کردن') { updatePlatePart(index, ''); return; }
+    const next = (current + key).slice(0, limit);
+    updatePlatePart(index, next);
+    if (next.length >= limit) {
+      if (plateField === 'p1') setPlateField('letter');
+      else if (plateField === 'p2') setPlateField('iran');
+      else if (plateField === 'iran') setPlateEntryOpen(false);
+    }
   };
   const [accountName, setAccountName] = useState(profile?.full_name || '');
   const [expandedCallId, setExpandedCallId] = useState<string | null>(null);
@@ -1761,28 +1782,36 @@ const ProfilePage = () => <div className="space-y-3">
 
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
           <span className="block text-xs font-bold text-gray-400 mb-3">شماره پلاک</span>
-          <div className="mx-auto flex h-16 max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white" dir="ltr">
-            <div className="flex w-12 items-center justify-center bg-primary-700 text-white">
-              <span className="text-[9px] font-black leading-3 text-center">IR<br/>IRAN</span>
-            </div>
-            <input aria-label="دو رقم پلاک" value={plateParts[0]} onChange={e=>updatePlatePart(0,e.target.value.replace(/\\D/g,'').slice(0,2))} inputMode="numeric" pattern="[0-9]*" maxLength={2} placeholder="۷۹" className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"/>
-            <button type="button" aria-label="انتخاب حرف پلاک" className="w-12 border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none" onClick={()=>document.getElementById('plate-letters')?.scrollIntoView({behavior:'smooth',block:'nearest'})}>{plateParts[2] || 'ع'}</button>
-            <input aria-label="سه رقم پلاک" value={plateParts[1]} onChange={e=>updatePlatePart(1,e.target.value.replace(/\\D/g,'').slice(0,3))} inputMode="numeric" pattern="[0-9]*" maxLength={3} placeholder="۲۳۴" className="w-[72px] border-0 border-r border-gray-300 bg-transparent text-center text-xl font-black outline-none"/>
-            <div className="flex w-16 flex-col items-center justify-center border-r border-gray-300 bg-white leading-none">
-              <span className="text-[9px] font-black">ایران</span>
-              <input aria-label="کد شهر" value={plateParts[3]} onChange={e=>updatePlatePart(3,e.target.value.replace(/\\D/g,'').slice(0,2))} inputMode="numeric" pattern="[0-9]*" maxLength={2} placeholder="۵۶" className="w-10 border-0 bg-transparent text-center text-lg font-black outline-none"/>
-            </div>
-          </div>
-          <p className="mt-2 text-center text-[10px] font-bold text-gray-400">عددها با کیبورد عددی وارد می‌شوند؛ حرف از فهرست زیر انتخاب می‌شود.</p>
-
-          <div id="plate-letters" className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
-            <span className="block text-xs font-black text-gray-500 mb-2">انتخاب حرف پلاک</span>
-            <div className="grid grid-cols-4 gap-2">
-              {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>updatePlatePart(2,letter)} className={`rounded-xl border-2 px-2 py-2.5 text-base font-black transition-colors ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-white text-gray-800'}`}>{letter}</button>)}
-            </div>
-          </div>
+          <button type="button" onClick={openPlateEntry} aria-label="ورود شماره پلاک" className="mx-auto flex h-16 w-full max-w-[330px] items-stretch overflow-hidden rounded-lg border-2 border-gray-800 bg-white text-gray-900" dir="ltr">
+            <span className="flex min-w-0 flex-1 items-center justify-center border-r border-gray-300 text-xl font-black tracking-wider">{plateParts[0] ? fa(plateParts[0]) : '--'}</span>
+            <span className="flex w-12 items-center justify-center border-r border-gray-300 text-xl font-black">{plateParts[2] || 'ع'}</span>
+            <span className="flex min-w-0 flex-[1.35] items-center justify-center border-r border-gray-300 text-xl font-black tracking-wider">{plateParts[1] ? fa(plateParts[1]) : '---'}</span>
+            <span className="flex w-16 flex-col items-center justify-center bg-primary-700 text-white leading-none"><span className="text-[9px] font-black">IRAN</span><b className="mt-1 text-lg">{plateParts[3] ? fa(plateParts[3]) : '--'}</b></span>
+          </button>
+          <p className="mt-2 text-center text-[10px] font-bold text-gray-400">برای ورود، پلاک را لمس کنید؛ ابتدا دو رقم، سپس حرف، سه رقم و در پایان کد ایران را وارد کنید.</p>
         </div>
 
+        {plateEntryOpen && <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/50" role="presentation">
+          <div dir="rtl" role="dialog" aria-modal="true" aria-label="ورود شماره پلاک" className="w-full max-w-lg rounded-t-[28px] bg-white px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl">
+            <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-300"/>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h3 className="text-lg font-black text-gray-900">{plateField==='letter'?'حرف پلاک را انتخاب کنید':plateField==='p1'?'دو رقم اول پلاک':plateField==='p2'?'سه رقم پلاک':'کد ایران'}</h3>
+              <button type="button" onClick={()=>setPlateEntryOpen(false)} className="rounded-xl bg-gray-100 px-4 py-2 font-bold text-gray-700">انصراف</button>
+            </div>
+            <div className="mb-4 flex items-center justify-center gap-2 text-xs font-bold text-gray-500">
+              <span className={plateField==='p1'?'text-primary-700':''}>دو رقم</span><span>›</span>
+              <span className={plateField==='letter'?'text-primary-700':''}>حرف</span><span>›</span>
+              <span className={plateField==='p2'?'text-primary-700':''}>سه رقم</span><span>›</span>
+              <span className={plateField==='iran'?'text-primary-700':''}>کد ایران</span>
+            </div>
+            {plateField==='letter' ? <div className="grid grid-cols-5 gap-2">
+              {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>{updatePlatePart(2,letter);setPlateField('p2')}} className={`h-12 rounded-xl border-2 text-lg font-black ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-gray-50 text-gray-900'}`}>{letter}</button>)}
+            </div> : <div className="grid grid-cols-3 gap-2" dir="ltr">
+              {['۱','۲','۳','۴','۵','۶','۷','۸','۹','⌫','۰','پاک‌کردن'].map((key,i)=><button key={key} type="button" onClick={()=>enterPlateKey(key)} className={`h-12 rounded-xl border border-gray-200 font-black ${i===11?'bg-gray-100 text-sm text-gray-700':'bg-gray-50 text-xl text-gray-900'}`}>{key}</button>)}
+            </div>}
+            <p className="mt-4 text-center text-xs text-gray-400">ورود تا تکمیل پلاک باز می‌ماند؛ فقط «انصراف» آن را لغو می‌کند.</p>
+          </div>
+        </div>}
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
           <div className="flex items-center justify-between gap-3">
             <div>
