@@ -1824,7 +1824,7 @@ const ProfilePage = () => <div className="space-y-3">
         </div>
 
         {plateEntryOpen && plateField==='letter' && <div className="fixed inset-x-0 top-0 bottom-[72px] z-[120] flex items-end justify-center bg-black/35" onClick={closePlateEntry}>
-          <div dir="rtl" role="dialog" aria-label="انتخاب حرف پلاک" onClick={e=>e.stopPropagation()} className="max-h-[calc(100dvh-72px-env(safe-area-inset-bottom))] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[24px] bg-white px-4 pt-3 pb-3 shadow-2xl">
+          <div dir="rtl" role="dialog" aria-label="انتخاب حرف پلاک" onClick={e=>e.stopPropagation()} className="max-h-[calc(100dvh_-_72px_-_env(safe-area-inset-bottom))] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[24px] bg-white px-4 pt-3 pb-3 shadow-2xl">
             <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-gray-300"/>
             <div className="grid grid-cols-5 gap-2 pb-1">
               {plateLetters.map(letter=><button key={letter} type="button" onClick={()=>{updatePlatePart(2,letter);setPlateField('p2');window.requestAnimationFrame(()=>{const input=plateInputRefs.current.p2;input?.focus();});}} className={`min-h-12 rounded-xl border-2 text-xl font-black ${plateParts[2]===letter?'border-primary-600 bg-primary-50 text-primary-700':'border-gray-200 bg-gray-50 text-gray-900'}`}>{letter}</button>)}
